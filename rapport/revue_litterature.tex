@@ -61,17 +61,17 @@ sorting=ydnt
 
 \href{https://github.com/KamenDamov/IFT3710-Advanced-Project-in-ML-AI}{GitHub Code Repository}
 
-Microscopy image segmentation, crucial in biomedical analysis, is often tedious and error-prone when performed manually. Our project compares two automation approaches: data augmentation using GANs to optimize a U-Net model (cite), and transfer learning with pre-trained models (Cellpose, Stardist) (cite). This review presents the main segmentation techniques (GANs, U-Net, Mask R-CNN, Cellpose, Stardist) and metrics such as the Dice and IoU score to evaluate performance.
+Microscopy image segmentation, crucial in biomedical analysis, is often tedious and error-prone when performed manually. Our project compares two automation approaches: data augmentation using GANs to optimize a U-Net model \cite{majurski2020cell}, and transfer learning with pre-trained models (Cellpose, Stardist) \cite{park2022use}. This review examines segmentation techniques, focusing on Generative Adversarial Networks (GANs) and transfer learning, as well as architectures such as U-Net, Mask R-CNN, Cellpose, and Stardist.
 
 \section{Litterature Review}
 \subsection{Cell segmentation (SOTA and challenges)}
 
 Advancements in machine learning have significantly enhanced medical image segmentation. The introduction of U-Net in 2015 marked a pivotal moment, utilizing convolutional neural networks for medical segmentation tasks. In 2017, Mask R-CNN further refined this approach by integrating object detection with segmentation capabilities. By 2018, StarDist introduced a novel method representing objects as star-shaped polygons, effectively handling irregularly shaped cells. In 2021, Cellpose emerged as a versatile solution, outperforming models like StarDist and Mask R-CNN with an average precision of 0.82. The latest advancement, Cellpose3 (2025), incorporates image restoration techniques, enhancing segmentation performance under challenging experimental conditions. Notably, MEDIAR, the winner of the NeurIPS 2022 Grand Challenge, innovated by replacing traditional convolutional neural networks with visual transformer blocks within a U-Net architecture, achieving a remarkable F1-score of 0.8537 on the test set.
 
-The MEDIAR paper \cite{pmlr-v212-lee23a} mentions various approaches to data augmentation and self-supervised learning (Consistency Regularization, Reconstruction Error, Pseudo Labeling), but they failed to improve the model's performance, so only supervised training on the labeled data was used in the end.
+The MEDIAR paper \cite{pmlr-v212-lee23a} mentions various approaches to data augmentation and semi-supervised learning (Consistency Regularization, Reconstruction Error, Pseudo Labeling), but they failed to improve the model's performance, so only supervised training on the labeled data was used in the end.
 
 The NeurIPS Challenge review paper \cite{NeurIPS-CellSeg} calls it "an open
-question how to effectively use unlabeled data to boost cell segmentation performance." Our goal for this project is to investigate this problem, employing GANs towards self-supervised training for cell segmentation.
+question how to effectively use unlabeled data to boost cell segmentation performance." Our goal for this project is to investigate this problem, employing GANs towards semi-supervised training for cell segmentation.
 
 \subsection{Semantic Segmentation data augmentation using GANs}
 Recent advances in GAN-based data augmentation have shown significant improvements in semantic segmentation by generating synthetic training data, addressing challenges such as limited labeled data, class imbalance, and domain adaptation. Liu et al. [96] proposed a pixel-level data augmentation approach, where GANs are trained to generate new training images, leading to a 1.3\% to 2.1\% improvement in segmentation accuracy, particularly for underrepresented classes. Choi et al. [97] introduced self-ensembling with GAN-based data augmentation, which enhances domain adaptation by synthesizing labeled training data, reducing the performance gap between synthetic and real-world datasets. Che et al. [98] explored controllable generative models to create diverse labeled datasets, integrating class-prompt appending to ensure a more balanced distribution of segmentation labels. Wang et al. [95] leveraged high-resolution conditional GANs (Pix2PixHD) to synthesize realistic images from semantic label maps, demonstrating that conditional GANs improve both image quality and segmentation model robustness. Sandfort et al. [101] applied CycleGANs for medical image segmentation, showing that GAN-generated data significantly enhances model generalizability, particularly in out-of-distribution CT scans, with a Dice score improvement from 0.09 to 0.66. These studies demonstrate the effectiveness of GANs in generating labeled data for semantic segmentation, either by creating new segmentation masks or synthesizing images conditioned on masks, thereby reducing the reliance on manual annotation while enhancing segmentation performance.
@@ -98,11 +98,12 @@ Semantic segmentation in highly unlabeled datasets can be improved using multimo
 %Prints un-labeled remainder
 \printbibliography[heading=bibintoc,notkeyword=neurips,notkeyword=sota,notkeyword=architecture,notkeyword=gans,notkeyword=augmentation,notkeyword=transferlearning,title={References (found)}]
 
+%Prints GANs bibliography
+\printbibliography[heading=subbibintoc,keyword=gans,title={Generative Adversarial Networks}] 
+
 %Prints Transfer Learning bibliography
 \printbibliography[heading=subbibintoc,keyword=transferlearning,title={Transfer learning}] 
 
-%Prints GANs bibliography
-\printbibliography[heading=subbibintoc,keyword=gans,title={Generative Adversarial Networks}] 
 %Prints Data Augmentation bibliography
 \printbibliography[heading=subbibintoc,keyword=augmentation,title={Multimodal Data Augmentation}] 
 \end{document}
