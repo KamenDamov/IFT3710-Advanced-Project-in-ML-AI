@@ -1,0 +1,7 @@
+
+https://neurips22-cellseg.grand-challenge.org/neurips22-cellseg/
+
+GANs:
+https://neptune.ai/blog/gan-loss-functions
+https://danieltakeshi.github.io/2017/03/05/understanding-generative-adversarial-networks/
+https://developers.google.com/machine-learning/gan/loss
