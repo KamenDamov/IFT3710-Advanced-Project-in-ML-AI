@@ -1,3 +1,0 @@
-Directory for the Cell Tracking Challenge evaluation software:
-
-http://celltrackingchallenge.net/evaluation-methodology/

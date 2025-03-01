@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage[left=20mm, right=20mm, top=30mm, bottom=30mm]{geometry}
+\usepackage{multicol}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{dsfont}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{comment}
+\usepackage{ulem}
+\usepackage{svg}
+\newcommand{\prob}[1]{\mathbb{P}\left[ #1 \right]}
+\newcommand{\esp}[1]{\mathbb{E}\left[ #1 \right]}
+\newcommand{\p}{\prod_{k = 1}^{N}}
+\newcommand{\s}{\sum_{k = 1}^{N}}
+\newcommand{\indep}{\raisebox{0.05em}{\rotatebox[origin=c]{90}{$\models$}}}
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\secpderiv}[2]{\frac{\partial^2 #1}{\partial #2^2}}
+
+\title{\vspace*{-2cm}IFT3710 - Plan de Projet - Équipe "GANg"}
+\author{Guillaume Genois, Johann Sourou,
+Kamen Damov, Samir Gbian, Simon Langlois }
+\date{25 Janvier 2025}
+
+\begin{document}
+\maketitle
+
+\section{Description du projet}
+Le projet aura pour but de comparer deux nouvelles méthodes à l'état de l'art pour segmenter des images de microscopie en cellules individuelles. Une méthode sera basée sur une augmentation des données par des GANs, suivie par une segmentation à l'aide d'un modèle U-Net. La deuxième méthode sera basée sur un transfert d'apprentissage d'un modèle pré-entraîné (Cellpose ou Stardist). Ces méthodes seront finalement évaluées faces au modèle naïf U-Net et au modèle gagnant MEDIAR de la compétition.
+
+\section{Étapes prévues}
+\begin{enumerate}
+    \item Récupérer et explorer les données
+    \item Prétraiter et standardiser les données (format d'image, couleur vs grayscale)
+    \item Monter le modèle naïf U-Net donné comme référence pour valider l'utilisation des données
+    \item Construire une pipeline pour la première méthode basée sur des GANs + U-Net
+    \item Construire une pipeline pour la deuxième méthode basée sur un transfert d'apprentissage d'un modèle pré-entraîné (Cellpose ou Stardist)
+    \item Calculer les scores F1 utilisés dans la compétition pour les deux méthodes et le modèle naïf U-Net
+    \item Comparer et analyser les résultats des trois méthodes et du modèle gagnant de la compétition
+\end{enumerate}
+
+\section{Objectifs}
+L'objectif du projet est de segmenter sémantiquement des images de cellules biologiques. Nous allons utiliser la source de données venant de la compétition NeurIPS 2022. Nous allons développer deux méthodes pour atteindre cet objectif. La première sera basée des GANs. Les modèle génératifs semblent sous étudiés dans le domaine des cellules biologiques et nous voulons tenter d'augmenter les données avec des GANs, puis entraîner un modèle d'état de l'art sur ces données augmentées. Nous allons également explorer un modèle basé sur le transfert d'apprentissage en partant du pré-entraînement d'un des modèles proposés sur le site de la compétition (Cellpose ou Stardist). Sachant que ces modèles sont pré-entraînés sur des données spécifiques au domaine étudié, nous émettons l'hypothèse qu'en partant de ces modèles pré-entraînés sur des données de cellules, nous pourrons obtenir des résultats potentiellement plus robuste que le modèle champion qui est pré-entraînés sur ImageNet (non-spécifique à la tâche). Nous allons comparer la performance de ces deux architectures avec le modèle champion MEDIAR et le modèle de référence U-Net. Nous allons également incorporer une pipeline pour prétraiter les images, notamment pour gérer leurs tailles, et les canaux, afin de les standardiser avant l'entrainement de nos modèles. 
+
+\newpage
+\section{Répartition du travail}
+\begin{itemize}
+    \item Simon \\
+    Explorer, prétraiter et standardiser les données. Participer à construire la pipeline pour la méthode basée sur le transfert d'apprentissage d'un modèle pré-entraîné.
+    \item Johann \\
+    Monter le modèle naïf U-Net. Participer à construire la pipeline pour la méthode basée sur des GANs + U-Net.
+    \item Kamen \\
+    Participer à construire la pipeline pour la méthode basée sur des GANs + U-Net. Calculer les scores F1 utilisés dans la compétition sur nos modèles.
+    \item Samir \\
+    Participer à construire la pipeline pour la méthode basée sur le transfert d'apprentissage d'un modèle pré-entraîné. Participer à l'analyse des résultats. 
+    \item Guillaume \\
+    Participer à construire la pipeline pour la méthode basée sur des GANs + U-Net. Participer à l'analyse des résultats.
+\end{itemize}
+
+\end{document}
