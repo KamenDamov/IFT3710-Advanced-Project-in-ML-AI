@@ -10,3 +10,7 @@ tqdm
 psutil
 pandas
 einops
+
+# Streamlit
+streamlit
+opencv-python
