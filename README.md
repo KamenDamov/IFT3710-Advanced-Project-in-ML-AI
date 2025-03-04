@@ -3,3 +3,5 @@ The aim of the project will be to combine a CNN architecture with dilated convol
 
 # Run the streamlit app
 Execute this command to start the streamlit app: `streamlit run app.py`
+OR
+Double click on the `run_app.bat` file
