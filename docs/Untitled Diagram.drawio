@@ -31,6 +31,9 @@
         <mxCell id="ye0ZJkxXixA_-z3q_CPX-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.322;entryY=0.95;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="ye0ZJkxXixA_-z3q_CPX-8" target="ye0ZJkxXixA_-z3q_CPX-0">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="ye0ZJkxXixA_-z3q_CPX-20" value="Segmentation model (e.g. Cellpose, UNet, Champion model pipeline, etc)" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="500" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
