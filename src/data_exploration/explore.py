@@ -30,5 +30,5 @@ def load_tiff_image(file_path):
 
 # Example usage
 if __name__ == "__main__":
-    file_path = './dataset/Training-20250123T160658Z-002/Training/labels/cell_00008_label.tiff'
+    file_path = './data/Training-labeled/Training-labeled/labels/cell_00008_label.tiff'
     image = load_tiff_image(file_path)
