@@ -14,7 +14,7 @@ output_dir = "data\Training-unlabeled\Training-unlabeled\labels" # Output paired
 os.makedirs(output_dir, exist_ok=True)
 
 # Load Pix2Pix Model
-def load_pix2pix_model(model_name="cell_segmentation_pix2pix", gpu_id=0):
+def load_pix2pix_model(model_name="cell_segmentation_pix2pix", gpu_id=1):
     opt = TestOptions().parse()
     opt.name = model_name
     opt.model = "pix2pix"
@@ -25,6 +25,7 @@ def load_pix2pix_model(model_name="cell_segmentation_pix2pix", gpu_id=0):
     model.eval()  # Set model to evaluation mode
     return model
 
+# TODO TO CHANGE WITH PREPROCESS SCRIPT
 def preprocess_image(image_path, image_size=(256, 256)):
     transform = transforms.Compose([
         transforms.Resize(image_size),
