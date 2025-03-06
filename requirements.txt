@@ -1,4 +1,4 @@
-monai>=0.9
+monai==1.2.0
 nibabel
 scikit-image
 matplotlib
