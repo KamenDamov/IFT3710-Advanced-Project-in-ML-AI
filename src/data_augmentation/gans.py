@@ -4,18 +4,27 @@ from PIL import Image
 import os
 import numpy as np
 import cv2
-from models.cycle_gan.models.pix2pix_model import Pix2PixModel
-from models.cycle_gan.options.test_options import TestOptions
+from cycle_gan.models.pix2pix_model import Pix2PixModel
+from cycle_gan.options.test_options import TestOptions
+import argparse
 
 input_dir = "data\Training-labeled\Training-labeled\images"   # Raw cell images
 mask_dir = "data\Training-labeled\Training-labeled\labels"     # Corresponding segmentation masks
 output_dir = "data\Training-unlabeled\Training-unlabeled\labels" # Output paired images
 
+def check_dir_exists(directory): 
+    return os.path.exists(directory)
+
+print(check_dir_exists(input_dir))
+print(check_dir_exists(mask_dir))
+
 os.makedirs(output_dir, exist_ok=True)
 
 # Load Pix2Pix Model
 def load_pix2pix_model(model_name="cell_segmentation_pix2pix", gpu_id=1):
-    opt = TestOptions().parse()
+    opt = TestOptions()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = opt.initialize(parser)
     opt.name = model_name
     opt.model = "pix2pix"
     opt.direction = "AtoB"
@@ -61,7 +70,7 @@ def generate_pseudo_masks(model, input_dir, output_dir):
 
 unlabeled_images_path = "dataset_pix2pix/test/images/"  # Unlabeled images
 pseudo_mask_output_path = "dataset_pix2pix/test/generated_masks/"  # Where to save masks
-""
+
 # Load trained Pix2Pix model
 pix2pix_model = load_pix2pix_model()
 
