@@ -31,7 +31,7 @@ from monai.data import Dataset, DataLoader
 from PIL import Image
 import traceback
 import pickle
-
+import argparse
 
 
 #%% Data Normalization
@@ -129,13 +129,7 @@ def normalization():
 
 #%% Image Tranformations
 
-def apply_tranformations():
-    input_size = 256
-
-    img_path = "../../data/preprocessing_outputs/normalized_data/images"
-    gt_path = "../../data/preprocessing_outputs/normalized_data/labels"
-    target_path = "../../data/preprocessing_outputs/transformed_images_labels"
-
+def apply_tranformations(input_size, img_path, gt_path, target_path):
     os.makedirs(os.path.join(target_path, "images"), exist_ok=True)
     os.makedirs(os.path.join(target_path, "labels"), exist_ok=True)
 
@@ -172,8 +166,13 @@ def apply_tranformations():
         Image.fromarray((transformed_label * 255).astype(np.uint8)).save(os.path.join(target_path, "labels", f"{img_name}.png"))
 
 if __name__ == '__main__':
-    print("Preprocessing data...")
+    parser = argparse.ArgumentParser(description="Apply MONAI transformations.")
+    parser.add_argument("--input_dir", default="../../data/preprocessing_outputs/normalized_data/images" , type=str, required=False, help="Path to input images.")
+    parser.add_argument("--label_dir", default="../../data/preprocessing_outputs/normalized_data/labels", type=str, required=False, help="Path to label images.")
+    parser.add_argument("--output_dir", default="../../data/preprocessing_outputs/transformed_images_labels" , type=str, required=False, help="Path to save transformed images.")
+    parser.add_argument("--input_size", default=256 , type=int, required=False, help="Image size for transformation.")
+    args = parser.parse_args()
     os.makedirs('../../data/preprocessing_outputs', exist_ok=True)
     normalization()
-    apply_tranformations()
+    apply_tranformations(args.input_size, args.input_dir, args.label_dir, args.output_dir)
     print("Preprocessing complete.")
