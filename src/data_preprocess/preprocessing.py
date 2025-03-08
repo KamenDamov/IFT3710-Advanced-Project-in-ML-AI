@@ -170,11 +170,10 @@ def apply_tranformations():
         
         Image.fromarray((transformed_img * 255).astype(np.uint8)).save(os.path.join(target_path, "images", f"{img_name}.png"))
         Image.fromarray((transformed_label * 255).astype(np.uint8)).save(os.path.join(target_path, "labels", f"{img_name}.png"))
-        # print(f"Saved {img_name}.png and corresponding label.")
 
 if __name__ == '__main__':
     print("Preprocessing data...")
     os.makedirs('../../data/preprocessing_outputs', exist_ok=True)
-    # normalization()
+    normalization()
     apply_tranformations()
     print("Preprocessing complete.")
