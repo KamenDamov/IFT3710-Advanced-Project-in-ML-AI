@@ -1,5 +1,6 @@
 # Ignore the entire data directory
 /data/
 dataset/
+/notebooks/preprocessing_outputs/
 models/**/*.pth
 references/papers/
