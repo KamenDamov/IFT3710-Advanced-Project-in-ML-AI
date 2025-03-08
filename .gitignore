@@ -2,3 +2,5 @@
 /data/
 dataset/
 /notebooks/preprocessing_outputs/
+models/**/*.pth
+references/papers/
