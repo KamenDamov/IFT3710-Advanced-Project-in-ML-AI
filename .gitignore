@@ -1,3 +1,5 @@
 # Ignore the entire data directory
 /data/
 dataset/
+models/**/*.pth
+references/papers/
