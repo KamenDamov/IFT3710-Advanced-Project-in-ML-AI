@@ -43,7 +43,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import shutil
 
-from baseline.models.unetr2d import UNETR2D
+from unetr2d import UNETR2D
 
 print("Successfully imported all requirements!")
 
@@ -53,7 +53,7 @@ def main():
     # Dataset parameters
     parser.add_argument(
         "--data_path",
-        default="./data/Train_Pre_3class/",
+        default="C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\notebooks\\preprocessing_outputs",
         type=str,
         help="training data path; subfolders: images, labels",
     )
@@ -66,7 +66,7 @@ def main():
 
     # Model parameters
     parser.add_argument(
-        "--model_name", default="unet", help="select mode: unet, unetr, swinunetr"
+        "--model_name", default="unetr", help="select mode: unet, unetr, swinunetr"
     )
     parser.add_argument("--num_class", default=3, type=int, help="segmentation classes")
     parser.add_argument(
