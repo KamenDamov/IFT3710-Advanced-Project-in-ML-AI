@@ -10,3 +10,6 @@ tqdm
 psutil
 pandas
 einops
+sentence_transformers
+tf-keras
+sentencepiece
