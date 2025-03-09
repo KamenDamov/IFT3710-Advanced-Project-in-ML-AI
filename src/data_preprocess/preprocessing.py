@@ -73,8 +73,8 @@ def create_interior_map(inst_map):
     return interior
 
 def normalization():
-    source_path = '../../data/Training-labeled'
-    target_path = '../../data/preprocessing_outputs/normalized_data'
+    source_path = '../../data/Tuning'
+    target_path = '../../data/preprocessing_outputs/tuning/normalized_data'
 
     if not os.path.exists(target_path):
         os.makedirs(target_path)
@@ -132,9 +132,9 @@ def normalization():
 def apply_tranformations():
     input_size = 256
 
-    img_path = "../../data/preprocessing_outputs/normalized_data/images"
-    gt_path = "../../data/preprocessing_outputs/normalized_data/labels"
-    target_path = "../../data/preprocessing_outputs/transformed_images_labels"
+    img_path = "../../data/preprocessing_outputs/tuning/normalized_data/images"
+    gt_path = "../../data/preprocessing_outputs/tuning/normalized_data/labels"
+    target_path = "../../data/preprocessing_outputs/tuning/transformed_images_labels"
 
     os.makedirs(os.path.join(target_path, "images"), exist_ok=True)
     os.makedirs(os.path.join(target_path, "labels"), exist_ok=True)
