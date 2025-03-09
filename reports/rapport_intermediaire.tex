@@ -27,7 +27,6 @@
 \usepackage{amsmath}
 
 
-
 \usepackage[
 backend=biber,
 style=alphabetic,
@@ -149,63 +148,6 @@ Here is an example of the output after applying the pre-processing pipeline to a
 
 \subsection{Baseline U-Net}
 The U-Net convolutional neural network (CNN) is a widely used model for image segmentation. The competition authors provide a naive U-Net model as a baseline. We utilized this model to gain a better understanding of the data and the appropriate approach for working with it. On the validation data subset, the model achieved an F1 score of 0.418. We used their architecture as an inspiration for ours.
-\subsection{Cellpose 3.0}
-
-
-\section{Data Augmentation}
-
-A challenge that was flagged by the other competitors was the inefficiency of using unlabeled data. We try a novel way to generate pseudo masks. We explore two ways to do so.
-\subsection{Pix2Pix}
-Generative Adversarial Networks (GANs) have been widely used for image-to-image translation tasks, and conditional GANs (cGANs) extend this concept by learning a mapping from a source domain \( X \) to a target domain \( Y \) given paired data. In this work, we leverage the Pix2Pix architecture, a cGAN designed for paired image translation, to generate pseudo-masks from raw images.
-
-Instead of employing a traditional segmentation model, we fine-tune Pix2Pix using a corpus of labeled data consisting of \textit{(raw image, segmentation mask)} pairs. The generator \( G \) in the Pix2Pix framework learns to map an input raw image \( x \in X \) to a synthetic segmentation mask \( \hat{y} \in Y \), while the discriminator \( D \) evaluates the realism of the generated mask by distinguishing it from real ground truth segmentation masks. This adversarial setup optimizes the generator to produce segmentation masks that closely resemble human-labeled annotations.
-
-The objective function for Pix2Pix is formulated as:
-\begin{equation}
-    \mathcal{L}_{\text{cGAN}}(G, D) = \mathbb{E}_{(x,y) \sim p_{\text{data}}(x,y)} \left[ \log D(x, y) \right] + \mathbb{E}_{x \sim p_{\text{data}}(x)} \left[ \log (1 - D(x, G(x))) \right],
-\end{equation}
-where \( G \) attempts to minimize this loss while \( D \) aims to maximize it.
-
-To ensure that the generated segmentation masks remain faithful to the structural information in the input image, we incorporate an additional \( L_1 \) loss:
-\begin{equation}
-    \mathcal{L}_{L_1}(G) = \mathbb{E}_{(x,y) \sim p_{\text{data}}(x,y)} \left[ \| y - G(x) \|_1 \right].
-\end{equation}
-Thus, the full objective function is:
-\begin{equation}
-    G^* = \arg \min_G \max_D \mathcal{L}_{\text{cGAN}}(G, D) + \lambda \mathcal{L}_{L_1}(G),
-\end{equation}
-where \( \lambda \) is a weighting factor controlling the influence of the \( L_1 \) loss.
-
-Once the Pix2Pix model is trained, we apply the generator to previously unlabeled raw images to produce synthetic segmentation masks, which we refer to as \textit{pseudo-masks}. These pseudo-masks will then be integrated into a larger training set to improve the performance of a dedicated segmentation model. This approach allows us to expand the labeled dataset without requiring additional manual annotations, leveraging adversarial learning to refine mask generation. That said, we have issues stabilizing the training of this model, a recurring issue with GANs. 
-
-\subsection{SAM-2}
-
-
-
-\subsection{Image captionning}
-
-
-
-\section{Résultat preliminaire}
-Voici un exemple de résultat obtenu après avoir effectué le preprocessing:
-
-\begin{figure}[!h]
-    \begin{subfigure}[b]{0.45\textwidth}
-        \centering
-        \includegraphics[scale=0.5]{reports/images/cell_00001.png}
-        \caption{Original image, 640 x 480}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.45\textwidth}
-        \centering
-        \includegraphics[scale=0.5]{reports/images/transformed_images_cell_00001.png}
-        \caption{Transformed image, 216 x 216}
-    \end{subfigure}
-    \label{fig:transformed_images}
-\end{figure}
-
-\section{Conclusion}
-The comprehensive transformation pipeline described in this report facilitates robust training of deep learning models for microscopy image segmentation. The training transformations introduce diverse variations to the input data, enhancing the model's ability to generalize to unseen images, while the validation transformations ensure fair and consistent evaluation. This approach aligns with best practices in medical image analysis, where data augmentation is crucial due to the limited availability of annotated data.
 
 \subsection{Cellpose \& Omnipose}
 The Cellpose and Omnipose models are state-of-the-art (SOTA) models for generalized cell segmentation. Using these models was part of our initial project objectives. However, we observed that the competition authors had already experimented with them and found their results to be highly variable. 
