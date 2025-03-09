@@ -6,16 +6,26 @@ from sentence_transformers import SentenceTransformer, util
 import argparse
 
 # Load models
-blip_processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
-blip_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
-clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+# blip_processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+# blip_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
+# clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+# clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+
+blip_processor = BlipProcessor.from_pretrained("../models/blip")
+blip_model = BlipForConditionalGeneration.from_pretrained("../models/blip")
+
+clip_processor = CLIPProcessor.from_pretrained("../models/clip")
+clip_model = CLIPModel.from_pretrained("../models/clip")
+
 similarity_model = SentenceTransformer("all-MiniLM-L6-v2")
 
+t5_tokenizer = T5Tokenizer.from_pretrained("../models/t5")
+t5_model = T5ForConditionalGeneration.from_pretrained("../models/t5")
+
 # Function to generate captions
-def generate_caption(image_path, prompt):
+def generate_caption(image_path):
     image = Image.open(image_path).convert("RGB")
-    inputs = blip_processor(images=image, text=prompt, return_tensors="pt")
+    inputs = blip_processor(images=image, return_tensors="pt")
     with torch.no_grad():
         caption = blip_model.generate(**inputs)
     return blip_processor.batch_decode(caption, skip_special_tokens=True)[0]
@@ -40,9 +50,9 @@ def augment_caption(caption):
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 if __name__ == "__main__":
-    image_path = "../../data/preprocessing_outputs/normalized_data/images/cell_00002.png"
-    prompt = "You will receive an image of cells and describe the type and the number of cells in the image."
-    generated_caption = generate_caption(image_path, prompt)
+    image_path = "../../data/preprocessing_outputs/normalized_data/images/cell_00055.png"
+    # prompt = "You will receive an image of cells and describe the type and the number of cells in the image."
+    generated_caption = generate_caption(image_path)
     filtered_caption = filter_caption(image_path, generated_caption)
     if filtered_caption:
         augmented_caption = augment_caption(filtered_caption)
