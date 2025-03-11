@@ -17,8 +17,15 @@ class Explore:
         except Exception as e:
             print(f"Error loading image: {e}")
             return None
+    
+    def png_to_np(self, path): 
+        return np.array(Image.open(path)) 
 
 explore = Explore()
-file_path_tiff_label = 'C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\Training-labeled\\Training-labeled\\labels\\cell_00001_label.tiff'
-file_path_png_label = 'C:\\Users\\kamen\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\notebooks\\preprocessing_outputs\\labels\\cell_00073_label.png'
-image = explore.load_tiff_image(file_path_tiff_label)
+image_path = "data\preprocessing_outputs\\transformed_images_labels\images\cell_00001.png"
+mask_path = "data\preprocessing_outputs\\transformed_images_labels\labels\cell_00001.png"  
+image = explore.png_to_np(image_path)
+mask = explore.png_to_np(mask_path)
+print(image)
+print(mask)
+n = 3
