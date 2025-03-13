@@ -15,3 +15,8 @@ config: {'initialized': True, 'isTrain': True, 'name': 'cell_segmentation_pix2pi
 2025-03-13 14:53:11,108 INFO    MainThread:21056 [wandb_init.py:init():891] updated telemetry
 2025-03-13 14:53:11,186 INFO    MainThread:21056 [wandb_init.py:init():915] communicating run to backend with 90.0 second timeout
 2025-03-13 14:53:11,544 INFO    MainThread:21056 [wandb_init.py:init():990] starting run threads in backend
+2025-03-13 14:53:12,087 INFO    MainThread:21056 [wandb_run.py:_console_start():2375] atexit reg
+2025-03-13 14:53:12,088 INFO    MainThread:21056 [wandb_run.py:_redirect():2227] redirect: wrap_raw
+2025-03-13 14:53:12,089 INFO    MainThread:21056 [wandb_run.py:_redirect():2292] Wrapping output streams.
+2025-03-13 14:53:12,089 INFO    MainThread:21056 [wandb_run.py:_redirect():2315] Redirects installed.
+2025-03-13 14:53:12,093 INFO    MainThread:21056 [wandb_init.py:init():1032] run started, returning control to user process

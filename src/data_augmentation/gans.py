@@ -52,8 +52,8 @@ def load_pix2pix_model(model_name="cell_segmentation_pix2pix", gpu_id=0):
     opt.beta1 = 0.5
     opt.lr_policy = "linear"
     opt.epoch_count = 1
-    opt.n_epochs = 100
-    opt.n_epochs_decay = 100
+    opt.n_epochs = 10
+    opt.n_epochs_decay = 0
     opt.lr_decay_iters = 50
     opt.continue_train = False
     opt.verbose = True
@@ -73,6 +73,8 @@ def load_pix2pix_model(model_name="cell_segmentation_pix2pix", gpu_id=0):
     opt.display_freq = 400
     opt.update_html_freq = 1000
     opt.save_latest_freq = 5000
+    opt.save_epoch_freq = 5
+    opt.save_by_iter = True
     opt.gpu_ids = [gpu_id] if torch.cuda.is_available() else [-1]
     model = Pix2PixModel(opt)
     model.setup(opt)
@@ -131,7 +133,7 @@ def train_model(model, dataset, opt):
             if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
                 save_result = total_iters % opt.update_html_freq == 0
                 #model.compute_visuals()
-                visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
+                #visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
 
             if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
                 losses = model.get_current_losses()

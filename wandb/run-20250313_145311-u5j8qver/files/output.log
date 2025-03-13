@@ -289,3 +289,5 @@ Traceback (most recent call last):
     raise ConnectionError(e, request=request)
 requests.exceptions.ConnectionError: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /events (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x00000232532DD850>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))
 (epoch: 1, iters: 800, time: 8.558, data: 0.026) G_GAN: 6.128 G_L1: 0.070 D_real: 9.618 D_fake: 6.177
+(epoch: 1, iters: 900, time: 0.230, data: 0.010) G_GAN: 7.399 G_L1: 0.126 D_real: 16.097 D_fake: 7.456
+(epoch: 1, iters: 1000, time: 0.215, data: 0.030) G_GAN: 7.952 G_L1: 0.136 D_real: 12.825 D_fake: 8.636

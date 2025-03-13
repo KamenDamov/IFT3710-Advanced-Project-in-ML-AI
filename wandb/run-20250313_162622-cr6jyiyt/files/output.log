@@ -1,0 +1,1126 @@
+C:\Users\kamen\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torch\optim\lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+learning rate 0.0002000 -> 0.0002000
+(epoch: 1, iters: 100, time: 0.245, data: 0.286) G_GAN: 45.583 G_L1: 0.072 D_real: 33.201 D_fake: 43.248
+(epoch: 1, iters: 200, time: 0.247, data: 0.001) G_GAN: 29.415 G_L1: 0.132 D_real: 23.263 D_fake: 31.025
+(epoch: 1, iters: 300, time: 0.237, data: 0.008) G_GAN: 25.086 G_L1: 0.127 D_real: 21.479 D_fake: 24.194
+(epoch: 1, iters: 400, time: 0.190, data: 0.005) G_GAN: 15.269 G_L1: 0.111 D_real: 13.394 D_fake: 15.554
+(epoch: 1, iters: 500, time: 0.204, data: 0.021) G_GAN: 8.363 G_L1: 0.097 D_real: 8.692 D_fake: 7.568
+(epoch: 1, iters: 600, time: 0.232, data: 0.018) G_GAN: 8.503 G_L1: 0.090 D_real: 8.482 D_fake: 8.371
+(epoch: 1, iters: 700, time: 0.186, data: 0.006) G_GAN: 16.542 G_L1: 0.150 D_real: 15.610 D_fake: 17.512
+(epoch: 1, iters: 800, time: 0.168, data: 0.020) G_GAN: 4.725 G_L1: 0.090 D_real: 9.383 D_fake: 5.433
+(epoch: 1, iters: 900, time: 0.172, data: 0.019) G_GAN: 4.330 G_L1: 0.087 D_real: 10.328 D_fake: 4.003
+(epoch: 1, iters: 1000, time: 0.243, data: 0.022) G_GAN: 5.120 G_L1: 0.078 D_real: 14.333 D_fake: 4.872
+End of epoch 1 / 10 	 Time Taken: 149 sec
+learning rate 0.0002000 -> 0.0002000
+(epoch: 2, iters: 100, time: 0.241, data: 0.009) G_GAN: 1.880 G_L1: 0.076 D_real: 1.879 D_fake: 1.696
+(epoch: 2, iters: 200, time: 0.206, data: 0.007) G_GAN: 2.617 G_L1: 0.109 D_real: 2.230 D_fake: 2.558
+(epoch: 2, iters: 300, time: 0.207, data: 0.010) G_GAN: 1.806 G_L1: 0.095 D_real: 1.601 D_fake: 1.046
+(epoch: 2, iters: 400, time: 0.210, data: 0.010) G_GAN: 1.287 G_L1: 0.091 D_real: 1.295 D_fake: 1.049
+(epoch: 2, iters: 500, time: 0.210, data: 0.009) G_GAN: 1.158 G_L1: 0.084 D_real: 1.367 D_fake: 0.740
+(epoch: 2, iters: 600, time: 0.205, data: 0.007) G_GAN: 1.604 G_L1: 0.078 D_real: 1.701 D_fake: 1.318
+(epoch: 2, iters: 700, time: 0.203, data: 0.010) G_GAN: 1.597 G_L1: 0.117 D_real: 14.919 D_fake: 1.214
+(epoch: 2, iters: 800, time: 0.201, data: 0.010) G_GAN: 0.910 G_L1: 0.079 D_real: 2.077 D_fake: 0.664
+(epoch: 2, iters: 900, time: 0.199, data: 0.018) G_GAN: 1.046 G_L1: 0.095 D_real: 3.070 D_fake: 0.722
+(epoch: 2, iters: 1000, time: 0.197, data: 0.020) G_GAN: 1.469 G_L1: 0.088 D_real: 5.311 D_fake: 0.981
+End of epoch 2 / 10 	 Time Taken: 146 sec
+learning rate 0.0002000 -> 0.0002000
+(epoch: 3, iters: 100, time: 0.188, data: 0.027) G_GAN: 0.724 G_L1: 0.077 D_real: 1.156 D_fake: 0.323
+(epoch: 3, iters: 200, time: 0.190, data: 0.008) G_GAN: 1.031 G_L1: 0.092 D_real: 0.740 D_fake: 0.848
+(epoch: 3, iters: 300, time: 0.167, data: 0.016) G_GAN: 0.951 G_L1: 0.078 D_real: 0.644 D_fake: 0.326
+(epoch: 3, iters: 400, time: 0.199, data: 0.012) G_GAN: 0.662 G_L1: 0.068 D_real: 0.484 D_fake: 0.311
+(epoch: 3, iters: 500, time: 0.242, data: 0.008) G_GAN: 0.703 G_L1: 0.060 D_real: 0.678 D_fake: 0.267
+(epoch: 3, iters: 600, time: 0.237, data: 0.005) G_GAN: 0.766 G_L1: 0.048 D_real: 0.876 D_fake: 0.474
+(epoch: 3, iters: 700, time: 0.228, data: 0.009) G_GAN: 1.120 G_L1: 0.094 D_real: 33.704 D_fake: 0.469
+(epoch: 3, iters: 800, time: 0.238, data: 0.008) G_GAN: 0.620 G_L1: 0.055 D_real: 0.978 D_fake: 0.317
+(epoch: 3, iters: 900, time: 0.204, data: 0.010) G_GAN: 0.756 G_L1: 0.108 D_real: 1.512 D_fake: 0.344
+(epoch: 3, iters: 1000, time: 0.195, data: 0.012) G_GAN: 1.022 G_L1: 0.104 D_real: 2.939 D_fake: 0.440
+End of epoch 3 / 10 	 Time Taken: 147 sec
+learning rate 0.0002000 -> 0.0002000
+(epoch: 4, iters: 100, time: 0.193, data: 0.012) G_GAN: 0.643 G_L1: 0.084 D_real: 0.686 D_fake: 0.221
+(epoch: 4, iters: 200, time: 0.208, data: 0.013) G_GAN: 0.701 G_L1: 0.073 D_real: 0.568 D_fake: 0.580
+(epoch: 4, iters: 300, time: 0.218, data: 0.010) G_GAN: 0.789 G_L1: 0.058 D_real: 0.695 D_fake: 0.196
+(epoch: 4, iters: 400, time: 0.181, data: 0.010) G_GAN: 0.572 G_L1: 0.053 D_real: 0.417 D_fake: 0.242
+(epoch: 4, iters: 500, time: 0.201, data: 0.017) G_GAN: 0.474 G_L1: 0.049 D_real: 0.507 D_fake: 0.199
+(epoch: 4, iters: 600, time: 0.189, data: 0.016) G_GAN: 0.589 G_L1: 0.042 D_real: 0.604 D_fake: 0.291
+(epoch: 4, iters: 700, time: 0.203, data: 0.019) G_GAN: 1.246 G_L1: 0.079 D_real: 19.270 D_fake: 0.422
+(epoch: 4, iters: 800, time: 0.211, data: 0.013) G_GAN: 0.583 G_L1: 0.053 D_real: 0.701 D_fake: 0.203
+(epoch: 4, iters: 900, time: 0.208, data: 0.016) G_GAN: 0.686 G_L1: 0.113 D_real: 0.937 D_fake: 0.192
+(epoch: 4, iters: 1000, time: 0.242, data: 0.019) G_GAN: 0.968 G_L1: 0.110 D_real: 1.707 D_fake: 0.272
+End of epoch 4 / 10 	 Time Taken: 155 sec
+learning rate 0.0002000 -> 0.0002000
+(epoch: 5, iters: 100, time: 0.239, data: 0.008) G_GAN: 0.563 G_L1: 0.085 D_real: 0.492 D_fake: 0.100
+(epoch: 5, iters: 200, time: 0.236, data: 0.008) G_GAN: 0.562 G_L1: 0.068 D_real: 0.460 D_fake: 0.499
+(epoch: 5, iters: 300, time: 0.203, data: 0.007) G_GAN: 0.709 G_L1: 0.054 D_real: 0.761 D_fake: 0.116
+(epoch: 5, iters: 400, time: 0.203, data: 0.013) G_GAN: 0.563 G_L1: 0.050 D_real: 0.415 D_fake: 0.190
+(epoch: 5, iters: 500, time: 0.209, data: 0.012) G_GAN: 0.499 G_L1: 0.048 D_real: 0.482 D_fake: 0.212
+(epoch: 5, iters: 600, time: 0.204, data: 0.012) G_GAN: 0.469 G_L1: 0.041 D_real: 0.522 D_fake: 0.222
+(epoch: 5, iters: 700, time: 0.196, data: 0.013) G_GAN: 0.932 G_L1: 0.074 D_real: 11.153 D_fake: 0.465
+(epoch: 5, iters: 800, time: 0.300, data: 0.203) G_GAN: 0.568 G_L1: 0.053 D_real: 0.604 D_fake: 0.146
+(epoch: 5, iters: 900, time: 0.186, data: 0.039) G_GAN: 0.736 G_L1: 0.113 D_real: 0.628 D_fake: 0.147
+(epoch: 5, iters: 1000, time: 0.219, data: 0.046) G_GAN: 1.041 G_L1: 0.108 D_real: 1.258 D_fake: 0.185
+saving the latest model (epoch 5, total_iters 5000)
+saving the model at the end of epoch 5, iters 5000
+End of epoch 5 / 10 	 Time Taken: 189 sec
+learning rate 0.0002000 -> 0.0002000
+(epoch: 6, iters: 100, time: 0.217, data: 0.010) G_GAN: 0.510 G_L1: 0.083 D_real: 0.452 D_fake: 0.075
+(epoch: 6, iters: 200, time: 0.217, data: 0.032) G_GAN: 0.554 G_L1: 0.068 D_real: 0.411 D_fake: 0.427
+(epoch: 6, iters: 300, time: 0.216, data: 0.040) G_GAN: 0.637 G_L1: 0.058 D_real: 0.770 D_fake: 0.096
+(epoch: 6, iters: 400, time: 0.203, data: 0.021) G_GAN: 0.490 G_L1: 0.053 D_real: 0.437 D_fake: 0.183
+(epoch: 6, iters: 500, time: 0.222, data: 0.021) G_GAN: 0.510 G_L1: 0.054 D_real: 0.433 D_fake: 0.265
+(epoch: 6, iters: 600, time: 0.230, data: 0.024) G_GAN: 0.429 G_L1: 0.049 D_real: 0.474 D_fake: 0.254
+(epoch: 6, iters: 700, time: 0.223, data: 0.021) G_GAN: 0.782 G_L1: 0.069 D_real: 6.248 D_fake: 0.305
+(epoch: 6, iters: 800, time: 0.207, data: 0.031) G_GAN: 0.557 G_L1: 0.053 D_real: 0.517 D_fake: 0.161
+(epoch: 6, iters: 900, time: 0.178, data: 0.028) G_GAN: 0.793 G_L1: 0.112 D_real: 0.492 D_fake: 0.169
+(epoch: 6, iters: 1000, time: 0.218, data: 0.033) G_GAN: 0.987 G_L1: 0.100 D_real: 0.990 D_fake: 0.110
+End of epoch 6 / 10 	 Time Taken: 217 sec
+learning rate 0.0002000 -> 0.0002000
+(epoch: 7, iters: 100, time: 0.214, data: 0.027) G_GAN: 0.489 G_L1: 0.079 D_real: 0.390 D_fake: 0.079
+(epoch: 7, iters: 200, time: 0.203, data: 0.027) G_GAN: 0.508 G_L1: 0.076 D_real: 0.363 D_fake: 0.352
+(epoch: 7, iters: 300, time: 0.231, data: 0.021) G_GAN: 0.653 G_L1: 0.060 D_real: 0.733 D_fake: 0.060
+(epoch: 7, iters: 400, time: 0.188, data: 0.018) G_GAN: 0.442 G_L1: 0.055 D_real: 0.424 D_fake: 0.195
+(epoch: 7, iters: 500, time: 0.232, data: 0.016) G_GAN: 0.533 G_L1: 0.058 D_real: 0.409 D_fake: 0.291
+(epoch: 7, iters: 600, time: 0.198, data: 0.019) G_GAN: 0.367 G_L1: 0.045 D_real: 0.430 D_fake: 0.181
+(epoch: 7, iters: 700, time: 0.239, data: 0.017) G_GAN: 1.001 G_L1: 0.073 D_real: 2.326 D_fake: 0.236
+(epoch: 7, iters: 800, time: 0.247, data: 0.000) G_GAN: 0.617 G_L1: 0.054 D_real: 0.398 D_fake: 0.177
+(epoch: 7, iters: 900, time: 0.245, data: 0.008) G_GAN: 0.776 G_L1: 0.102 D_real: 0.355 D_fake: 0.115
+(epoch: 7, iters: 1000, time: 0.250, data: 0.005) G_GAN: 0.946 G_L1: 0.077 D_real: 0.701 D_fake: 0.124
+End of epoch 7 / 10 	 Time Taken: 186 sec
+learning rate 0.0002000 -> 0.0002000
+(epoch: 8, iters: 100, time: 0.246, data: 0.008) G_GAN: 0.448 G_L1: 0.061 D_real: 0.351 D_fake: 0.115
+(epoch: 8, iters: 200, time: 0.235, data: 0.006) G_GAN: 0.514 G_L1: 0.105 D_real: 0.351 D_fake: 0.307
+(epoch: 8, iters: 300, time: 0.242, data: 0.005) G_GAN: 0.696 G_L1: 0.066 D_real: 0.668 D_fake: 0.063
+(epoch: 8, iters: 400, time: 0.238, data: 0.007) G_GAN: 0.422 G_L1: 0.041 D_real: 0.431 D_fake: 0.213
+(epoch: 8, iters: 500, time: 0.230, data: 0.006) G_GAN: 0.452 G_L1: 0.033 D_real: 0.451 D_fake: 0.252
+(epoch: 8, iters: 600, time: 0.243, data: 0.006) G_GAN: 0.289 G_L1: 0.027 D_real: 0.354 D_fake: 0.248
+(epoch: 8, iters: 700, time: 0.240, data: 0.007) G_GAN: 1.388 G_L1: 0.045 D_real: 2.063 D_fake: 1.458
+(epoch: 8, iters: 800, time: 0.233, data: 0.007) G_GAN: 0.675 G_L1: 0.029 D_real: 0.568 D_fake: 0.201
+(epoch: 8, iters: 900, time: 0.238, data: 0.010) G_GAN: 0.780 G_L1: 0.117 D_real: 0.291 D_fake: 0.086
+(epoch: 8, iters: 1000, time: 0.239, data: 0.009) G_GAN: 0.720 G_L1: 0.064 D_real: 0.630 D_fake: 0.243
+End of epoch 8 / 10 	 Time Taken: 140 sec
+learning rate 0.0002000 -> 0.0002000
+(epoch: 9, iters: 100, time: 0.240, data: 0.011) G_GAN: 0.314 G_L1: 0.042 D_real: 0.592 D_fake: 0.151
+(epoch: 9, iters: 200, time: 0.228, data: 0.009) G_GAN: 0.533 G_L1: 0.115 D_real: 0.438 D_fake: 0.397
+(epoch: 9, iters: 300, time: 0.239, data: 0.009) G_GAN: 0.646 G_L1: 0.039 D_real: 0.689 D_fake: 0.063
+(epoch: 9, iters: 400, time: 0.241, data: 0.006) G_GAN: 0.311 G_L1: 0.021 D_real: 0.404 D_fake: 0.270
+(epoch: 9, iters: 500, time: 0.239, data: 0.009) G_GAN: 0.409 G_L1: 0.031 D_real: 0.516 D_fake: 0.279
+(epoch: 9, iters: 600, time: 0.241, data: 0.007) G_GAN: 0.609 G_L1: 0.090 D_real: 0.359 D_fake: 0.160
+(epoch: 9, iters: 700, time: 0.243, data: 0.009) G_GAN: 1.033 G_L1: 0.030 D_real: 1.040 D_fake: 0.419
+(epoch: 9, iters: 800, time: 0.244, data: 0.008) G_GAN: 0.447 G_L1: 0.068 D_real: 0.364 D_fake: 0.245
+(epoch: 9, iters: 900, time: 0.224, data: 0.008) G_GAN: 0.833 G_L1: 0.084 D_real: 0.395 D_fake: 0.302
+(epoch: 9, iters: 1000, time: 0.226, data: 0.022) G_GAN: 0.524 G_L1: 0.051 D_real: 0.503 D_fake: 0.240
+End of epoch 9 / 10 	 Time Taken: 142 sec
+learning rate 0.0002000 -> 0.0000000
+(epoch: 10, iters: 100, time: 0.195, data: 0.015) G_GAN: 0.821 G_L1: 0.113 D_real: 0.782 D_fake: 0.214
+(epoch: 10, iters: 200, time: 0.218, data: 0.017) G_GAN: 0.652 G_L1: 0.160 D_real: 0.603 D_fake: 0.347
+(epoch: 10, iters: 300, time: 0.241, data: 0.017) G_GAN: 0.578 G_L1: 0.156 D_real: 0.642 D_fake: 0.232
+(epoch: 10, iters: 400, time: 0.237, data: 0.006) G_GAN: 0.531 G_L1: 0.167 D_real: 0.636 D_fake: 0.186
+(epoch: 10, iters: 500, time: 0.236, data: 0.007) G_GAN: 0.507 G_L1: 0.161 D_real: 0.599 D_fake: 0.206
+(epoch: 10, iters: 600, time: 0.241, data: 0.004) G_GAN: 0.603 G_L1: 0.175 D_real: 0.609 D_fake: 0.097
+(epoch: 10, iters: 700, time: 0.238, data: 0.007) G_GAN: 0.644 G_L1: 0.150 D_real: 3.030 D_fake: 0.114
+(epoch: 10, iters: 800, time: 0.239, data: 0.008) G_GAN: 0.451 G_L1: 0.169 D_real: 0.448 D_fake: 0.355
+(epoch: 10, iters: 900, time: 0.231, data: 0.009) G_GAN: 0.412 G_L1: 0.060 D_real: 0.483 D_fake: 0.307
+(epoch: 10, iters: 1000, time: 0.244, data: 0.009) G_GAN: 0.509 G_L1: 0.050 D_real: 0.508 D_fake: 0.264
+saving the latest model (epoch 10, total_iters 10000)
+saving the model at the end of epoch 10, iters 10000
+End of epoch 10 / 10 	 Time Taken: 144 sec
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00001.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00002.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00003.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00004.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00005.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00006.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00007.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00008.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00009.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00010.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00011.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00012.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00013.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00014.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00015.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00016.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00017.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00018.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00019.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00020.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00021.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00022.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00023.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00024.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00025.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00026.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00027.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00028.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00029.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00030.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00031.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00032.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00033.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00034.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00035.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00036.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00037.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00038.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00039.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00040.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00041.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00042.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00043.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00044.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00045.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00046.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00047.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00048.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00049.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00050.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00051.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00052.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00053.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00054.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00055.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00056.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00057.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00058.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00059.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00060.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00061.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00062.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00063.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00064.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00065.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00066.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00067.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00068.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00069.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00070.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00071.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00072.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00073.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00074.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00075.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00076.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00077.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00078.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00079.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00080.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00081.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00082.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00083.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00084.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00085.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00086.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00087.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00088.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00089.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00090.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00091.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00092.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00093.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00094.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00095.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00096.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00097.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00098.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00099.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00100.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00101.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00102.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00103.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00104.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00105.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00106.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00107.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00108.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00109.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00110.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00111.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00112.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00113.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00114.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00115.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00116.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00117.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00118.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00119.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00120.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00121.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00122.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00123.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00124.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00125.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00126.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00127.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00128.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00129.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00130.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00131.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00132.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00133.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00134.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00135.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00136.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00137.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00138.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00139.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00140.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00141.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00142.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00143.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00144.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00145.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00146.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00147.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00148.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00149.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00150.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00151.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00152.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00153.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00154.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00155.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00156.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00157.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00158.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00159.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00160.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00161.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00162.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00163.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00164.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00165.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00166.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00167.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00168.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00169.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00170.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00171.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00172.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00173.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00174.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00175.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00176.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00177.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00178.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00179.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00180.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00181.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00182.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00183.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00184.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00185.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00186.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00187.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00188.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00189.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00190.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00191.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00192.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00193.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00194.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00195.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00196.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00197.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00198.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00199.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00200.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00201.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00202.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00203.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00204.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00205.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00206.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00207.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00208.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00209.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00210.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00211.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00212.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00213.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00214.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00215.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00216.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00217.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00218.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00219.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00220.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00221.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00222.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00223.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00224.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00225.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00226.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00227.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00228.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00229.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00230.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00231.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00232.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00233.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00234.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00235.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00236.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00237.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00238.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00239.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00240.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00241.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00242.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00243.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00244.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00245.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00246.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00247.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00248.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00249.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00250.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00251.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00252.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00253.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00254.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00255.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00256.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00257.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00258.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00259.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00260.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00261.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00262.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00263.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00264.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00265.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00266.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00267.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00268.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00269.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00270.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00271.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00272.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00273.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00274.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00275.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00276.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00277.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00278.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00279.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00280.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00281.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00282.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00283.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00284.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00285.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00286.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00287.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00288.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00289.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00290.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00291.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00292.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00293.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00294.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00295.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00296.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00297.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00298.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00299.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00300.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00301.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00302.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00303.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00304.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00305.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00306.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00307.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00308.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00309.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00310.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00311.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00312.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00313.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00314.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00315.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00316.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00317.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00318.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00319.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00320.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00321.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00322.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00323.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00324.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00325.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00326.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00327.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00328.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00329.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00330.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00331.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00332.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00333.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00334.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00335.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00336.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00337.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00338.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00339.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00340.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00341.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00342.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00343.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00344.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00345.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00346.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00347.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00348.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00349.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00350.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00351.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00352.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00353.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00354.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00355.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00356.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00357.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00358.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00359.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00360.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00361.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00362.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00363.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00364.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00365.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00366.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00367.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00368.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00369.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00370.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00371.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00372.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00373.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00374.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00375.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00376.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00377.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00378.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00379.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00380.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00381.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00382.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00383.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00384.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00385.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00386.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00387.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00388.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00389.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00390.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00391.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00392.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00393.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00394.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00395.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00396.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00397.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00398.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00399.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00400.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00401.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00402.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00403.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00404.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00405.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00406.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00407.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00408.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00409.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00410.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00411.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00412.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00413.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00414.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00415.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00416.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00417.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00418.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00419.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00420.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00421.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00422.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00423.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00424.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00425.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00426.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00427.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00428.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00429.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00430.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00431.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00432.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00433.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00434.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00435.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00436.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00437.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00438.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00439.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00440.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00441.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00442.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00443.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00444.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00445.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00446.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00447.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00448.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00449.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00450.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00451.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00452.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00453.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00454.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00455.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00456.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00457.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00458.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00459.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00460.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00461.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00462.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00463.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00464.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00465.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00466.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00467.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00468.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00469.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00470.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00471.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00472.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00473.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00474.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00475.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00476.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00477.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00478.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00479.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00480.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00481.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00482.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00483.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00484.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00485.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00486.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00487.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00488.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00489.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00490.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00491.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00492.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00493.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00494.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00495.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00496.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00497.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00498.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00499.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00500.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00501.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00502.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00503.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00504.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00505.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00506.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00507.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00508.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00509.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00510.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00511.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00512.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00513.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00514.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00515.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00516.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00517.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00518.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00519.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00520.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00521.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00522.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00523.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00524.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00525.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00526.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00527.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00528.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00529.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00530.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00531.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00532.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00533.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00534.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00535.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00536.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00537.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00538.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00539.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00540.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00541.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00542.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00543.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00544.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00545.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00546.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00547.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00548.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00549.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00550.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00551.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00552.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00553.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00554.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00555.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00556.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00557.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00558.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00559.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00560.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00561.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00562.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00563.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00564.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00565.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00566.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00567.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00568.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00569.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00570.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00571.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00572.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00573.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00574.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00575.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00576.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00577.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00578.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00579.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00580.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00581.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00582.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00583.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00584.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00585.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00586.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00587.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00588.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00589.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00590.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00591.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00592.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00593.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00594.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00595.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00596.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00597.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00598.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00599.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00600.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00601.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00602.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00603.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00604.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00605.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00606.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00607.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00608.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00609.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00610.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00611.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00612.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00613.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00614.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00615.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00616.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00617.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00618.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00619.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00620.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00621.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00622.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00623.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00624.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00625.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00626.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00627.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00628.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00629.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00630.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00631.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00632.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00633.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00634.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00635.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00636.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00637.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00638.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00639.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00640.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00641.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00642.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00643.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00644.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00645.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00646.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00647.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00648.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00649.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00650.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00651.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00652.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00653.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00654.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00655.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00656.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00657.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00658.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00659.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00660.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00661.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00662.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00663.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00664.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00665.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00666.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00667.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00668.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00669.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00670.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00671.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00672.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00673.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00674.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00675.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00676.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00677.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00678.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00679.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00680.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00681.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00682.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00683.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00684.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00685.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00686.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00687.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00688.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00689.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00690.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00691.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00692.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00693.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00694.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00695.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00696.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00697.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00698.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00699.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00700.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00701.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00702.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00703.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00704.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00705.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00706.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00707.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00708.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00709.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00710.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00711.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00712.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00713.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00714.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00715.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00716.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00717.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00718.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00719.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00720.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00721.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00722.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00723.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00724.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00725.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00726.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00727.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00728.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00729.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00730.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00731.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00732.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00733.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00734.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00735.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00736.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00737.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00738.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00739.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00740.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00741.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00742.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00743.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00744.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00745.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00746.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00747.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00748.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00749.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00750.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00751.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00752.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00753.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00754.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00755.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00756.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00757.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00758.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00759.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00760.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00761.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00762.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00763.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00764.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00765.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00766.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00767.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00768.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00769.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00770.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00771.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00772.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00773.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00774.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00775.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00776.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00777.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00778.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00779.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00780.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00781.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00782.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00783.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00784.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00785.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00786.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00787.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00788.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00789.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00790.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00791.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00792.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00793.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00794.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00795.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00796.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00797.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00798.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00799.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00800.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00801.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00802.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00803.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00804.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00805.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00806.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00807.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00808.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00809.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00810.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00811.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00812.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00813.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00814.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00815.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00816.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00817.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00818.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00819.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00820.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00821.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00822.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00823.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00824.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00825.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00826.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00827.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00828.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00829.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00830.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00831.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00832.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00833.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00834.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00835.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00836.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00837.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00838.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00839.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00840.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00841.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00842.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00843.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00844.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00845.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00846.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00847.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00848.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00849.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00850.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00851.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00852.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00853.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00854.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00855.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00856.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00857.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00858.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00859.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00860.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00861.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00862.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00863.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00864.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00865.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00866.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00867.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00868.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00869.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00870.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00871.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00872.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00873.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00874.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00875.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00876.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00877.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00878.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00879.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00880.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00881.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00882.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00883.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00884.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00885.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00886.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00887.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00888.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00889.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00890.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00891.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00892.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00893.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00894.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00895.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00896.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00897.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00898.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00899.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00900.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00901.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00902.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00903.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00904.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00905.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00906.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00907.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00908.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00909.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00910.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00911.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00912.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00913.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00914.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00915.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00916.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00917.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00918.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00919.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00920.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00921.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00922.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00923.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00924.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00925.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00926.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00927.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00928.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00929.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00930.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00931.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00932.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00933.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00934.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00935.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00936.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00937.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00938.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00939.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00940.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00941.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00942.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00943.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00944.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00945.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00946.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00947.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00948.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00949.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00950.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00951.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00952.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00953.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00954.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00955.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00956.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00957.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00958.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00959.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00960.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00961.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00962.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00963.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00964.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00965.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00966.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00967.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00968.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00969.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00970.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00971.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00972.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00973.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00974.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00975.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00976.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00977.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00978.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00979.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00980.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00981.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00982.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00983.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00984.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00985.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00986.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00987.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00988.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00989.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00990.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00991.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00992.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00993.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00994.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00995.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00996.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00997.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00998.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_00999.png
+Generated pseudo-mask saved: ./dataset_pix2pix/test/generated_masks/cell_01000.png
