@@ -14,6 +14,7 @@ import time
 
 input_dir = "data\preprocessing_outputs\\transformed_images_labels\images"   # Raw cell images
 mask_dir = "data\preprocessing_outputs\\transformed_images_labels\labels"     # Corresponding segmentation masks
+input_tuning_dir = "data\Tuning\images"
 output_dir = "data\Training-unlabeled\Training-unlabeled\labels" # Output paired images
 
 def check_dir_exists(directory): 
@@ -24,8 +25,7 @@ print(check_dir_exists(mask_dir))
 
 os.makedirs(output_dir, exist_ok=True)
 
-# Load Pix2Pix Model
-def load_pix2pix_model(model_name="cell_segmentation_pix2pix", gpu_id=0):
+def get_opt(model_name="cell_segmentation_pix2pix", gpu_id=0): 
     opt = BaseOptions()
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser = opt.initialize(parser)
@@ -76,10 +76,14 @@ def load_pix2pix_model(model_name="cell_segmentation_pix2pix", gpu_id=0):
     opt.save_epoch_freq = 5
     opt.save_by_iter = True
     opt.gpu_ids = [gpu_id] if torch.cuda.is_available() else [-1]
+    return opt
+
+# Load Pix2Pix Model
+def load_pix2pix_model(opt):
     model = Pix2PixModel(opt)
     model.setup(opt)
     model.eval()  # Set model to evaluation mode
-    return model, opt
+    return model
 
 def generate_pseudo_masks(model, input_dir, output_dir):
     os.makedirs(output_dir, exist_ok=True)
@@ -129,7 +133,8 @@ def train_model(model, dataset, opt):
             epoch_iter += opt.batch_size
             model.set_input(data)         # unpack data from dataset and apply preprocessing
             model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
-
+            model.save_networks("test", "test")
+            torch.save(pix2pix_model.netG.state_dict(), "latest_net_Gtest.pth")
             if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
                 save_result = total_iters % opt.update_html_freq == 0
                 #model.compute_visuals()
@@ -158,22 +163,28 @@ def train_model(model, dataset, opt):
 
 unlabeled_images_path = "data\preprocessing_outputs\\transformed_images_labels\images"  # Unlabeled images
 pseudo_mask_output_path = "./dataset_pix2pix/test/generated_masks/"  # Where to save masks
+pseudo_mask_output_tuning_path = "./dataset_pix2pix/tuning/generated_masks/"
 
 # Load trained Pix2Pix model
-pix2pix_model, opt = load_pix2pix_model()
+opt = get_opt()
+pix2pix_model = load_pix2pix_model(opt)
 dataset = Pix2PixDataset(input_dir, mask_dir)
 # Train pix2pix 
-train_model(pix2pix_model, dataset,opt)
+#train_model(pix2pix_model, dataset, opt)
+
+pix2pix_model = Pix2PixModel(opt)
+checkpoint_path = "latest_net_Gtest.pth"
+
+# Load state dictionary
+pix2pix_model.load_networks("latest")
+
+pix2pix_model.eval()
+print("Model loaded successfully!")
 
 # Generate pseudo-masks
-generate_pseudo_masks(pix2pix_model, unlabeled_images_path, pseudo_mask_output_path)
+generate_pseudo_masks(pix2pix_model, input_tuning_dir, pseudo_mask_output_tuning_path)
 
 final_images_path = "dataset/train/images/"
 final_masks_path = "dataset/train/masks/"
-
-# Move pseudo-labeled data into training dataset
-for filename in os.listdir(unlabeled_images_path):
-    shutil.copy(os.path.join(unlabeled_images_path, filename), final_images_path)
-    shutil.copy(os.path.join(pseudo_mask_output_path, filename), final_masks_path)
 
 print("Synthetic pseudo-masks added to training dataset!")
