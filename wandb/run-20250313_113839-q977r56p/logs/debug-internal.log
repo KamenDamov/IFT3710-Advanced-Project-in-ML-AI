@@ -1,0 +1,7 @@
+{"time":"2025-03-13T11:38:39.7603894-04:00","level":"INFO","msg":"stream: starting","core version":"0.19.8","symlink path":"C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\wandb\\run-20250313_113839-q977r56p\\logs\\debug-core.log"}
+{"time":"2025-03-13T11:38:39.8695601-04:00","level":"INFO","msg":"created new stream","id":"q977r56p"}
+{"time":"2025-03-13T11:38:39.8695601-04:00","level":"INFO","msg":"stream: started","id":"q977r56p"}
+{"time":"2025-03-13T11:38:39.8695601-04:00","level":"INFO","msg":"writer: Do: started","stream_id":"q977r56p"}
+{"time":"2025-03-13T11:38:39.8695601-04:00","level":"INFO","msg":"sender: started","stream_id":"q977r56p"}
+{"time":"2025-03-13T11:38:39.8695601-04:00","level":"INFO","msg":"handler: started","stream_id":"q977r56p"}
+{"time":"2025-03-13T11:38:40.0882037-04:00","level":"INFO","msg":"Starting system monitor"}

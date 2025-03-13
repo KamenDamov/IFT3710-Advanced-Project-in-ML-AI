@@ -5,9 +5,12 @@ import os
 import numpy as np
 import cv2
 from cycle_gan.models.pix2pix_model import Pix2PixModel
-from cycle_gan.options.test_options import TestOptions
 from cycle_gan.options.base_options import BaseOptions
+from cycle_gan.data.produce_dataset import Pix2PixDataset
 import argparse
+#from models import create_model
+from cycle_gan.util.visualizer import Visualizer
+import time
 
 input_dir = "data\preprocessing_outputs\\transformed_images_labels\images"   # Raw cell images
 mask_dir = "data\preprocessing_outputs\\transformed_images_labels\labels"     # Corresponding segmentation masks
@@ -54,11 +57,27 @@ def load_pix2pix_model(model_name="cell_segmentation_pix2pix", gpu_id=0):
     opt.lr_decay_iters = 50
     opt.continue_train = False
     opt.verbose = True
+
+    # Visualization params
+    opt.display_id = 1
+    opt.display_winsize = 256
+    opt.display_port = 8000
+    opt.use_wandb = True
+    opt.display_ncols = 4
+    opt.no_html = True
+    opt.display_server = "http://localhost"
+    opt.wandb_project_name = "CycleGAN-and-pix2pix"
+    opt.display_env = "main"
+    opt.print_freq = 100
+    opt.batch_size = 1
+    opt.display_freq = 400
+    opt.update_html_freq = 1000
+    opt.save_latest_freq = 5000
     opt.gpu_ids = [gpu_id] if torch.cuda.is_available() else [-1]
     model = Pix2PixModel(opt)
     model.setup(opt)
     model.eval()  # Set model to evaluation mode
-    return model
+    return model, opt
 
 def generate_pseudo_masks(model, input_dir, output_dir):
     os.makedirs(output_dir, exist_ok=True)
@@ -84,11 +103,65 @@ def generate_pseudo_masks(model, input_dir, output_dir):
 
         print(f"Generated pseudo-mask saved: {mask_output_path}")
 
+def train_model(model, dataset, opt): 
+    dataset_size = len(dataset)    # get the number of images in the dataset.
+    print('The number of training images = %d' % dataset_size)
+
+    #model = create_model(opt)      # create a model given opt.model and other options
+    #model.setup(opt)               # regular setup: load and print networks; create schedulers
+    visualizer = Visualizer(opt)   # create a visualizer that display/save images and plots
+    total_iters = 0                # the total number of training iterations
+
+    for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
+        epoch_start_time = time.time()  # timer for entire epoch
+        iter_data_time = time.time()    # timer for data loading per iteration
+        epoch_iter = 0                  # the number of training iterations in current epoch, reset to 0 every epoch
+        visualizer.reset()              # reset the visualizer: make sure it saves the results to HTML at least once every epoch
+        model.update_learning_rate()    # update learning rates in the beginning of every epoch.
+        for i, data in enumerate(dataset):  # inner loop within one epoch
+            iter_start_time = time.time()  # timer for computation per iteration
+            if total_iters % opt.print_freq == 0:
+                t_data = iter_start_time - iter_data_time
+
+            total_iters += opt.batch_size
+            epoch_iter += opt.batch_size
+            model.set_input(data)         # unpack data from dataset and apply preprocessing
+            model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
+
+            if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
+                save_result = total_iters % opt.update_html_freq == 0
+                #model.compute_visuals()
+                visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
+
+            if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
+                losses = model.get_current_losses()
+                t_comp = (time.time() - iter_start_time) / opt.batch_size
+                visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
+                #if opt.display_id > 0:
+                    #visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
+
+            if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
+                print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
+                save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
+                model.save_networks(save_suffix)
+
+            iter_data_time = time.time()
+        if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
+            print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
+            model.save_networks('latest')
+            model.save_networks(epoch)
+
+        print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
+
+
 unlabeled_images_path = "data\preprocessing_outputs\\transformed_images_labels\images"  # Unlabeled images
 pseudo_mask_output_path = "./dataset_pix2pix/test/generated_masks/"  # Where to save masks
 
 # Load trained Pix2Pix model
-pix2pix_model = load_pix2pix_model()
+pix2pix_model, opt = load_pix2pix_model()
+dataset = Pix2PixDataset(input_dir, mask_dir)
+# Train pix2pix 
+train_model(pix2pix_model, dataset,opt)
 
 # Generate pseudo-masks
 generate_pseudo_masks(pix2pix_model, unlabeled_images_path, pseudo_mask_output_path)

@@ -1,0 +1,4 @@
+C:\Users\kamen\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torch\optim\lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+learning rate 0.0002000 -> 0.0002000
+(epoch: 1, iters: 100, time: 0.179, data: 0.218) G_GAN: 37.047 G_L1: 0.070 D_real: 26.935 D_fake: 40.462

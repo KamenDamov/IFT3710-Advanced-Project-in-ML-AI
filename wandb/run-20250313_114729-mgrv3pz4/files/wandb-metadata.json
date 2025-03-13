@@ -1,0 +1,42 @@
+{
+  "os":  "Windows-10-10.0.26100-SP0",
+  "python":  "CPython 3.11.9",
+  "startedAt":  "2025-03-13T15:47:29.414407Z",
+  "program":  "c:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\src\\data_augmentation\\gans.py",
+  "codePath":  "src\\data_augmentation\\gans.py",
+  "git":  {
+    "remote":  "https://github.com/KamenDamov/IFT3710-Advanced-Project-in-ML-AI",
+    "commit":  "0f7b6a61c38f813eff9eda3e764dd3b3fbf0f661"
+  },
+  "email":  "kamendamov123@gmail.com",
+  "root":  "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI",
+  "host":  "KD",
+  "executable":  "C:\\Users\\kamen\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe",
+  "codePathLocal":  "src\\data_augmentation\\gans.py",
+  "cpu_count":  14,
+  "cpu_count_logical":  20,
+  "gpu":  "NVIDIA RTX A500 Laptop GPU",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "509722226688",
+      "used":  "317989277696"
+    }
+  },
+  "memory":  {
+    "total":  "16819617792"
+  },
+  "cpu":  {
+    "count":  14,
+    "countLogical":  20
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA RTX A500 Laptop GPU",
+      "memoryTotal":  "4294967296",
+      "cudaCores":  2048,
+      "architecture":  "Ampere"
+    }
+  ],
+  "cudaVersion":  "12.8"
+}
