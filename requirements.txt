@@ -13,3 +13,5 @@ einops
 sentence_transformers
 tf-keras
 sentencepiece
+promptcap
+transformers==4.28.1
