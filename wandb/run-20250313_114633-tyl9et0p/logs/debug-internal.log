@@ -707,3 +707,6 @@
 {"time":"2025-03-13T17:06:03.5953122-04:00","level":"ERROR","msg":"monitor: error sampling metrics: The parameter is incorrect.\ncould not get CreationDate: The parameter is incorrect.\ncouldn't find pid: 9564"}
 {"time":"2025-03-13T17:06:18.599748-04:00","level":"ERROR","msg":"monitor: error sampling metrics: The parameter is incorrect.\ncould not get CreationDate: The parameter is incorrect.\ncouldn't find pid: 9564"}
 {"time":"2025-03-13T17:06:33.5964606-04:00","level":"ERROR","msg":"monitor: error sampling metrics: The parameter is incorrect.\ncould not get CreationDate: The parameter is incorrect.\ncouldn't find pid: 9564"}
+{"time":"2025-03-13T17:06:48.5971498-04:00","level":"ERROR","msg":"monitor: error sampling metrics: The parameter is incorrect.\ncould not get CreationDate: The parameter is incorrect.\ncouldn't find pid: 9564"}
+{"time":"2025-03-13T17:07:03.5955905-04:00","level":"ERROR","msg":"monitor: error sampling metrics: The parameter is incorrect.\ncould not get CreationDate: The parameter is incorrect.\ncouldn't find pid: 9564"}
+{"time":"2025-03-13T17:07:18.5957902-04:00","level":"ERROR","msg":"monitor: error sampling metrics: The parameter is incorrect.\ncould not get CreationDate: The parameter is incorrect.\ncouldn't find pid: 9564"}
