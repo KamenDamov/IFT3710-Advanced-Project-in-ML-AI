@@ -14,7 +14,7 @@ import time
 
 input_dir = "data\preprocessing_outputs\\transformed_images_labels\images"   # Raw cell images
 mask_dir = "data\preprocessing_outputs\\transformed_images_labels\labels"     # Corresponding segmentation masks
-input_tuning_dir = "data\Tuning\images"
+input_tuning_dir = "data\preprocessing_outputs\\tuning\\transformed_images_labels\images"
 output_dir = "data\Training-unlabeled\Training-unlabeled\labels" # Output paired images
 
 def check_dir_exists(directory): 
@@ -73,7 +73,7 @@ def get_opt(model_name="cell_segmentation_pix2pix", gpu_id=0):
     opt.display_freq = 400
     opt.update_html_freq = 1000
     opt.save_latest_freq = 5000
-    opt.save_epoch_freq = 5
+    opt.save_epoch_freq = 1
     opt.save_by_iter = True
     opt.gpu_ids = [gpu_id] if torch.cuda.is_available() else [-1]
     return opt
@@ -133,8 +133,10 @@ def train_model(model, dataset, opt):
             epoch_iter += opt.batch_size
             model.set_input(data)         # unpack data from dataset and apply preprocessing
             model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
-            model.save_networks("test", "test")
-            torch.save(pix2pix_model.netG.state_dict(), "latest_net_Gtest.pth")
+            #model.save_networks("test", "test")
+            #torch.save(model.netG.state_dict(), f"{epoch}_epochs_generator.pth")
+
+            #torch.save(pix2pix_model.netG.state_dict(), "latest_net_Gtest.pth")
             if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
                 save_result = total_iters % opt.update_html_freq == 0
                 #model.compute_visuals()
@@ -151,12 +153,12 @@ def train_model(model, dataset, opt):
                 print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
                 save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
                 model.save_networks(save_suffix)
+                torch.save(model.netG.state_dict(), f"{save_suffix}_generator.pth")
 
             iter_data_time = time.time()
         if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
             print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
-            model.save_networks('latest')
-            model.save_networks(epoch)
+            torch.save(model.netG.state_dict(), f"latest_generator.pth")
 
         print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
 
@@ -170,15 +172,16 @@ opt = get_opt()
 pix2pix_model = load_pix2pix_model(opt)
 dataset = Pix2PixDataset(input_dir, mask_dir)
 # Train pix2pix 
-#train_model(pix2pix_model, dataset, opt)
+train_model(pix2pix_model, dataset, opt)
 
 pix2pix_model = Pix2PixModel(opt)
-checkpoint_path = "latest_net_Gtest.pth"
+checkpoint_path = "latest_generator.pth"
 
 # Load state dictionary
-pix2pix_model.load_networks("latest")
+#pix2pix_model.load_networks("latest")
+pix2pix_model.netG.load_state_dict(torch.load(checkpoint_path))
 
-pix2pix_model.eval()
+pix2pix_model.netG.eval()
 print("Model loaded successfully!")
 
 # Generate pseudo-masks

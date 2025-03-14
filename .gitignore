@@ -5,9 +5,6 @@ dataset/
 /notebooks/preprocessing_outputs/
 models/**/*.pth
 references/papers/
-<<<<<<< HEAD
-=======
 
 # weigths for sam2 model
 src/SAM-2/weights/sam_vit_h_4b8939.pth
->>>>>>> 3cc47e0be550f3de7bb8d5e951388a23618d7f97
