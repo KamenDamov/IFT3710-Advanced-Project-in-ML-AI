@@ -73,7 +73,7 @@ def get_opt(model_name="cell_segmentation_pix2pix", gpu_id=0):
     opt.display_freq = 400
     opt.update_html_freq = 1000
     opt.save_latest_freq = 5000
-    opt.save_epoch_freq = 1
+    opt.save_epoch_freq = 10
     opt.save_by_iter = True
     opt.gpu_ids = [gpu_id] if torch.cuda.is_available() else [-1]
     return opt
@@ -152,7 +152,7 @@ def train_model(model, dataset, opt):
             if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
                 print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
                 save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
-                model.save_networks(save_suffix)
+                #model.save_networks(save_suffix)
                 torch.save(model.netG.state_dict(), f"{save_suffix}_generator.pth")
 
             iter_data_time = time.time()
@@ -165,7 +165,7 @@ def train_model(model, dataset, opt):
 
 unlabeled_images_path = "data\preprocessing_outputs\\transformed_images_labels\images"  # Unlabeled images
 pseudo_mask_output_path = "./dataset_pix2pix/test/generated_masks/"  # Where to save masks
-pseudo_mask_output_tuning_path = "./dataset_pix2pix/tuning/generated_masks/"
+pseudo_mask_output_tuning_path = "./data/dataset_pix2pix/tuning/generated_masks/"
 
 # Load trained Pix2Pix model
 opt = get_opt()
