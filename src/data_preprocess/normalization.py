@@ -166,7 +166,7 @@ def normalization(source_path, target_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Applying Normalization")
-    parser.add_argument("--source_path", default="../../data/data_science_bowl" , type=str, required=False, help="Path to input images.")
-    parser.add_argument("--target_path", default="../../data/preprocessing_outputs/data_science_bowl/normalized_data" , type=str, required=False, help="Path to save transformed images.")
+    parser.add_argument("--source_path", default="../../data/Training-labeled" , type=str, required=False, help="Path to input images.")
+    parser.add_argument("--target_path", default="../../data/preprocessing_outputs/normalized_data" , type=str, required=False, help="Path to save transformed images.")
     args = parser.parse_args()
     normalization(args.source_path, args.target_path)
