@@ -98,14 +98,35 @@ def merge_masks_into_single_label(
         
         print(f"Merged {len(mask_files)} masks for {base_name} -> {out_label_path}")
 
+def rename_labels_to_match_images(labels_folder):
+        """
+        Rename all label files in the labels folder to match the corresponding image names.
+        This function assumes that the label files have "label" in their names and replaces it with "image".
+        
+        Parameters
+        ----------
+        labels_folder : str
+            Path to the folder containing label files.
+        """
+        for label_file in os.listdir(labels_folder):
+            if "label" in label_file:
+                new_name = label_file.replace("label", "image")
+                old_path = os.path.join(labels_folder, label_file)
+                new_path = os.path.join(labels_folder, new_name)
+                os.rename(old_path, new_path)
+                print(f"Renamed {label_file} -> {new_name}")
+
 # Example usage
 if __name__ == "__main__":
     input_folder = "path/to/folder"       # e.g. "folder/" that has images/ + masks/
-    output_folder = "path/to/output"      # e.g. "output/"
+    output_folder = "./data/data_science_bowl/labels"      # e.g. "output/"
     
-    merge_masks_into_single_label(
-        input_folder=input_folder, 
-        output_folder=output_folder, 
-        image_subdir='images',  # name of images folder
-        mask_subdir='masks'     # name of masks folder
-    )
+
+    # Example usage
+    rename_labels_to_match_images(output_folder)
+    #merge_masks_into_single_label(
+    #    input_folder=input_folder, 
+    #    output_folder=output_folder, 
+    #    image_subdir='images',  # name of images folder
+    #    mask_subdir='masks'     # name of masks folder
+    #)

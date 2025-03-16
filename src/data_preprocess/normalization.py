@@ -111,8 +111,8 @@ def normalization(source_path, target_path):
         os.makedirs(target_path)
 
     # Get images names
-    images = join(source_path, 'images')
-    labels = join(source_path, 'labels')
+    images = source_path + "/images" #join(source_path, 'images')
+    labels = source_path + "/labels" #join(source_path, 'labels')
 
     img_names = sorted(os.listdir(images))
     gt_names = [img_name.split('.')[0]+'_label.tiff' if img_name.split('.')[-1] == "tiff" else img_name.split('.')[0]+'.png' for img_name in img_names]
@@ -151,10 +151,9 @@ def normalization(source_path, target_path):
                 if len(img_channel_i[np.nonzero(img_channel_i)])>0:
                     pre_img_data[:,:,i] = normalize_channel(img_channel_i, lower=1, upper=99)
             
-            print(gt_data.astype(np.int16).shape)
             # conver instance bask to three-class mask: interior, boundary
             interior_map = create_interior_map(gt_data.astype(np.int16))
-            print("2")
+            
             io.imsave(join(target_path, 'images', img_name.split('.')[0]+'.png'), pre_img_data.astype(np.uint8), check_contrast=False)
             io.imsave(join(target_path, 'labels', gt_name.split('.')[0]+'.png'), interior_map.astype(np.uint8), check_contrast=False)
         except Exception as e: 
@@ -163,11 +162,11 @@ def normalization(source_path, target_path):
 
     with open('logs.txt', 'a') as f: 
         f.write("\n".join(log))
-        f.close()   
+        f.close()  
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Applying Normalization")
-    parser.add_argument("--source_path", default="../../data/cellpose/train" , type=str, required=False, help="Path to input images.")
-    parser.add_argument("--target_path", default="../../data/preprocessing_outputs/cellpose/train/normalized_data" , type=str, required=False, help="Path to save transformed images.")
+    parser.add_argument("--source_path", default="../../data/data_science_bowl" , type=str, required=False, help="Path to input images.")
+    parser.add_argument("--target_path", default="../../data/preprocessing_outputs/data_science_bowl/normalized_data" , type=str, required=False, help="Path to save transformed images.")
     args = parser.parse_args()
     normalization(args.source_path, args.target_path)

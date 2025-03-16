@@ -63,9 +63,9 @@ def apply_tranformations(input_size, img_path, gt_path, target_path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Apply MONAI transformations.")
-    parser.add_argument("--input_dir", default="../../data/preprocessing_outputs/cellpose/train/normalized_data/images" , type=str, required=False, help="Path to input images.")
-    parser.add_argument("--label_dir", default="../../data/preprocessing_outputs/cellpose/train/normalized_data/labels", type=str, required=False, help="Path to label images.")
-    parser.add_argument("--output_dir", default="../../data/preprocessing_outputs/cellpose/train/transformed_images_labels" , type=str, required=False, help="Path to save transformed images.")
+    parser.add_argument("--input_dir", default="../../data/preprocessing_outputs/data_science_bowl/normalized_data/images" , type=str, required=False, help="Path to input images.")
+    parser.add_argument("--label_dir", default="../../data/preprocessing_outputs/data_science_bowl/normalized_data/labels", type=str, required=False, help="Path to label images.")
+    parser.add_argument("--output_dir", default="../../data/preprocessing_outputs/data_science_bowl/transformed_images_labels" , type=str, required=False, help="Path to save transformed images.")
     parser.add_argument("--input_size", default=256 , type=int, required=False, help="Image size for transformation.")
     args = parser.parse_args()
     os.makedirs('../../data/preprocessing_outputs', exist_ok=True)
