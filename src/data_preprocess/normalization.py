@@ -15,66 +15,6 @@ def normalize_channel(img, lower=1, upper=99):
         img_norm = img
     return img_norm.astype(np.uint8)
 
-def to_single_channel_inst_map(label):
-    """
-    Convert label image to a single-channel integer map.
-    If 'label' is already single-channel (H,W), return as is.
-    If 'label' is 3-channel (H,W,3), convert each unique color to a unique integer.
-
-    Parameters
-    ----------
-    label : np.ndarray
-        Shape can be (H,W) or (H,W,3).
-
-    Returns
-    -------
-    inst_map : np.ndarray, shape (H,W)
-        Single-channel label image with integer IDs (0 for background).
-    """
-    
-    # If single-channel, assume it's already integer-labeled
-    if label.ndim == 2:
-        # Make sure it’s an integer type. Otherwise, convert.
-        if not np.issubdtype(label.dtype, np.integer):
-            return label.astype(np.int32)
-        return label
-    
-    # If 3-channel, convert from RGB to integer IDs
-    elif label.ndim == 3 and label.shape[2] == 3:
-        H, W, _ = label.shape
-        label_reshaped = label.reshape(-1, 3)
-        
-        # Get unique colors
-        unique_colors = np.unique(label_reshaped, axis=0)
-        
-        # Map each unique color to a unique ID
-        color2id = {}
-        current_id = 1
-        
-        for color in unique_colors:
-            ctuple = tuple(color)
-            # Assume (0,0,0) is background
-            if ctuple == (0,0,0):
-                color2id[ctuple] = 0
-            else:
-                color2id[ctuple] = current_id
-                current_id += 1
-        
-        # Build output inst_map
-        inst_map = np.zeros((H * W,), dtype=np.int32)
-        
-        for ctuple, id_val in color2id.items():
-            mask = np.all(label_reshaped == ctuple, axis=1)
-            inst_map[mask] = id_val
-        
-        return inst_map.reshape(H, W)
-    
-    else:
-        raise ValueError(
-            f"Unsupported label shape {label.shape}. "
-            "Expected (H,W) or (H,W,3)."
-        )
-
 def create_interior_map(inst_map):
     """
     Parameters
@@ -145,7 +85,7 @@ def normalization(source_path, target_path):
                 img_channel_i = img_data[:,:,i]
                 if len(img_channel_i[np.nonzero(img_channel_i)])>0:
                     pre_img_data[:,:,i] = normalize_channel(img_channel_i, lower=1, upper=99)
-            
+                
             # conver instance bask to three-class mask: interior, boundary
             interior_map = create_interior_map(gt_data.astype(np.int16))
             
