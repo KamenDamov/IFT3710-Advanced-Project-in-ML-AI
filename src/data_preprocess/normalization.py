@@ -94,13 +94,10 @@ def create_interior_map(inst_map):
     # create interior-edge map
     boundary = segmentation.find_boundaries(inst_map, mode='inner')
     boundary = morphology.binary_dilation(boundary, morphology.disk(1))
-    print(boundary)
     interior_temp = np.logical_and(~boundary, inst_map > 0)
     # interior_temp[boundary] = 0
     interior_temp = morphology.remove_small_objects(interior_temp, min_size=16)
     interior = np.zeros_like(inst_map, dtype=np.uint8)
-    print(interior_temp)
-    print(boundary)
     interior[interior_temp] = 1
     interior[boundary] = 2
     return interior
@@ -125,7 +122,6 @@ def normalization(source_path, target_path):
 
     log = ["Failed to process images: \n"]
     for img_name, gt_name in zip(tqdm(img_names, desc="Normalizing images"), gt_names):
-
         try:
             if img_name.endswith('.tif') or img_name.endswith('.tiff'):
                 img_data = tif.imread(join(images, img_name))
@@ -145,7 +141,6 @@ def normalization(source_path, target_path):
             else:
                 pass
             pre_img_data = np.zeros(img_data.shape, dtype=np.uint8)
-
             for i in range(3):
                 img_channel_i = img_data[:,:,i]
                 if len(img_channel_i[np.nonzero(img_channel_i)])>0:
