@@ -15,6 +15,66 @@ def normalize_channel(img, lower=1, upper=99):
         img_norm = img
     return img_norm.astype(np.uint8)
 
+def to_single_channel_inst_map(label):
+    """
+    Convert label image to a single-channel integer map.
+    If 'label' is already single-channel (H,W), return as is.
+    If 'label' is 3-channel (H,W,3), convert each unique color to a unique integer.
+
+    Parameters
+    ----------
+    label : np.ndarray
+        Shape can be (H,W) or (H,W,3).
+
+    Returns
+    -------
+    inst_map : np.ndarray, shape (H,W)
+        Single-channel label image with integer IDs (0 for background).
+    """
+    
+    # If single-channel, assume it's already integer-labeled
+    if label.ndim == 2:
+        # Make sure it’s an integer type. Otherwise, convert.
+        if not np.issubdtype(label.dtype, np.integer):
+            return label.astype(np.int32)
+        return label
+    
+    # If 3-channel, convert from RGB to integer IDs
+    elif label.ndim == 3 and label.shape[2] == 3:
+        H, W, _ = label.shape
+        label_reshaped = label.reshape(-1, 3)
+        
+        # Get unique colors
+        unique_colors = np.unique(label_reshaped, axis=0)
+        
+        # Map each unique color to a unique ID
+        color2id = {}
+        current_id = 1
+        
+        for color in unique_colors:
+            ctuple = tuple(color)
+            # Assume (0,0,0) is background
+            if ctuple == (0,0,0):
+                color2id[ctuple] = 0
+            else:
+                color2id[ctuple] = current_id
+                current_id += 1
+        
+        # Build output inst_map
+        inst_map = np.zeros((H * W,), dtype=np.int32)
+        
+        for ctuple, id_val in color2id.items():
+            mask = np.all(label_reshaped == ctuple, axis=1)
+            inst_map[mask] = id_val
+        
+        return inst_map.reshape(H, W)
+    
+    else:
+        raise ValueError(
+            f"Unsupported label shape {label.shape}. "
+            "Expected (H,W) or (H,W,3)."
+        )
+
 def create_interior_map(inst_map):
     """
     Parameters
@@ -30,14 +90,17 @@ def create_interior_map(inst_map):
         1: interior
         2: boundary
     """
+    #inst_map = to_single_channel_inst_map(inst_map)
     # create interior-edge map
     boundary = segmentation.find_boundaries(inst_map, mode='inner')
     boundary = morphology.binary_dilation(boundary, morphology.disk(1))
-
+    print(boundary)
     interior_temp = np.logical_and(~boundary, inst_map > 0)
     # interior_temp[boundary] = 0
     interior_temp = morphology.remove_small_objects(interior_temp, min_size=16)
     interior = np.zeros_like(inst_map, dtype=np.uint8)
+    print(interior_temp)
+    print(boundary)
     interior[interior_temp] = 1
     interior[boundary] = 2
     return interior
@@ -52,7 +115,7 @@ def normalization(source_path, target_path):
     labels = join(source_path, 'labels')
 
     img_names = sorted(os.listdir(images))
-    gt_names = [img_name.split('.')[0]+'_label.tiff' for img_name in img_names]
+    gt_names = [img_name.split('.')[0]+'_label.tiff' if img_name.split('.')[-1] == "tiff" else img_name.split('.')[0]+'.png' for img_name in img_names]
 
     # Create directories for preprocessed images and ground truth
     pre_img_path = join(target_path, 'images')
@@ -62,12 +125,17 @@ def normalization(source_path, target_path):
 
     log = ["Failed to process images: \n"]
     for img_name, gt_name in zip(tqdm(img_names, desc="Normalizing images"), gt_names):
+
         try:
             if img_name.endswith('.tif') or img_name.endswith('.tiff'):
                 img_data = tif.imread(join(images, img_name))
             else:
                 img_data = io.imread(join(images, img_name))
-            gt_data = tif.imread(join(labels, gt_name))
+            
+            if gt_name.endswith('.tif') or gt_name.endswith('.tiff'):
+                gt_data = tif.imread(join(labels, gt_name))
+            else: 
+                gt_data = io.imread(join(labels, gt_name))
 
             # normalize image data
             if len(img_data.shape) == 2:
@@ -77,17 +145,20 @@ def normalization(source_path, target_path):
             else:
                 pass
             pre_img_data = np.zeros(img_data.shape, dtype=np.uint8)
+
             for i in range(3):
                 img_channel_i = img_data[:,:,i]
                 if len(img_channel_i[np.nonzero(img_channel_i)])>0:
                     pre_img_data[:,:,i] = normalize_channel(img_channel_i, lower=1, upper=99)
-                
+            
+            print(gt_data.astype(np.int16).shape)
             # conver instance bask to three-class mask: interior, boundary
             interior_map = create_interior_map(gt_data.astype(np.int16))
-            
+            print("2")
             io.imsave(join(target_path, 'images', img_name.split('.')[0]+'.png'), pre_img_data.astype(np.uint8), check_contrast=False)
             io.imsave(join(target_path, 'labels', gt_name.split('.')[0]+'.png'), interior_map.astype(np.uint8), check_contrast=False)
-        except: 
+        except Exception as e: 
+            print(e)
             log.append(img_name)      
 
     with open('logs.txt', 'a') as f: 
@@ -96,7 +167,7 @@ def normalization(source_path, target_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Applying Normalization")
-    parser.add_argument("--source_path", default="../../data/Training-labeled" , type=str, required=False, help="Path to input images.")
-    parser.add_argument("--target_path", default="../../data/preprocessing_outputs/normalized_data" , type=str, required=False, help="Path to save transformed images.")
+    parser.add_argument("--source_path", default="../../data/cellpose/train" , type=str, required=False, help="Path to input images.")
+    parser.add_argument("--target_path", default="../../data/preprocessing_outputs/cellpose/train/normalized_data" , type=str, required=False, help="Path to save transformed images.")
     args = parser.parse_args()
     normalization(args.source_path, args.target_path)
