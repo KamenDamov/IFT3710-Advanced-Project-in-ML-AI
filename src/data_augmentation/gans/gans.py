@@ -51,8 +51,8 @@ class Options:
         opt.beta1 = 0.5
         opt.lr_policy = "linear"
         opt.epoch_count = 1
-        opt.n_epochs = 100
-        opt.n_epochs_decay = 100 
+        opt.n_epochs = 50
+        opt.n_epochs_decay = 50 
         opt.lr_decay_iters = 50
         opt.continue_train = False
         opt.verbose = True
