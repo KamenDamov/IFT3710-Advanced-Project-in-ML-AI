@@ -34,6 +34,7 @@ def create_interior_map(inst_map):
     # create interior-edge map
     boundary = segmentation.find_boundaries(inst_map, mode='inner')
     boundary = morphology.binary_dilation(boundary, morphology.disk(1))
+
     interior_temp = np.logical_and(~boundary, inst_map > 0)
     # interior_temp[boundary] = 0
     interior_temp = morphology.remove_small_objects(interior_temp, min_size=16)
@@ -67,7 +68,6 @@ def normalization(source_path, target_path):
                 img_data = tif.imread(join(images, img_name))
             else:
                 img_data = io.imread(join(images, img_name))
-            
             if gt_name.endswith('.tif') or gt_name.endswith('.tiff'):
                 gt_data = tif.imread(join(labels, gt_name))
             else: 
