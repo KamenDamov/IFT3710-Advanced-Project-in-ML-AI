@@ -148,7 +148,7 @@ def main():
 
     gt_path = args.gt_path
     seg_path = args.seg_path
-   
+    
     names = sorted(os.listdir(seg_path))
     names = [i for i in names if i.endswith(args.seg_suffix)]
     
@@ -262,6 +262,7 @@ def main():
         save_name = args.save_name + '-' + str(threshold) + '.csv'
         seg_metric_df.to_csv(join(args.output_path, save_name), index=False)
         print('threshold:', threshold, 'mean F1 Score:', np.mean(metrics['F1']), 'median F1 Score:', np.median(metrics['F1']))
+        print('threshold:', threshold, 'mean DICE Score:', np.mean(metrics['dice']), 'median DICE Score:', np.median(metrics['dice']))
         print('failed cases:', failed)
 
 if __name__ == '__main__':

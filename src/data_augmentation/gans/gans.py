@@ -4,6 +4,7 @@ from PIL import Image
 import os
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 from cycle_gan.models.pix2pix_model import Pix2PixModel
 from cycle_gan.options.base_options import BaseOptions
 from cycle_gan.data.produce_dataset import Pix2PixDataset
@@ -17,17 +18,17 @@ import time
 def check_dir_exists(directory): 
     return os.path.exists(directory)
 
-print(check_dir_exists(input_dir))
-print(check_dir_exists(mask_dir))
+#print(check_dir_exists(input_dir))
+#print(check_dir_exists(mask_dir))
 
-os.makedirs(output_dir, exist_ok=True)
+#os.makedirs(output_dir, exist_ok=True)
 
 class Options: 
-    def get_opt(model_name="cell_segmentation_pix2pix", gpu_id=0): 
+    def get_opt(self, gpu_id=0): 
         opt = BaseOptions()
         parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         parser = opt.initialize(parser)
-        opt.name = model_name
+        opt.name = "cell_segmentation_pix2pix"
         opt.preprocess = ""
         opt.model = "pix2pix"
         opt.direction = "AtoB"
@@ -50,8 +51,8 @@ class Options:
         opt.beta1 = 0.5
         opt.lr_policy = "linear"
         opt.epoch_count = 1
-        opt.n_epochs = 50
-        opt.n_epochs_decay = 50
+        opt.n_epochs = 100
+        opt.n_epochs_decay = 100 
         opt.lr_decay_iters = 50
         opt.continue_train = False
         opt.verbose = True
@@ -67,11 +68,11 @@ class Options:
         opt.wandb_project_name = "CycleGAN-and-pix2pix"
         opt.display_env = "main"
         opt.print_freq = 100
-        opt.batch_size = 1
+        opt.batch_size = 8
         opt.display_freq = 400
         opt.update_html_freq = 1000
         opt.save_latest_freq = 5000
-        opt.save_epoch_freq = 10
+        opt.save_epoch_freq = 1
         opt.save_by_iter = True
         opt.gpu_ids = [gpu_id] if torch.cuda.is_available() else [-1]
         return opt
@@ -79,22 +80,20 @@ class Options:
 class Training:
         
     # Load Pix2Pix Model
-    def load_pix2pix_model(opt):
+    def load_pix2pix_model(self, opt):
         model = Pix2PixModel(opt)
         model.setup(opt)
         model.eval()  # Set model to evaluation mode
         return model
 
-    def train_model(model, dataset, opt): 
+    def train_model(self, model, dataset, opt): 
         dataset_size = len(dataset)    # get the number of images in the dataset.
         print('The number of training images = %d' % dataset_size)
 
-        #model = create_model(opt)      # create a model given opt.model and other options
-        #model.setup(opt)               # regular setup: load and print networks; create schedulers
         visualizer = Visualizer(opt)   # create a visualizer that display/save images and plots
         total_iters = 0                # the total number of training iterations
 
-        for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs; we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>
+        for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):    # outer loop for different epochs
             epoch_start_time = time.time()  # timer for entire epoch
             iter_data_time = time.time()    # timer for data loading per iteration
             epoch_iter = 0                  # the number of training iterations in current epoch, reset to 0 every epoch
@@ -110,23 +109,16 @@ class Training:
                 model.set_input(data)         # unpack data from dataset and apply preprocessing
                 model.optimize_parameters()   # calculate loss functions, get gradients, update network weights
 
-                #torch.save(pix2pix_model.netG.state_dict(), "latest_net_Gtest.pth")
-                if total_iters % opt.display_freq == 0:   # display images on visdom and save images to a HTML file
-                    save_result = total_iters % opt.update_html_freq == 0
-                    model.compute_visuals()
-                    visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
-
-                if total_iters % opt.print_freq == 0:    # print training losses and save logging information to the disk
+                # Update the loss plots
+                if total_iters % opt.print_freq == 0:    # print training losses and update the plots
                     losses = model.get_current_losses()
                     t_comp = (time.time() - iter_start_time) / opt.batch_size
                     visualizer.print_current_losses(epoch, epoch_iter, losses, t_comp, t_data)
-                    if opt.display_id > 0:
-                        visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
 
                 if total_iters % opt.save_latest_freq == 0:   # cache our latest model every <save_latest_freq> iterations
                     print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
                     save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
-                    torch.save(model.netG.state_dict(), f"{save_suffix}_generator.pth")
+                    #torch.save(model.netG.state_dict(), f"{save_suffix}_generator.pth")
 
                 iter_data_time = time.time()
             if epoch % opt.save_epoch_freq == 0:              # cache our model every <save_epoch_freq> epochs
@@ -134,5 +126,9 @@ class Training:
                 torch.save(model.netG.state_dict(), f"latest_generator.pth")
 
             print('End of epoch %d / %d \t Time Taken: %d sec' % (epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
+
+        # Finalize the plots
+        #plt.ioff()  # Turn off interactive mode
+        #plt.show()
 
 

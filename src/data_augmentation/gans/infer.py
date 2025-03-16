@@ -3,13 +3,10 @@ import os
 from PIL import Image 
 import numpy as np
 import cv2
-from metrics import compute_metric
  
 class Infer:
-    def __init__(): 
-        pass
     
-    def generate_pseudo_masks(model, input_dir, output_dir):
+    def generate_pseudo_masks(self, model, input_dir, output_dir):
         os.makedirs(output_dir, exist_ok=True)
 
         for filename in os.listdir(input_dir):
@@ -32,8 +29,5 @@ class Infer:
             cv2.imwrite(mask_output_path, generated)
 
             print(f"Generated pseudo-mask saved: {mask_output_path}")
-        
-    def generate_performance_metrics(path): 
-        pass
 
     
