@@ -6,6 +6,7 @@ import torchvision.transforms as transforms
 from glob import glob
 from PIL import Image
 import os
+from torchvision.utils import save_image
 
 # Base GAN class
 class BaseGAN(nn.Module):
@@ -200,7 +201,7 @@ class Trainer:
         # Save final model
         torch.save(self.model.state_dict(), "gan_256x256_final.pth")
 
-    def save_sample_image(self, epoch, sample_dir="samples"):
+    def save_sample_image(self, epoch, sample_dir="samples", proceed_training=False):
         """Generate and save a sample image at the end of each epoch"""
         self.model.generator.eval()
         with torch.no_grad():
@@ -212,7 +213,6 @@ class Trainer:
             fake_image = (fake_image + 1) / 2.0
             
             # Convert tensor to PIL image and save
-            from torchvision.utils import save_image
             save_image(fake_image, f"{sample_dir}/sample_epoch_{epoch+1}.png")
             
             # Alternative method using PIL directly
@@ -222,8 +222,9 @@ class Trainer:
             # img_array = img_array.astype(np.uint8)
             # img = Image.fromarray(img_array)
             # img.save(f"{sample_dir}/sample_epoch_{epoch+1}.png")
-        
-        self.model.generator.train()
+        if proceed_training: 
+            self.model.generator.train()
+
 
 # Evaluator
 class Evaluator:
@@ -236,6 +237,10 @@ class Evaluator:
         z = torch.randn(num_samples, 256, 1, 1, device=self.device)
         samples = self.model.generate(z)
         return samples.cpu().detach()
+    
+    def save_sample_image(self, sample, epoch, i,  save_dir="generated_samples"):
+        os.makedirs(save_dir, exist_ok=True)
+        save_image(sample, f"{save_dir}/sample_{i+1}_epoch_{epoch}.png")
     
     def evaluate(self, real_samples, fake_samples):
         # Implement evaluation metrics like IoU, Dice Coefficient, etc.
