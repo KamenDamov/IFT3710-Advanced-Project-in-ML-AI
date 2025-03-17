@@ -4,3 +4,4 @@ dataset/
 /notebooks/preprocessing_outputs/
 models/**/*.pth
 references/papers/
+/data_augmentation/models/**/*.pth
