@@ -30,6 +30,7 @@ def create_interior_map(inst_map):
         1: interior
         2: boundary
     """
+    #inst_map = to_single_channel_inst_map(inst_map)
     # create interior-edge map
     boundary = segmentation.find_boundaries(inst_map, mode='inner')
     boundary = morphology.binary_dilation(boundary, morphology.disk(1))
@@ -48,11 +49,11 @@ def normalization(source_path, target_path):
         os.makedirs(target_path)
 
     # Get images names
-    images = join(source_path, 'images')
-    labels = join(source_path, 'labels')
+    images = source_path + "/images" #join(source_path, 'images')
+    labels = source_path + "/labels" #join(source_path, 'labels')
 
     img_names = sorted(os.listdir(images))
-    gt_names = [img_name.split('.')[0]+'_label.tiff' for img_name in img_names]
+    gt_names = [img_name.split('.')[0]+'_label.tiff' if img_name.split('.')[-1] == "tiff" else img_name.split('.')[0]+'.png' for img_name in img_names]
 
     # Create directories for preprocessed images and ground truth
     pre_img_path = join(target_path, 'images')
@@ -67,7 +68,10 @@ def normalization(source_path, target_path):
                 img_data = tif.imread(join(images, img_name))
             else:
                 img_data = io.imread(join(images, img_name))
-            gt_data = tif.imread(join(labels, gt_name))
+            if gt_name.endswith('.tif') or gt_name.endswith('.tiff'):
+                gt_data = tif.imread(join(labels, gt_name))
+            else: 
+                gt_data = io.imread(join(labels, gt_name))
 
             # normalize image data
             if len(img_data.shape) == 2:
@@ -87,12 +91,13 @@ def normalization(source_path, target_path):
             
             io.imsave(join(target_path, 'images', img_name.split('.')[0]+'.png'), pre_img_data.astype(np.uint8), check_contrast=False)
             io.imsave(join(target_path, 'labels', gt_name.split('.')[0]+'.png'), interior_map.astype(np.uint8), check_contrast=False)
-        except: 
+        except Exception as e: 
+            print(e)
             log.append(img_name)      
 
     with open('logs.txt', 'a') as f: 
         f.write("\n".join(log))
-        f.close()   
+        f.close()  
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Applying Normalization")
