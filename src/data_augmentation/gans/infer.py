@@ -10,7 +10,14 @@ class Infer:
         os.makedirs(output_dir, exist_ok=True)
 
         for filename in os.listdir(input_dir):
-            if not filename.endswith((".png", ".jpg", ".jpeg")):
+            if filename.endswith(".tiff") or filename.endswith(".tif"):
+                tiff_image = Image.open(os.path.join(input_dir, filename))
+                png_filename = filename.rsplit(".", 1)[0] + ".png"
+                tiff_image.save(os.path.join(input_dir, png_filename), format="PNG")
+                print(f"Converted {filename} to {png_filename}")            
+                filename = png_filename
+                
+            elif not filename.endswith((".png", ".jpg", ".jpeg")):
                 continue
             
             image_path = os.path.join(input_dir, filename)
