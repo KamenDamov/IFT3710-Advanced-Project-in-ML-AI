@@ -8,3 +8,7 @@ dataset/
 models/**/*.pth
 models/**/*.pt
 references/papers/
+*.pth
+# weigths for sam2 model
+src/SAM-2/weights/sam_vit_h_4b8939.pth
+*.zip
