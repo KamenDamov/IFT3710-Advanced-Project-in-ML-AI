@@ -319,8 +319,8 @@ def main():
     lr = 0.001
     
     # Directories for your data
-    image_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\images"
-    mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\labels"
+    image_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\augmented_dataset\\images"
+    mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\augmented_dataset\\labels"
     
     # Device configuration
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -358,7 +358,7 @@ def main():
     )
     
     # Save model
-    torch.save(trained_model.state_dict(), 'unet_cell_segmentation.pth')
+    torch.save(trained_model.state_dict(), 'unet_cell_segmentation_augmented_datas.pth')
     
     # Plot training history
     plt.figure(figsize=(12, 4))
