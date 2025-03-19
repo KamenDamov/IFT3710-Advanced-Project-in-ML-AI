@@ -8,6 +8,7 @@ import numpy as np
 import os
 from PIL import Image
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
 class DoubleConv(nn.Module):
@@ -212,11 +213,11 @@ def train_model(model, train_loader, val_loader, device, epochs=50, lr=0.001):
     }
     
     # Training loop
-    for epoch in range(epochs):
+    for epoch in tqdm(range(epochs)):
         model.train()
         train_loss = 0
         
-        for images, masks in train_loader:
+        for images, masks in tqdm(train_loader):
             images = images.to(device)
             masks = masks.to(device)
             
