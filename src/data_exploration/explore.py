@@ -9,7 +9,7 @@ import os
 import cv2
 
 IMAGE_TYPES = [".bmp", ".png", ".tif", ".tiff"]
-MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py"]
+MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py", ""]
 
 LABELED = 'Labeled'
 MASK = 'Mask'
@@ -24,41 +24,44 @@ def split_filepath(filepath):
 
 def unzip_archive(root, filepath):
     dirpath, name, ext = split_filepath(filepath)
-    if os.path.exists(root + dirpath + name):
-        return False
-    print("Unzipping archive: ", filepath)
+    print("Inspecting archive: ", filepath)
     with zipfile.ZipFile(root + filepath, 'r') as zip_ref:
-        zip_ref.extractall(root + dirpath)
-    if os.path.exists(root + dirpath + name):
-        return True
-    print("!WARNING! Archive did not produce folder: ", root + filepath)
-    return False
+        # Top level folders
+        folders = [dirpath + zipname for zipname in zip_ref.namelist() if '/' not in zipname[:-1]]
+        missing = [folder for folder in folders if not os.path.exists(root + folder)]
+        if missing:
+            print("Unzipping archive: ", missing)
+            zip_ref.extractall(root + dirpath)
+            return missing
+        return []
 
 def list_dataset(root, folder = '/'):
     files_by_type = {type:set() for type in (IMAGE_TYPES + MISC_TYPES)}
-    for filepath, dirpath, name, ext in enumerate_dataset(root, folder):
-        if not ext:
-            continue
+    for filepath in enumerate_dataset(root, folder):
+        dirpath, name, ext = split_filepath(filepath)
         files_by_type[ext].add(filepath)
     return files_by_type
+
+def unzip_dataset(root, folder):
+    for filepath in enumerate_dataset(root, folder):
+        dirpath, name, ext = split_filepath(filepath)
+        if ext != ".zip":
+            continue
+        for unzipped in unzip_archive(root, filepath):
+            if os.path.exists(root + unzipped):
+                unzip_dataset(root, unzipped)
+            else:
+                print("!WARNING! Archive did not produce folder: ", root + unzipped)
 
 def enumerate_dataset(root, folder):
     print("Enumerating folder: ", folder)
     for filename in os.listdir(root + folder):
         filepath = folder + filename
+        yield filepath
         dirpath, name, ext = split_filepath(filepath)
-        yield filepath, dirpath, name, ext
-
-        if ext == '.zip':
-            if unzip_archive(root, filepath):
-                yield (dirpath + name), dirpath, name, ''
-            else:
-                continue
-        elif ext:
-            continue
-
-        for fullpath, dirpath, name, ext in enumerate_dataset(root, dirpath + name + "/"):
-            yield fullpath, dirpath, name, ext
+        if not ext:
+            for fullpath in enumerate_dataset(root, filepath + "/"):
+                yield fullpath
 
 class ZenodoNeurIPS:
     def __init__(self, root, category = None):
@@ -269,14 +272,14 @@ def save_bw_mask(root, store, datapath):
 
 # TOO SLOW
 # Save hue-vector mask
-def save_hue_mask(root, store, datapath):
+def save_hue_mask(root, store, datapath, df):
     imgT = tif.imread(root + datapath)
     imgTC = np.zeros((imgT.shape[0], imgT.shape[1], 3), dtype=np.float32)
-    N = imgT.max()
-    for i in range(1, N+1):
-        rows, cols = np.where(imgT == i)
-        bounds = [rows.min(), rows.max(), cols.min(), cols.max()]
-        middle = np.array([rows.mean(), cols.mean()])
+    for index, row in df[1:].iterrows():
+        i = row['ID']
+        bounds = [row['Top'], row['Bottom'], row['Left'], row['Right']]
+        middle = np.array([row['Y'], row['X']])
+        rows, cols = np.where(imgT[bounds[0]:bounds[1], bounds[2]:bounds[3]] == i)
         for r, c in zip(rows, cols):
             location = np.array([r, c])
             vector = (location - middle)/np.array([bounds[1] - bounds[0], bounds[3] - bounds[2]])
@@ -322,8 +325,10 @@ def preprocess_images(dataroot, df):
 
 def preprocess_dataset(dataroot):
     rawroot = dataroot + "/raw"
+    zenodo = ZenodoNeurIPS('/zenodo')
+    unzip_dataset(rawroot, zenodo.root + "/")
     for category, label in [(MASK, ".labels"), (SYNTHETIC, ".synth")]:
-        zenodo = ZenodoNeurIPS('/zenodo', category)
+        zenodo.category = category
         data_map = dataset_frame(rawroot, zenodo)
         data_map.to_csv(dataroot + zenodo.root + label + ".csv")
         
