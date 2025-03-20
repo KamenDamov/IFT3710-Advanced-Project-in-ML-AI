@@ -11,6 +11,11 @@ import cv2
 IMAGE_TYPES = [".bmp", ".png", ".tif", ".tiff"]
 MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py"]
 
+LABELED = 'Labeled'
+MASK = 'Mask'
+UNLABELED = 'Unlabeled'
+SYNTHETIC = 'Synthetic'
+
 def split_filepath(filepath):
     dirpath, filename = os.path.split(filepath)
     name, ext = os.path.splitext(filename)
@@ -29,7 +34,15 @@ def unzip_archive(root, filepath):
     print("!WARNING! Archive did not produce folder: ", root + filepath)
     return False
 
-def enumerate_dataset(root, folder = '/'):
+def list_dataset(root, folder = '/'):
+    files_by_type = {type:set() for type in (IMAGE_TYPES + MISC_TYPES)}
+    for filepath, dirpath, name, ext in enumerate_dataset(root, folder):
+        if not ext:
+            continue
+        files_by_type[ext].add(filepath)
+    return files_by_type
+
+def enumerate_dataset(root, folder):
     print("Enumerating folder: ", folder)
     for filename in os.listdir(root + folder):
         filepath = folder + filename
@@ -46,6 +59,64 @@ def enumerate_dataset(root, folder = '/'):
 
         for fullpath, dirpath, name, ext in enumerate_dataset(root, dirpath + name + "/"):
             yield fullpath, dirpath, name, ext
+
+class ZenodoNeurIPS:
+    def label_patterns(self, category):
+        if category == MASK:
+            yield ("/Public/images/", "/Public/labels/")
+            yield ("/Public/WSI/", "/Public/WSI-labels/")
+            yield ("/Training-labeled/images/", "/Training-labeled/labels/")
+            yield ("/Tuning/images/", "/Tuning/labels/")
+        if category == SYNTHETIC:
+            yield ("/Hidden/images/", "/Hidden/osilab_seg/")
+            yield ("/Public/images/", "/Public/1st_osilab_seg/")
+            yield ("/Public/WSI/", "/Public/osilab_seg_WSI/")
+
+    def mask_filepath(self, category, filepath):
+        folder, name, ext = split_filepath(filepath)
+        for (img, mask) in self.label_patterns(category):
+            if img in folder:
+                return folder.replace(img, mask) + name + "_label.tiff"
+        return None
+
+    def categorize(self, dirpath):
+        for (img, mask) in self.label_patterns(MASK):
+            if mask in dirpath:
+                return MASK
+            elif img in dirpath:
+                return LABELED
+        for (img, mask) in self.label_patterns(SYNTHETIC):
+            if mask in dirpath:
+                return SYNTHETIC
+        return UNLABELED
+
+def dataset_frame(root, matcher, category, folder = '/'):
+    files_by_type = list_dataset(root, folder)
+    assoc = collect_datamap(root, matcher, files_by_type, category)
+    numbers = list(collect_dataset(root, assoc))
+    return pd.DataFrame(numbers, columns = ["Path", "Mask", "Width", "Height", "Objects", "Background"]).set_index("Path")
+
+def collect_datamap(root, matcher, files_by_type, category):
+    assoc = {}
+    for ext in IMAGE_TYPES:
+        for filepath in files_by_type[ext]:
+            maskpath = matcher.mask_filepath(category, filepath)
+            if not maskpath:
+                continue
+            elif os.path.exists(root + maskpath):
+                assoc[filepath] = maskpath
+            else:
+                print("Missing mask: ", root, maskpath, filepath)
+    return assoc
+
+def collect_dataset(root, assoc):
+    expected = len(assoc)
+    for index, (img_path, datapath) in enumerate(assoc.items()):
+        print(index, "/", expected)
+        # Get global statistics
+        imgT = tif.imread(root + datapath)
+        background = (imgT == 0).sum()
+        yield {"Path":img_path, "Mask":datapath, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": imgT.max(), "Background": background}
 
 def merge_lists(compare, merge, listA, listB):
     merged = [0] * (len(listA) + len(listB))
@@ -166,18 +237,6 @@ def mergeObjects(objectA, objectB):
     top = min(objectA["Top"], objectB["Top"])
     bottom = max(objectA["Bottom"], objectB["Bottom"])
     return {"ID": objectA["ID"], "X": x, "Y": y, "Left":left, "Right":right, "Top": top, "Bottom":bottom, "Area": area}
-
-def dataset_frame(root, assoc):
-    expected = len(assoc)
-
-    numbers = []
-    for img_path, datapath in assoc.items():
-        print(len(numbers), "/", expected)
-        # Get global statistics
-        imgT = tif.imread(root + datapath)
-        numbers.append({"Path":img_path, "Mask":datapath, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": imgT.max(), "Background": (imgT == 0).sum()})
-
-    return pd.DataFrame(numbers, columns = ["Path", "Mask", "Width", "Height", "Objects", "Background"]).set_index("Path")
 
 def save_maskframes(dataroot, df):
     root = dataroot + "/raw"
