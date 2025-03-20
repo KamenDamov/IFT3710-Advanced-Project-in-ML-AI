@@ -311,6 +311,15 @@ def preprocess_masks(dataroot, df, color = False):
         else:
             save_bw_mask(rawroot, procroot, datapath)
 
+def preprocess_images(dataroot, df):
+    for index, filepath in enumerate(df["Path"]):
+        print(index, "/", len(df), filepath)
+        folder, name, ext = split_filepath(filepath)
+        img = cv2.imread(dataroot + "/raw" + filepath)
+        target = dataroot + "/processed" + folder
+        os.makedirs(target, exist_ok=True)
+        cv2.imwrite(target + name + ".png", img)
+
 def preprocess_dataset(dataroot):
     rawroot = dataroot + "/raw"
     for category, label in [(MASK, ".labels"), (SYNTHETIC, ".synth")]:
