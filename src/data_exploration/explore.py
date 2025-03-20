@@ -1,44 +1,244 @@
-from PIL import Image
-import cv2
-import numpy as np
-import tifffile
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-        
-# Load a TIFF image file
-class Explore:
-    def __init(): 
-        pass
-    def load_tiff_image(self, file_path) -> np.ndarray:
-        try:
-            imgT = tifffile.imread(file_path)
-            tifffile.imshow(imgT, show = True)
-            return
-            img = imgT.convert("RGB")
-            pixels = list(img.getdata())
-            num_pixels = len(pixels)
-            avg_color = tuple(sum(col) // num_pixels for col in zip(*pixels))
-            print(f"Average pixel color: {avg_color}")
-            image = cv2.imread(file_path)
-            image = np.asarray(image,dtype = np.float64)
-            with Image.open(file_path) as img:
-                img = img.convert("RGB")
-                pixels = list(img.getdata())
-                num_pixels = len(pixels)
-                avg_color = tuple(sum(col) // num_pixels for col in zip(*pixels))
-                print(f"Average pixel color: {avg_color}")
-                return img
-        except Exception as e:
-            print(f"Error loading image: {e}")
-            return None
+import tifffile as tif
+import pandas as pd
+import PIL.Image as Image
+import numpy as np
+import colorsys
+import zipfile
+import os
+import cv2
 
-    def load_png_image(self, file_path):
-        img=mpimg.imread(file_path)
-        imgplot = plt.imshow(img)
-        plt.show()
+IMAGE_TYPES = [".bmp", ".png", ".tif", ".tiff"]
+MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py"]
 
-explore = Explore()
-file_path_tiff_label = 'C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\Training-labeled\\Training-labeled\\labels\\cell_00001_label.tiff'
-file_path_png_label = 'C:\\Users\\kamen\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\notebooks\\preprocessing_outputs\\labels\\cell_00073_label.png'
-#image = explore.load_tiff_image(file_path_tiff)
-image = explore.load_png_image(file_path_png_label)
+def split_filepath(filepath):
+    dirpath, filename = os.path.split(filepath)
+    name, ext = os.path.splitext(filename)
+    separator = '/' if (not dirpath or dirpath[-1] != '/') else ''
+    return dirpath + separator, name, ext
+
+def unzip_archive(root, filepath):
+    dirpath, name, ext = split_filepath(filepath)
+    if os.path.exists(root + dirpath + name):
+        return False
+    print("Unzipping archive: ", filepath)
+    with zipfile.ZipFile(root + filepath, 'r') as zip_ref:
+        zip_ref.extractall(root + dirpath)
+    if os.path.exists(root + dirpath + name):
+        return True
+    print("!WARNING! Archive did not produce folder: ", root + filepath)
+    return False
+
+def enumerate_dataset(root, folder = '/'):
+    print("Enumerating folder: ", folder)
+    for filename in os.listdir(root + folder):
+        filepath = folder + filename
+        dirpath, name, ext = split_filepath(filepath)
+        yield filepath, dirpath, name, ext
+
+        if ext == '.zip':
+            if unzip_archive(root, filepath):
+                yield (dirpath + name), dirpath, name, ''
+            else:
+                continue
+        elif ext:
+            continue
+
+        for fullpath, dirpath, name, ext in enumerate_dataset(root, dirpath + name + "/"):
+            yield fullpath, dirpath, name, ext
+
+def merge_lists(compare, merge, listA, listB):
+    merged = [0] * (len(listA) + len(listB))
+    indexM, indexA, indexB = 0, 0, 0
+    while indexA < len(listA) and indexB < len(listB):
+        cmp = compare(listA[indexA], listB[indexB])
+        if cmp < 0:
+            merged[indexM] = listA[indexA]
+            indexM += 1
+            indexA += 1
+        elif cmp > 0:
+            merged[indexM] = listB[indexB]
+            indexM += 1
+            indexB += 1
+        else:
+            merged[indexM] = merge(listA[indexA], listB[indexB])
+            indexM += 1
+            indexA += 1
+            indexB += 1
+            merged.pop()
+    if indexA < len(listA):
+        merged[indexM:] = listA[indexA:]
+    if indexB < len(listB):
+        merged[indexM:] = listB[indexB:]
+    return merged
+
+def mask_frame_leaf(tensor, bounds):
+    tensor = tensor[bounds.top:bounds.bottom, bounds.left:bounds.right]
+    objectIDs = np.unique(tensor)
+    return [detectObject(tensor, bounds, id) for id in objectIDs]
+
+def mask_frame(root, mask_path):
+    tensor = tif.imread(root + mask_path)
+    bounds = BoundingBox()
+    bounds.right = tensor.shape[1]
+    bounds.bottom = tensor.shape[0]
+    print(bounds.width(), "x", bounds.height())
+    print(tensor.max(), "objects")
+    objects = mask_frame_branch(tensor, bounds)
+    for object in objects:
+        normalizeObject(object)
+    return pd.DataFrame(objects, columns = ["ID", "X", "Y", "Left", "Right", "Top", "Bottom", "Area"]).set_index("ID")
+
+def mask_frame_branch(tensor, bounds):
+    if bounds.small():
+        return mask_frame_leaf(tensor, bounds)
+    splitA, splitB = bounds.split()
+    objectsA, objectsB = mask_frame_branch(tensor, splitA), mask_frame_branch(tensor, splitB)
+    merged = merge_lists(compareObjects, mergeObjects, objectsA, objectsB)
+    return merged
+
+class BoundingBox:
+    def __init__(self):
+        self.left = 0
+        self.right = 0
+        self.top = 0
+        self.bottom = 0
+    
+    def copy(self):
+        bounds = BoundingBox()
+        bounds.left = self.left
+        bounds.right = self.right
+        bounds.top = self.top
+        bounds.bottom = self.bottom
+        return bounds
+    
+    def width(self):
+        return self.right - self.left
+    
+    def height(self):
+        return self.bottom - self.top
+    
+    def small(self):
+        return self.width() < 128 and self.height() < 128
+    
+    def split(self):
+        boundsA = self.copy()
+        boundsB = self.copy()
+        if self.height() < self.width():
+            #split = self.left + int(np.exp2(np.ceil(np.log2(self.width()) - 1)))
+            split = self.left + self.width() // 2
+            boundsA.right = split
+            boundsB.left = split
+        else:
+            #split = self.top + int(np.exp2(np.ceil(np.log2(self.height()) - 1)))
+            split = self.top + self.height() // 2
+            boundsA.bottom = split
+            boundsB.top = split
+        return (boundsA, boundsB)
+
+def normalizeObject(object):
+    object["X"] = np.int32(np.round(object["X"]))
+    object["Y"] = np.int32(np.round(object["Y"]))
+    return object
+
+def detectObject(tensor, bounds, id):
+    # Get local statistics
+    rows, cols = np.where(tensor == id)
+    x = bounds.left + cols.mean()
+    y = bounds.top + rows.mean()
+    left = bounds.left + cols.min()
+    right = bounds.left + cols.max() + 1
+    top = bounds.top + rows.min()
+    bottom = bounds.top + rows.max() + 1
+    area = len(rows)
+    return {"ID": np.int32(id), "X": x, "Y": y, "Left": left, "Right": right, "Top": top, "Bottom": bottom, "Area": area}
+
+def compareObjects(objectA, objectB):
+    return objectA["ID"] - objectB["ID"]
+
+def mergeObjects(objectA, objectB):
+    assert objectA["ID"] == objectB["ID"]
+    area = objectA["Area"] + objectB["Area"]
+    x = (objectA["X"] * objectA["Area"] + objectB["X"] * objectB["Area"]) / area
+    y = (objectA["Y"] * objectA["Area"] + objectB["Y"] * objectB["Area"]) / area
+    left = min(objectA["Left"], objectB["Left"])
+    right = max(objectA["Right"], objectB["Right"])
+    top = min(objectA["Top"], objectB["Top"])
+    bottom = max(objectA["Bottom"], objectB["Bottom"])
+    return {"ID": objectA["ID"], "X": x, "Y": y, "Left":left, "Right":right, "Top": top, "Bottom":bottom, "Area": area}
+
+def dataset_frame(root, assoc):
+    expected = len(assoc)
+
+    numbers = []
+    for img_path, datapath in assoc.items():
+        print(len(numbers), "/", expected)
+        # Get global statistics
+        imgT = tif.imread(root + datapath)
+        numbers.append({"Path":img_path, "Mask":datapath, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": imgT.max(), "Background": (imgT == 0).sum()})
+
+    return pd.DataFrame(numbers, columns = ["Path", "Mask", "Width", "Height", "Objects", "Background"]).set_index("Path")
+
+def save_maskframes(dataroot, df):
+    root = dataroot + "/raw"
+    store = dataroot + "/processed"
+    for index, mask_path in enumerate(df["Mask"]):
+        print(index, "/", len(df))
+        folder, name, ext = split_filepath(mask_path)
+        maskframe = mask_frame(root, mask_path)
+        target = store + folder + name
+        os.makedirs(store + folder, exist_ok=True)
+        maskframe.to_csv(target + ".csv")
+
+# Save black-white mask
+def save_bw_mask(root, store, datapath):
+    imgT = tif.imread(root + datapath)
+    im = Image.fromarray((imgT != 0).astype('uint8')*255)
+    folder, name, ext = split_filepath(datapath)
+    target = store + folder
+    os.makedirs(target, exist_ok=True)
+    maskfile = target + name + ".png"
+    im.save(maskfile)
+
+# TOO SLOW
+# Save hue-vector mask
+def save_hue_mask(root, store, datapath):
+    imgT = tif.imread(root + datapath)
+    imgTC = np.zeros((imgT.shape[0], imgT.shape[1], 3), dtype=np.float32)
+    N = imgT.max()
+    for i in range(1, N+1):
+        rows, cols = np.where(imgT == i)
+        bounds = [rows.min(), rows.max(), cols.min(), cols.max()]
+        middle = np.array([rows.mean(), cols.mean()])
+        for r, c in zip(rows, cols):
+            location = np.array([r, c])
+            vector = (location - middle)/np.array([bounds[1] - bounds[0], bounds[3] - bounds[2]])
+            # Get euclidian norm
+            norm = np.linalg.norm(vector)
+            angle = np.arctan2(vector[1], vector[0])  # Calculate the angle in radians
+            hue = (angle + np.pi) / (2 * np.pi)  # Normalize angle to [0, 1] for hue
+            rgb = colorsys.hsv_to_rgb(hue, norm, 1.0)  # Convert HSV to RGB
+            imgTC[r, c] = rgb
+    print(imgTC.min(), imgTC.max())
+    im = Image.fromarray((imgTC * 255).astype('uint8'), mode="RGB")
+    folder, name, ext = split_filepath(datapath)
+    target = store + folder
+    os.makedirs(target, exist_ok=True)
+    maskfile = target + name + ".vect.png"
+    im.save(maskfile)
+
+def enumerate_datasets(dataroot):
+    for filename in os.listdir(dataroot):
+        dirpath, name, ext = split_filepath(filename)
+        if ext == ".csv":
+            yield pd.read_csv(dataroot + dirpath + filename)
+
+def preprocess_masks(dataroot, df, color = False):
+    rawroot = dataroot + "/raw"
+    procroot = dataroot + "/processed"
+    for index, datapath in enumerate(df["Mask"]):
+        print(index, "/", len(df))
+        if color:
+            save_hue_mask(rawroot, procroot, datapath)
+        else:
+            save_bw_mask(rawroot, procroot, datapath)
