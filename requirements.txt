@@ -5,8 +5,11 @@ matplotlib
 Pillow
 tensorboard
 gdown
-torchVision
+torch
+torchvision
+torchaudio
 tqdm
 psutil
 pandas
 einops
+sam2
