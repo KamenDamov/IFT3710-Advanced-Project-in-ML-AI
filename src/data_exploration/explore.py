@@ -61,6 +61,10 @@ def enumerate_dataset(root, folder):
             yield fullpath, dirpath, name, ext
 
 class ZenodoNeurIPS:
+    def __init__(self, root, category = None):
+        self.root = root
+        self.category = category
+
     def label_patterns(self, category):
         if category == MASK:
             yield ("/Public/images/", "/Public/labels/")
@@ -72,11 +76,15 @@ class ZenodoNeurIPS:
             yield ("/Public/images/", "/Public/1st_osilab_seg/")
             yield ("/Public/WSI/", "/Public/osilab_seg_WSI/")
 
-    def mask_filepath(self, category, filepath):
+    def mask_filepath(self, filepath):
         folder, name, ext = split_filepath(filepath)
-        for (img, mask) in self.label_patterns(category):
+        folder = self.mask_folder(folder)
+        return (folder + name + "_label.tiff") if folder else None
+
+    def mask_folder(self, folder):
+        for (img, mask) in self.label_patterns(self.category):
             if img in folder:
-                return folder.replace(img, mask) + name + "_label.tiff"
+                return folder.replace(img, mask)
         return None
 
     def categorize(self, dirpath):
@@ -90,17 +98,17 @@ class ZenodoNeurIPS:
                 return SYNTHETIC
         return UNLABELED
 
-def dataset_frame(root, matcher, category, folder = '/'):
-    files_by_type = list_dataset(root, folder)
-    assoc = collect_datamap(root, matcher, files_by_type, category)
+def dataset_frame(root, matcher):
+    files_by_type = list_dataset(root, matcher.root + '/')
+    assoc = collect_datamap(root, matcher, files_by_type)
     numbers = list(collect_dataset(root, assoc))
     return pd.DataFrame(numbers, columns = ["Path", "Mask", "Width", "Height", "Objects", "Background"]).set_index("Path")
 
-def collect_datamap(root, matcher, files_by_type, category):
+def collect_datamap(root, matcher, files_by_type):
     assoc = {}
     for ext in IMAGE_TYPES:
         for filepath in files_by_type[ext]:
-            maskpath = matcher.mask_filepath(category, filepath)
+            maskpath = matcher.mask_filepath(filepath)
             if not maskpath:
                 continue
             elif os.path.exists(root + maskpath):
@@ -286,11 +294,12 @@ def save_hue_mask(root, store, datapath):
     maskfile = target + name + ".vect.png"
     im.save(maskfile)
 
-def enumerate_datasets(dataroot):
+def enumerate_frames(dataroot):
     for filename in os.listdir(dataroot):
         dirpath, name, ext = split_filepath(filename)
         if ext == ".csv":
-            yield pd.read_csv(dataroot + dirpath + filename)
+            dataframe = pd.read_csv(dataroot + dirpath + filename)
+            yield name, dataframe
 
 def preprocess_masks(dataroot, df, color = False):
     rawroot = dataroot + "/raw"
@@ -301,3 +310,11 @@ def preprocess_masks(dataroot, df, color = False):
             save_hue_mask(rawroot, procroot, datapath)
         else:
             save_bw_mask(rawroot, procroot, datapath)
+
+def preprocess_dataset(dataroot):
+    rawroot = dataroot + "/raw"
+    for category, label in [(MASK, ".labels"), (SYNTHETIC, ".synth")]:
+        zenodo = ZenodoNeurIPS('/zenodo', category)
+        data_map = dataset_frame(rawroot, zenodo)
+        data_map.to_csv(dataroot + zenodo.root + label + ".csv")
+        
