@@ -270,7 +270,6 @@ def train_model(model, train_loader, val_loader, device, epochs=50, lr=0.001):
     
     return model, history
 
-
 def predict_and_visualize(model, test_loader, device, num_images=3):
     """
     Make predictions and visualize results
