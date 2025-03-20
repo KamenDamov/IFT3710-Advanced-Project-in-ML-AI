@@ -280,6 +280,8 @@ def save_hue_mask(root, store, datapath, df):
         bounds = [row['Top'], row['Bottom'], row['Left'], row['Right']]
         middle = np.array([row['Y'], row['X']])
         rows, cols = np.where(imgT[bounds[0]:bounds[1], bounds[2]:bounds[3]] == i)
+        rows += bounds[0]
+        cols += bounds[2]
         for r, c in zip(rows, cols):
             location = np.array([r, c])
             vector = (location - middle)/np.array([bounds[1] - bounds[0], bounds[3] - bounds[2]])
