@@ -2,5 +2,6 @@
 /data/
 dataset/
 /src/models/blip
+/src/models/blip2
 /src/models/clip
 /src/models/t5

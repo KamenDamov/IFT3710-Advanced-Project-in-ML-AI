@@ -147,7 +147,7 @@ def dice_loss(pred, target):
     return 1 - ((2. * intersection + smooth) / 
                 (pred_flat.sum() + target_flat.sum() + smooth))
 
-def train_model(model, train_loader, val_loader, num_epochs=10, learning_rate=1e-4):
+# def train_model(model, train_loader, val_loader, num_epochs=10, learning_rate=1e-4):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
     model = model.to(device)

@@ -9,7 +9,6 @@ from wordcloud import WordCloud
 
 # Define diverse prompts
 PROMPTS = [
-    "How many cells are in this image?",
     "Describe the density of the cells in this image.",
     "What is the dominant shape of the cells?",
     "Are the cells evenly distributed or clustered?",

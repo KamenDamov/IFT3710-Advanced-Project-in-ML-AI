@@ -5,8 +5,8 @@ from transformers import Blip2Processor, Blip2ForConditionalGeneration
 torch.cuda.empty_cache()
 
 # Load BLIP-2 model & processor
-processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
-model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b").to("cuda" if torch.cuda.is_available() else "cpu")
+processor = Blip2Processor.from_pretrained("C:/Users/Samir/Documents/GitHub/IFT3710-Advanced-Project-in-ML-AI/src/models/blip2")
+model = Blip2ForConditionalGeneration.from_pretrained("C:/Users/Samir/Documents/GitHub/IFT3710-Advanced-Project-in-ML-AI/src/models/blip2").to("cuda" if torch.cuda.is_available() else "cpu")
 
 def generate_caption(image_path):
     image = Image.open(image_path).convert("RGB")
