@@ -9,7 +9,7 @@ import os
 from PIL import Image
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-
+import functools
 
 class CellGANDataset(Dataset):
     """
@@ -47,6 +47,208 @@ class CellGANDataset(Dataset):
             
         return mask, real_image
 
+
+# Define a ResNet block for the ResNet generator
+class ResnetBlock(nn.Module):
+    """Define a Resnet block"""
+
+    def __init__(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+        """Initialize the Resnet block
+        
+        A resnet block is a conv block with skip connections
+        We construct a conv block with build_conv_block function,
+        and implement skip connections in <forward> function.
+        """
+        super(ResnetBlock, self).__init__()
+        self.conv_block = self.build_conv_block(dim, padding_type, norm_layer, use_dropout, use_bias)
+
+    def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias):
+        """Construct a convolutional block.
+        
+        Parameters:
+            dim (int)           -- the number of channels in the conv layer.
+            padding_type (str)  -- the name of padding layer: reflect | replicate | zero
+            norm_layer          -- normalization layer
+            use_dropout (bool)  -- if use dropout layers.
+            use_bias (bool)     -- if the conv layer uses bias or not
+        
+        Returns a conv block (with a conv layer, a normalization layer, and a non-linearity layer (ReLU))
+        """
+        conv_block = []
+        p = 0
+        if padding_type == 'reflect':
+            conv_block += [nn.ReflectionPad2d(1)]
+        elif padding_type == 'replicate':
+            conv_block += [nn.ReplicationPad2d(1)]
+        elif padding_type == 'zero':
+            p = 1
+        else:
+            raise NotImplementedError('padding [%s] is not implemented' % padding_type)
+
+        conv_block += [
+            nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias),
+            norm_layer(dim),
+            nn.ReLU(True)
+        ]
+        if use_dropout:
+            conv_block += [nn.Dropout(0.5)]
+
+        p = 0
+        if padding_type == 'reflect':
+            conv_block += [nn.ReflectionPad2d(1)]
+        elif padding_type == 'replicate':
+            conv_block += [nn.ReplicationPad2d(1)]
+        elif padding_type == 'zero':
+            p = 1
+        else:
+            raise NotImplementedError('padding [%s] is not implemented' % padding_type)
+        
+        conv_block += [
+            nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias),
+            norm_layer(dim)
+        ]
+
+        return nn.Sequential(*conv_block)
+
+    def forward(self, x):
+        """Forward function (with skip connections)"""
+        out = x + self.conv_block(x)  # add skip connections
+        return out
+
+class ResnetGenerator(nn.Module):
+    """Resnet-based generator that consists of Resnet blocks between a few downsampling/upsampling operations.
+    
+    Adapted from the Pix2Pix implementation
+    """
+
+    def __init__(self, input_nc=1, output_nc=3, ngf=256, norm_layer=nn.BatchNorm2d, 
+                 use_dropout=False, n_blocks=9, padding_type='reflect'):
+        """Construct a Resnet-based generator
+        
+        Parameters:
+            input_nc (int)      -- the number of channels in input images
+            output_nc (int)     -- the number of channels in output images
+            ngf (int)           -- the number of filters in the last conv layer
+            norm_layer          -- normalization layer
+            use_dropout (bool)  -- if use dropout layers
+            n_blocks (int)      -- the number of ResNet blocks
+            padding_type (str)  -- the name of padding layer in conv layers: reflect | replicate | zero
+        """
+        assert(n_blocks >= 0)
+        super(ResnetGenerator, self).__init__()
+        if type(norm_layer) == functools.partial:
+            use_bias = norm_layer.func == nn.InstanceNorm2d
+        else:
+            use_bias = norm_layer == nn.InstanceNorm2d
+
+        model = [nn.ReflectionPad2d(3),
+                 nn.Conv2d(input_nc, ngf, kernel_size=7, padding=0, bias=use_bias),
+                 norm_layer(ngf),
+                 nn.ReLU(True)]
+
+        n_downsampling = 2
+        for i in range(n_downsampling):  # add downsampling layers
+            mult = 2 ** i
+            model += [nn.Conv2d(ngf * mult, ngf * mult * 2, kernel_size=3, stride=2, padding=1, bias=use_bias),
+                      norm_layer(ngf * mult * 2),
+                      nn.ReLU(True)]
+
+        mult = 2 ** n_downsampling
+        for i in range(n_blocks):       # add ResNet blocks
+            model += [ResnetBlock(ngf * mult, padding_type=padding_type, norm_layer=norm_layer, 
+                                 use_dropout=use_dropout, use_bias=use_bias)]
+
+        for i in range(n_downsampling):  # add upsampling layers
+            mult = 2 ** (n_downsampling - i)
+            model += [nn.ConvTranspose2d(ngf * mult, int(ngf * mult / 2),
+                                         kernel_size=3, stride=2,
+                                         padding=1, output_padding=1,
+                                         bias=use_bias),
+                      norm_layer(int(ngf * mult / 2)),
+                      nn.ReLU(True)]
+        model += [nn.ReflectionPad2d(3)]
+        model += [nn.Conv2d(ngf, output_nc, kernel_size=7, padding=0)]
+        model += [nn.Tanh()]
+
+        self.model = nn.Sequential(*model)
+
+    def forward(self, x):
+        """Standard forward"""
+        return self.model(x)
+    
+# Factory function to choose generator architecture
+def get_generator(arch_type='resnet', **kwargs):
+    """
+    Factory function to create a generator based on architecture type
+    
+    Parameters:
+        arch_type (str) -- 'resnet' or 'unet'
+        **kwargs -- arguments to pass to the generator constructor
+    """
+    if arch_type.lower() == 'resnet':
+        return ResnetGenerator(**kwargs)
+    elif arch_type.lower() == 'unet':
+        return Generator(**kwargs)
+    else:
+        raise ValueError(f"Unknown generator architecture: {arch_type}")
+
+# Discriminator Network
+class PatchGANDiscriminator(nn.Module):
+    """
+    Defines a PatchGAN discriminator
+    This is a 70x70 PatchGAN as used in Pix2Pix
+    """
+    def __init__(self, input_nc=4, ndf=64, n_layers=3, norm_layer=nn.BatchNorm2d):
+        """
+        Construct a PatchGAN discriminator
+        
+        Parameters:
+            input_nc (int)  -- the number of channels in input images (1 for mask + 3 for RGB image = 4)
+            ndf (int)       -- the number of filters in the last conv layer
+            n_layers (int)  -- the number of conv layers in the discriminator
+            norm_layer      -- normalization layer
+        """
+        super(PatchGANDiscriminator, self).__init__()
+        if type(norm_layer) == functools.partial:  # no need to use bias as BatchNorm2d has affine parameters
+            use_bias = norm_layer.func == nn.InstanceNorm2d
+        else:
+            use_bias = norm_layer == nn.InstanceNorm2d
+            
+        kw = 4
+        padw = 1
+        sequence = [
+            nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw), 
+            nn.LeakyReLU(0.2, True)
+        ]
+        
+        nf_mult = 1
+        nf_mult_prev = 1
+        for n in range(1, n_layers):  # gradually increase the number of filters
+            nf_mult_prev = nf_mult
+            nf_mult = min(2 ** n, 8)
+            sequence += [
+                nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size=kw, stride=2, padding=padw, bias=use_bias),
+                norm_layer(ndf * nf_mult),
+                nn.LeakyReLU(0.2, True)
+            ]
+            
+        nf_mult_prev = nf_mult
+        nf_mult = min(2 ** n_layers, 8)
+        sequence += [
+            nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size=kw, stride=1, padding=padw, bias=use_bias),
+            norm_layer(ndf * nf_mult),
+            nn.LeakyReLU(0.2, True)
+        ]
+        
+        # Output 1 channel prediction map
+        sequence += [nn.Conv2d(ndf * nf_mult, 1, kernel_size=kw, stride=1, padding=padw)]
+        self.model = nn.Sequential(*sequence)
+        
+    def forward(self, mask, image):
+        """Standard forward."""
+        # Concatenate mask and image along channel dimension
+        x = torch.cat([mask, image], dim=1)
+        return self.model(x)
 
 # Generator Network (U-Net style)
 class Generator(nn.Module):
@@ -249,20 +451,42 @@ def discriminator_loss(real_output, fake_output):
     
     return total_loss
 
-
 def train_gan(generator, discriminator, train_loader, val_loader, device,
-              epochs=100, lr=0.0002, beta1=0.5, beta2=0.999, lambda_L1=100):
+              epochs=100, lr=0.0002, beta1=0.5, beta2=0.999, lambda_L1=100,
+              sample_dir='samples', checkpoint_dir='checkpoints',
+              test_mask_path=None):
     """
     Train the conditional GAN
-    """
-    # Optimizers
-    #generator_optimizer = optim.Adam(
-    #    generator.parameters(), lr=lr, betas=(beta1, beta2)
-    #)
-    #discriminator_optimizer = optim.Adam(
-    #    discriminator.parameters(), lr=lr, betas=(beta1, beta2)
-    #)
     
+    Args:
+        generator: Generator model
+        discriminator: Discriminator model
+        train_loader: DataLoader for training data
+        val_loader: DataLoader for validation data
+        device: Device to train on (cuda/cpu)
+        epochs: Number of training epochs
+        lr: Learning rate
+        beta1: Beta1 parameter for Adam optimizer
+        beta2: Beta2 parameter for Adam optimizer
+        lambda_L1: Weight for L1 loss
+        sample_dir: Directory to save sample images
+        checkpoint_dir: Directory to save model checkpoints
+        test_mask_path: Path to a test mask to visualize progress (optional)
+    
+    Returns:
+        Trained generator, discriminator, and training history
+    """
+    # Create directories if they don't exist
+    os.makedirs(sample_dir, exist_ok=True)
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    
+    # Track best validation loss
+    best_val_loss = float('inf')
+    
+    # Initialize counters for discriminator skip tracking
+    skipped_updates = 0
+    
+    # Optimizers with weight decay
     generator_optimizer = optim.Adam(
         generator.parameters(), 
         lr=lr, 
@@ -275,10 +499,7 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
         betas=(beta1, beta2),
         weight_decay=1e-5
     )
-    print(generator)
-    print(f"Generator parameters: {count_parameters(generator)}")
-    print(discriminator)
-    print(f"Discriminator parameters: {count_parameters(discriminator)}")
+    
     # Move models to device
     generator = generator.to(device)
     discriminator = discriminator.to(device)
@@ -287,13 +508,35 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
     history = {
         'generator_loss': [],
         'discriminator_loss': [],
-        'val_loss': []
+        'val_loss': [],
+        'skipped_updates': []
     }
     
-    # Sample images for visualization
+    # Sample images for visualization from validation set
     val_masks, val_images = next(iter(val_loader))
     fixed_masks = val_masks[:8].to(device)
     fixed_real_images = val_images[:8].to(device)
+    
+    # Load test mask if provided
+    test_mask_tensor = None
+    if test_mask_path and os.path.exists(test_mask_path):
+        try:
+            # Load and preprocess test mask
+            test_mask = Image.open(test_mask_path)
+            if test_mask.mode == 'RGB':
+                test_mask = test_mask.convert('L')  # Convert to grayscale
+            
+            transform = transforms.Compose([
+                transforms.Resize((256, 256)),
+                transforms.ToTensor(),
+                transforms.Normalize([0.5], [0.5])
+            ])
+            
+            test_mask_tensor = transform(test_mask).unsqueeze(0).to(device)
+            print(f"Loaded test mask from {test_mask_path} for progress visualization")
+        except Exception as e:
+            print(f"Error loading test mask: {e}")
+            test_mask_tensor = None
     
     # Training loop
     for epoch in range(epochs):
@@ -305,6 +548,7 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
         epoch_d_loss = 0
         epoch_adv_loss = 0
         epoch_l1_loss = 0
+        epoch_skipped = 0
         
         with tqdm(total=len(train_loader), desc=f"Epoch {epoch+1}/{epochs}") as pbar:
             for masks, real_images in train_loader:
@@ -334,14 +578,16 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
                 
                 # Total discriminator loss
                 d_loss = real_loss + fake_loss
-                if d_loss.item() < 0.2:  # Very low discriminator loss
+                
+                # Skip discriminator update if it's too strong
+                if d_loss.item() < 0.2:
                     discriminator_skip = True
+                    epoch_skipped += 1
                 else:
                     discriminator_skip = False
-                    
-                if not discriminator_skip:
                     d_loss.backward()
                     discriminator_optimizer.step()
+                
                 # -----------------------
                 # Train Generator
                 # -----------------------
@@ -360,6 +606,17 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
                 g_loss.backward()
                 generator_optimizer.step()
                 
+                # If discriminator is weak, train generator again
+                if d_loss.item() > 1.0:
+                    generator_optimizer.zero_grad()
+                    fake_images = generator(masks)
+                    fake_output = discriminator(masks, fake_images)
+                    g_loss, adv_loss, l1_loss = generator_loss(
+                        fake_output, fake_images, real_images, lambda_L1
+                    )
+                    g_loss.backward()
+                    generator_optimizer.step()
+                
                 # Update metrics
                 epoch_g_loss += g_loss.item() * batch_size
                 epoch_d_loss += d_loss.item() * batch_size
@@ -369,7 +626,8 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
                 pbar.update(1)
                 pbar.set_postfix({
                     'G Loss': g_loss.item(),
-                    'D Loss': d_loss.item()
+                    'D Loss': d_loss.item(),
+                    'Skipped': epoch_skipped
                 })
         
         # Calculate epoch metrics
@@ -377,12 +635,15 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
         epoch_d_loss /= len(train_loader.dataset)
         epoch_adv_loss /= len(train_loader.dataset)
         epoch_l1_loss /= len(train_loader.dataset)
-        if epoch == 200:
+        skipped_updates += epoch_skipped
+        
+        # Learning rate adjustment
+        if epoch in [100, 200, 300]:
             for param_group in generator_optimizer.param_groups:
                 param_group['lr'] *= 0.5
             for param_group in discriminator_optimizer.param_groups:
                 param_group['lr'] *= 0.5
-            print("Learning rate reduced by half")
+            print(f"Learning rate reduced by half at epoch {epoch+1}")
         
         # Validation
         generator.eval()
@@ -403,10 +664,18 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
                 
             val_loss /= len(val_loader.dataset)
         
+        # Track best model
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            torch.save(generator.state_dict(), f'{checkpoint_dir}/best_generator.pth')
+            torch.save(discriminator.state_dict(), f'{checkpoint_dir}/best_discriminator.pth')
+            print(f"Saved new best model with validation loss: {val_loss:.4f}")
+        
         # Update history
         history['generator_loss'].append(epoch_g_loss)
         history['discriminator_loss'].append(epoch_d_loss)
         history['val_loss'].append(val_loss)
+        history['skipped_updates'].append(epoch_skipped)
         
         # Print epoch stats
         print(f"Epoch [{epoch+1}/{epochs}] - "
@@ -414,21 +683,73 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
               f"D Loss: {epoch_d_loss:.4f}, "
               f"Adv Loss: {epoch_adv_loss:.4f}, "
               f"L1 Loss: {epoch_l1_loss:.4f}, "
-              f"Val Loss: {val_loss:.4f}")
+              f"Val Loss: {val_loss:.4f}, "
+              f"Skipped D Updates: {epoch_skipped}")
         
-        # Generate and save sample images
-        if (epoch + 1) % 5 == 0:
+        # Generate and save sample images from validation set
+        if (epoch + 1) % 5 == 0 or epoch == 0:
             generate_and_save_samples(
-                generator, fixed_masks, fixed_real_images, epoch, save_dir='samples_mod'
+                generator, fixed_masks, fixed_real_images, epoch, save_dir=sample_dir
             )
-            torch.save(generator.state_dict(), f'cell_gan_generator_{str(epoch)}.pth')
+        
+        # Generate and save test mask result if provided
+        if test_mask_tensor is not None:
+            with torch.no_grad():
+                # Generate image from test mask
+                fake_image = generator(test_mask_tensor)
+                
+                # Convert to numpy for visualization
+                fake_image = fake_image.cpu().squeeze().numpy()
+                fake_image = np.transpose(fake_image, (1, 2, 0))
+                fake_image = (fake_image + 1) / 2.0
+                fake_image = np.clip(fake_image, 0, 1)
+                
+                # Convert test mask to numpy
+                test_mask_np = test_mask_tensor.cpu().squeeze().numpy()
+                test_mask_np = (test_mask_np + 1) / 2.0
+                
+                # Create a figure
+                plt.figure(figsize=(10, 5))
+                
+                # Plot mask
+                plt.subplot(1, 2, 1)
+                plt.imshow(test_mask_np, cmap='gray')
+                plt.title('Test Mask')
+                plt.axis('off')
+                
+                # Plot generated image
+                plt.subplot(1, 2, 2)
+                plt.imshow(fake_image)
+                plt.title(f'Generated Image (Epoch {epoch+1})')
+                plt.axis('off')
+                
+                plt.tight_layout()
+                plt.savefig(f'{sample_dir}/test_progress_epoch_{epoch+1}.png')
+                plt.close()
+        
+        # Save model checkpoint
+        if (epoch + 1) % 10 == 0:
+            torch.save({
+                'epoch': epoch + 1,
+                'generator_state_dict': generator.state_dict(),
+                'discriminator_state_dict': discriminator.state_dict(),
+                'generator_optimizer': generator_optimizer.state_dict(),
+                'discriminator_optimizer': discriminator_optimizer.state_dict(),
+                'g_loss': epoch_g_loss,
+                'd_loss': epoch_d_loss,
+                'val_loss': val_loss,
+                'history': history
+            }, f'{checkpoint_dir}/checkpoint_epoch_{epoch+1}.pt')
+            
+            # Save latest model separately
+            torch.save(generator.state_dict(), f'{checkpoint_dir}/latest_generator.pth')
+            torch.save(discriminator.state_dict(), f'{checkpoint_dir}/latest_discriminator.pth')
     
     # Save final models
-    torch.save(generator.state_dict(), 'cell_gan_generator.pth')
-    torch.save(discriminator.state_dict(), 'cell_gan_discriminator.pth')
+    torch.save(generator.state_dict(), f'{checkpoint_dir}/final_generator.pth')
+    torch.save(discriminator.state_dict(), f'{checkpoint_dir}/final_discriminator.pth')
     
     return generator, discriminator, history
-
 
 def generate_and_save_samples(generator, masks, real_images, epoch, save_dir='samples'):
     """
@@ -663,6 +984,177 @@ def main():
         viz_path = os.path.join(output_dir, viz_filename)
         plt.savefig(viz_path)
         plt.close()
+    
+    print(f"Successfully generated {len(mask_files)} images in {output_dir}")
+
+def main():
+    # Parameters
+    batch_size = 8      # This is fine for most GPUs
+    epochs = 300        # Increase this since your model is still improving
+    lr = 0.0001         # This lower learning rate is good
+    beta1 = 0.5         # Standard for GANs
+    beta2 = 0.999       # Standard value
+    lambda_L1 = 150 
+    
+    # Directories for your data
+    image_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\images"
+    mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\labels"
+    
+    # Output directories
+    sample_dir = "resnet_samples"
+    checkpoint_dir = "checkpoints"
+    output_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\dataset_pix2pix\\new_samples_resnet"
+    
+    # Test mask for progress visualization during training
+    test_mask_path = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\src\\data_augmentation\\gans\\base_gan\\generated_samples\\sample_mask.png"
+    
+    # Device configuration
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+    
+    # Data transformations
+    # For images: scale to [-1, 1]
+    image_transform = transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+    ])
+    
+    # For masks: grayscale and scale to [-1, 1]
+    mask_transform = transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5], [0.5])
+    ])
+    
+    # Create dataset
+    dataset = CellGANDataset(
+        image_dir, mask_dir, 
+        transform=image_transform, 
+        mask_transform=mask_transform
+    )
+    
+    # Split into train and validation sets
+    train_size = int(0.8 * len(dataset))
+    val_size = len(dataset) - train_size
+    
+    train_dataset, val_dataset = torch.utils.data.random_split(
+        dataset, [train_size, val_size]
+    )
+    
+    # Create data loaders
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    
+    # Initialize ResNet generator
+    generator = get_generator(
+        arch_type='resnet',
+        input_nc=1,          # 1-channel input (grayscale mask)
+        output_nc=3,         # 3-channel output (RGB image)
+        ngf=256,             # Increase base filters for more parameters
+        norm_layer=nn.InstanceNorm2d,  # Instance norm often works better than BatchNorm
+        use_dropout=True,
+        n_blocks=9           # Increase number of ResNet blocks for more parameters
+    )
+    
+    # Initialize PatchGAN discriminator
+    discriminator = PatchGANDiscriminator(
+        input_nc=4,          # 1 for mask + 3 for image
+        ndf=64,
+        n_layers=3,
+        norm_layer=nn.BatchNorm2d
+    )
+    
+    # Print model sizes
+    print(f"Generator Architecture: ResNet")
+    print(f"Generator Parameters: {count_parameters(generator):,}")
+    print(f"Discriminator Parameters: {count_parameters(discriminator):,}")
+    
+    # Create directories if they don't exist
+    os.makedirs(sample_dir, exist_ok=True)
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Train models
+    trained_generator, trained_discriminator, history = train_gan(
+        generator, discriminator, train_loader, val_loader, device,
+        epochs=epochs, lr=lr, beta1=beta1, beta2=beta2, lambda_L1=lambda_L1,
+        sample_dir=sample_dir, checkpoint_dir=checkpoint_dir,
+        test_mask_path=test_mask_path
+    )
+    
+    # Plot training history
+    plot_training_history(history)
+    
+    # Test inference on masks in a directory and save generated images
+    test_mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\src\\data_augmentation\\gans\\base_gan\\generated_samples"
+    
+    # Process each mask and save the generated image
+    process_mask_directory(
+        trained_generator, 
+        test_mask_dir, 
+        output_dir, 
+        device, 
+        make_comparison=True
+    )
+
+def process_mask_directory(generator, mask_dir, output_dir, device, make_comparison=True):
+    """
+    Process all mask files in a directory and save the generated images
+    
+    Args:
+        generator: Trained generator model
+        mask_dir: Directory containing mask files
+        output_dir: Directory to save generated images
+        device: Device to run inference on
+        make_comparison: Whether to create comparison images with masks side by side
+    """
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Get all mask files
+    mask_files = [f for f in os.listdir(mask_dir) if f.endswith(('.png', '.jpg', '.jpeg', '.tif', '.tiff'))]
+    
+    print(f"Found {len(mask_files)} mask files to process.")
+    
+    # Process each mask and save the generated image
+    for mask_file in tqdm(mask_files, desc="Generating images"):
+        mask_path = os.path.join(mask_dir, mask_file)
+        
+        # Generate image
+        generated_image = inference(generator, mask_path, device)
+        
+        # Convert to PIL image for saving
+        pil_image = Image.fromarray((generated_image * 255).astype(np.uint8))
+        
+        # Create output filename
+        output_filename = os.path.splitext(mask_file)[0] + "_generated.png"
+        output_path = os.path.join(output_dir, output_filename)
+        
+        # Save the generated image
+        pil_image.save(output_path)
+        
+        if make_comparison:
+            # Create a visualization comparing input and output
+            plt.figure(figsize=(10, 5))
+            
+            plt.subplot(1, 2, 1)
+            plt.imshow(Image.open(mask_path).convert('L'), cmap='gray')
+            plt.title('Input Mask')
+            plt.axis('off')
+            
+            plt.subplot(1, 2, 2)
+            plt.imshow(generated_image)
+            plt.title('Generated Cell Image')
+            plt.axis('off')
+            
+            plt.tight_layout()
+            
+            # Save the visualization
+            viz_filename = os.path.splitext(mask_file)[0] + "_comparison.png"
+            viz_path = os.path.join(output_dir, viz_filename)
+            plt.savefig(viz_path)
+            plt.close()
     
     print(f"Successfully generated {len(mask_files)} images in {output_dir}")
 
