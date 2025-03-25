@@ -31,10 +31,10 @@ class Options:
         opt.name = "cell_segmentation_pix2pix"
         opt.preprocess = ""
         opt.model = "pix2pix"
-        opt.direction = "BtoA"
+        opt.direction = "AtoB"
         opt.checkpoints_dir  = "./checkpoint"
-        opt.input_nc = 1
-        opt.output_nc = 3
+        opt.input_nc = 3
+        opt.output_nc = 1
         opt.ngf = 64
         opt.ndf = 64
         opt.netG = "resnet_9blocks"

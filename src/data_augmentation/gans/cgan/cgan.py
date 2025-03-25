@@ -215,7 +215,6 @@ class Discriminator(nn.Module):
         x = torch.cat([mask, image], dim=1)
         return self.model(x)
 
-
 # Loss functions
 def generator_loss(fake_output, fake_image, real_image, lambda_L1=100):
     """
@@ -276,7 +275,10 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
         betas=(beta1, beta2),
         weight_decay=1e-5
     )
-
+    print(generator)
+    print(f"Generator parameters: {count_parameters(generator)}")
+    print(discriminator)
+    print(f"Discriminator parameters: {count_parameters(discriminator)}")
     # Move models to device
     generator = generator.to(device)
     discriminator = discriminator.to(device)
@@ -664,6 +666,8 @@ def main():
     
     print(f"Successfully generated {len(mask_files)} images in {output_dir}")
 
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 if __name__ == "__main__":
     main()

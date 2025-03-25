@@ -110,6 +110,12 @@ class GANModel(BaseGAN):
         self.criterion = nn.BCELoss()
         self.optimizer_g = optim.Adam(self.generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
         self.optimizer_d = optim.Adam(self.discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
+        # Print the number of parameters
+        print(self.generator)
+        print(f'The generator has {count_parameters(self.generator):,} trainable parameters')
+        print(self.discriminator)
+        print(f'The discriminator has {count_parameters(self.discriminator):,} trainable parameters')
+        
 
 # Data Loader
 class CellDataset(Dataset):
