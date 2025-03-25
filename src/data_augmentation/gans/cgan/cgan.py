@@ -112,8 +112,15 @@ class ResnetBlock(nn.Module):
 
     def forward(self, x):
         """Forward function (with skip connections)"""
-        out = x + self.conv_block(x)  # add skip connections
+        # Store the original input
+        identity = x.clone()
+        # Apply the convolutional block
+        out = self.conv_block(x)
+        # Add the skip connection (identity path)
+        out = out + identity
         return out
+
+
 
 class ResnetGenerator(nn.Module):
     """Resnet-based generator that consists of Resnet blocks between a few downsampling/upsampling operations.
@@ -187,8 +194,22 @@ def get_generator(arch_type='resnet', **kwargs):
     """
     if arch_type.lower() == 'resnet':
         return ResnetGenerator(**kwargs)
-    elif arch_type.lower() == 'unet':
-        return Generator(**kwargs)
+    elif arch_type.lower() == 'small_unet':
+        return UNetGenerator(
+            input_nc=1,
+            output_nc=3,
+            ngf=32,     # Fewer base filters
+            max_filters=256,
+            depth=7     # Slightly less depth
+        )
+    elif arch_type.lower() == 'big_unet':
+        return  UNetGenerator(
+            input_nc=1,
+            output_nc=3,
+            ngf=64,
+            max_filters=1024,
+            depth=8
+        )
     else:
         raise ValueError(f"Unknown generator architecture: {arch_type}")
 
@@ -250,108 +271,145 @@ class PatchGANDiscriminator(nn.Module):
         x = torch.cat([mask, image], dim=1)
         return self.model(x)
 
-# Generator Network (U-Net style)
-class Generator(nn.Module):
-    def __init__(self, in_channels=1, out_channels=3):
-        super(Generator, self).__init__()
+import torch.nn.functional as F
+
+class UNetGenerator(nn.Module):
+    """
+    U-Net Generator with dynamic sizing capabilities
+    """
+    def __init__(self, input_nc=1, output_nc=3, ngf=64, max_filters=512, 
+                 depth=8, use_dropout=True, norm_layer=nn.BatchNorm2d):
+        """
+        Parameters:
+            input_nc (int) -- input channels (1 for mask)
+            output_nc (int) -- output channels (3 for RGB)
+            ngf (int) -- number of base filters (increase for larger models)
+            max_filters (int) -- maximum number of filters in any layer
+            depth (int) -- depth of the U-Net (8 is original, can be 6-9)
+            use_dropout (bool) -- whether to use dropout
+            norm_layer -- normalization layer type
+        """
+        super(UNetGenerator, self).__init__()
         
-        # Encoder
+        # Create individual layers directly instead of dynamically constructing them
+        # This ensures we have precise control over channel dimensions
+        
+        # Encoder path - same as your original UNet
         self.enc1 = nn.Sequential(
-            nn.Conv2d(in_channels, 64, kernel_size=4, stride=2, padding=1),
+            nn.Conv2d(input_nc, ngf, kernel_size=4, stride=2, padding=1),
             nn.LeakyReLU(0.2, inplace=True)
-        )  # 128x128
+        )
         
         self.enc2 = nn.Sequential(
-            nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(128),
+            nn.Conv2d(ngf, ngf * 2, kernel_size=4, stride=2, padding=1),
+            norm_layer(ngf * 2),
             nn.LeakyReLU(0.2, inplace=True)
-        )  # 64x64
+        )
         
         self.enc3 = nn.Sequential(
-            nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(256),
+            nn.Conv2d(ngf * 2, ngf * 4, kernel_size=4, stride=2, padding=1),
+            norm_layer(ngf * 4),
             nn.LeakyReLU(0.2, inplace=True)
-        )  # 32x32
+        )
         
         self.enc4 = nn.Sequential(
-            nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(512),
+            nn.Conv2d(ngf * 4, ngf * 8, kernel_size=4, stride=2, padding=1),
+            norm_layer(ngf * 8),
             nn.LeakyReLU(0.2, inplace=True)
-        )  # 16x16
+        )
         
-        self.enc5 = nn.Sequential(
-            nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(512),
-            nn.LeakyReLU(0.2, inplace=True)
-        )  # 8x8
+        # Add more encoder layers depending on depth parameter
+        if depth > 4:
+            self.enc5 = nn.Sequential(
+                nn.Conv2d(ngf * 8, min(ngf * 8 * 2, max_filters), kernel_size=4, stride=2, padding=1),
+                norm_layer(min(ngf * 8 * 2, max_filters)),
+                nn.LeakyReLU(0.2, inplace=True)
+            )
         
-        self.enc6 = nn.Sequential(
-            nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(512),
-            nn.LeakyReLU(0.2, inplace=True)
-        )  # 4x4
+        if depth > 5:
+            self.enc6 = nn.Sequential(
+                nn.Conv2d(min(ngf * 8 * 2, max_filters), min(ngf * 8 * 2, max_filters), kernel_size=4, stride=2, padding=1),
+                norm_layer(min(ngf * 8 * 2, max_filters)),
+                nn.LeakyReLU(0.2, inplace=True)
+            )
         
-        self.enc7 = nn.Sequential(
-            nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(512),
-            nn.LeakyReLU(0.2, inplace=True)
-        )  # 2x2
+        if depth > 6:
+            self.enc7 = nn.Sequential(
+                nn.Conv2d(min(ngf * 8 * 2, max_filters), min(ngf * 8 * 2, max_filters), kernel_size=4, stride=2, padding=1),
+                norm_layer(min(ngf * 8 * 2, max_filters)),
+                nn.LeakyReLU(0.2, inplace=True)
+            )
         
-        self.enc8 = nn.Sequential(
-            nn.Conv2d(512, 512, kernel_size=4, stride=2, padding=1),
-            nn.ReLU(inplace=True)
-        )  # 1x1
+        if depth > 7:
+            self.enc8 = nn.Sequential(
+                nn.Conv2d(min(ngf * 8 * 2, max_filters), min(ngf * 8 * 2, max_filters), kernel_size=4, stride=2, padding=1),
+                nn.ReLU(inplace=True)
+            )
         
-        # Decoder
-        self.dec1 = nn.Sequential(
-            nn.ConvTranspose2d(512, 512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(512),
-            nn.Dropout(0.5),
-            nn.ReLU(inplace=True)
-        )  # 2x2
+        # Decoder path
+        # Calculate the exact input size for each decoder based on depth
+        if depth > 7:
+            self.dec1 = nn.Sequential(
+                nn.ConvTranspose2d(min(ngf * 8 * 2, max_filters), min(ngf * 8 * 2, max_filters), kernel_size=4, stride=2, padding=1),
+                norm_layer(min(ngf * 8 * 2, max_filters)),
+                nn.Dropout(0.5) if use_dropout else nn.Identity(),
+                nn.ReLU(inplace=True)
+            )
+            
+            self.dec2 = nn.Sequential(
+                nn.ConvTranspose2d(min(ngf * 8 * 2, max_filters) * 2, min(ngf * 8 * 2, max_filters), kernel_size=4, stride=2, padding=1),
+                norm_layer(min(ngf * 8 * 2, max_filters)),
+                nn.Dropout(0.5) if use_dropout else nn.Identity(),
+                nn.ReLU(inplace=True)
+            )
+        elif depth > 6:
+            self.dec1 = nn.Sequential(
+                nn.ConvTranspose2d(min(ngf * 8 * 2, max_filters), min(ngf * 8 * 2, max_filters), kernel_size=4, stride=2, padding=1),
+                norm_layer(min(ngf * 8 * 2, max_filters)),
+                nn.Dropout(0.5) if use_dropout else nn.Identity(),
+                nn.ReLU(inplace=True)
+            )
         
-        self.dec2 = nn.Sequential(
-            nn.ConvTranspose2d(512 * 2, 512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(512),
-            nn.Dropout(0.5),
-            nn.ReLU(inplace=True)
-        )  # 4x4
+        if depth > 6:
+            self.dec3 = nn.Sequential(
+                nn.ConvTranspose2d(min(ngf * 8 * 2, max_filters) * 2, min(ngf * 8 * 2, max_filters), kernel_size=4, stride=2, padding=1),
+                norm_layer(min(ngf * 8 * 2, max_filters)),
+                nn.Dropout(0.5) if use_dropout else nn.Identity(),
+                nn.ReLU(inplace=True)
+            )
         
-        self.dec3 = nn.Sequential(
-            nn.ConvTranspose2d(512 * 2, 512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(512),
-            nn.Dropout(0.5),
-            nn.ReLU(inplace=True)
-        )  # 8x8
+        if depth > 5:
+            self.dec4 = nn.Sequential(
+                nn.ConvTranspose2d(min(ngf * 8 * 2, max_filters) * 2, ngf * 8, kernel_size=4, stride=2, padding=1),
+                norm_layer(ngf * 8),
+                nn.ReLU(inplace=True)
+            )
         
-        self.dec4 = nn.Sequential(
-            nn.ConvTranspose2d(512 * 2, 512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(512),
-            nn.ReLU(inplace=True)
-        )  # 16x16
-        
-        self.dec5 = nn.Sequential(
-            nn.ConvTranspose2d(512 * 2, 256, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True)
-        )  # 32x32
+        if depth > 4:
+            self.dec5 = nn.Sequential(
+                nn.ConvTranspose2d(ngf * 8 * 2, ngf * 4, kernel_size=4, stride=2, padding=1),
+                norm_layer(ngf * 4),
+                nn.ReLU(inplace=True)
+            )
         
         self.dec6 = nn.Sequential(
-            nn.ConvTranspose2d(256 * 2, 128, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(128),
+            nn.ConvTranspose2d(ngf * 4 * 2, ngf * 2, kernel_size=4, stride=2, padding=1),
+            norm_layer(ngf * 2),
             nn.ReLU(inplace=True)
-        )  # 64x64
+        )
         
         self.dec7 = nn.Sequential(
-            nn.ConvTranspose2d(128 * 2, 64, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(64),
+            nn.ConvTranspose2d(ngf * 2 * 2, ngf, kernel_size=4, stride=2, padding=1),
+            norm_layer(ngf),
             nn.ReLU(inplace=True)
-        )  # 128x128
+        )
         
         self.dec8 = nn.Sequential(
-            nn.ConvTranspose2d(64 * 2, out_channels, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(ngf * 2, output_nc, kernel_size=4, stride=2, padding=1),
             nn.Tanh()
-        )  # 256x256
+        )
+        
+        self.depth = depth
         
     def forward(self, x):
         # Encoder
@@ -359,23 +417,42 @@ class Generator(nn.Module):
         e2 = self.enc2(e1)
         e3 = self.enc3(e2)
         e4 = self.enc4(e3)
-        e5 = self.enc5(e4)
-        e6 = self.enc6(e5)
-        e7 = self.enc7(e6)
-        e8 = self.enc8(e7)
         
-        # Decoder with skip connections
-        d1 = self.dec1(e8)
-        d2 = self.dec2(torch.cat([d1, e7], 1))
-        d3 = self.dec3(torch.cat([d2, e6], 1))
-        d4 = self.dec4(torch.cat([d3, e5], 1))
-        d5 = self.dec5(torch.cat([d4, e4], 1))
+        # Apply encoder layers conditionally based on depth
+        if self.depth > 4:
+            e5 = self.enc5(e4)
+        if self.depth > 5:
+            e6 = self.enc6(e5)
+        if self.depth > 6:
+            e7 = self.enc7(e6)
+        if self.depth > 7:
+            e8 = self.enc8(e7)
+        
+        # Decoder with skip connections - also conditional based on depth
+        if self.depth > 7:
+            d1 = self.dec1(e8)
+            d2 = self.dec2(torch.cat([d1, e7], 1))
+            d3 = self.dec3(torch.cat([d2, e6], 1))
+            d4 = self.dec4(torch.cat([d3, e5], 1))
+            d5 = self.dec5(torch.cat([d4, e4], 1))
+        elif self.depth > 6:
+            d1 = self.dec1(e7)
+            d3 = self.dec3(torch.cat([d1, e6], 1))
+            d4 = self.dec4(torch.cat([d3, e5], 1))
+            d5 = self.dec5(torch.cat([d4, e4], 1))
+        elif self.depth > 5:
+            d4 = self.dec4(e6)
+            d5 = self.dec5(torch.cat([d4, e4], 1))
+        elif self.depth > 4:
+            d5 = self.dec5(e5)
+        else:
+            d5 = e4
+            
         d6 = self.dec6(torch.cat([d5, e3], 1))
         d7 = self.dec7(torch.cat([d6, e2], 1))
         d8 = self.dec8(torch.cat([d7, e1], 1))
         
         return d8
-
 
 # Discriminator Network
 class Discriminator(nn.Module):
@@ -869,128 +946,10 @@ def inference(generator, mask_path, device):
     
     return fake_image
 
-
 def main():
     # Parameters
     batch_size = 8      # This is fine for most GPUs
-    epochs = 400        # Increase this since your model is still improving
-    lr = 0.0001         # This lower learning rate is good
-    beta1 = 0.5         # Standard for GANs
-    beta2 = 0.999       # Standard value
-    lambda_L1 = 150 
-    
-    # Directories for your data
-    image_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\images"
-    mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\labels"
-    
-    # Device configuration
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
-    
-    # Data transformations
-    # For images: scale to [-1, 1]
-    image_transform = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-    ])
-    
-    # For masks: grayscale and scale to [-1, 1]
-    mask_transform = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5], [0.5])
-    ])
-    
-    # Create dataset
-    dataset = CellGANDataset(
-        image_dir, mask_dir, 
-        transform=image_transform, 
-        mask_transform=mask_transform
-    )
-    
-    # Split into train and validation sets
-    train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    
-    train_dataset, val_dataset = torch.utils.data.random_split(
-        dataset, [train_size, val_size]
-    )
-    
-    # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    
-    # Initialize models
-    generator = Generator(in_channels=1, out_channels=3)
-    discriminator = Discriminator(in_channels=4)  # 1 for mask + 3 for image
-    
-    # Train models
-    trained_generator, trained_discriminator, history = train_gan(
-        generator, discriminator, train_loader, val_loader, device,
-        epochs=epochs, lr=lr, beta1=beta1, beta2=beta2, lambda_L1=lambda_L1
-    )
-    
-    # Plot training history
-    plot_training_history(history)
-    
-    # Test inference on masks in a directory and save generated images
-    test_mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\src\\data_augmentation\\gans\\base_gan\\generated_samples"
-    output_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\dataset_pix2pix\\new_samples_mod"
-    
-    # Create output directory if it doesn't exist
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    # Get all mask files
-    mask_files = [f for f in os.listdir(test_mask_dir) if f.endswith(('.png', '.jpg', '.jpeg', '.tif', '.tiff'))]
-    
-    print(f"Found {len(mask_files)} mask files to process.")
-    
-    # Process each mask and save the generated image
-    for mask_file in tqdm(mask_files, desc="Generating images"):
-        mask_path = os.path.join(test_mask_dir, mask_file)
-        
-        # Generate image
-        generated_image = inference(trained_generator, mask_path, device)
-        
-        # Convert to PIL image for saving
-        pil_image = Image.fromarray((generated_image * 255).astype(np.uint8))
-        
-        # Create output filename
-        output_filename = os.path.splitext(mask_file)[0] + "_generated.png"
-        output_path = os.path.join(output_dir, output_filename)
-        
-        # Save the generated image
-        pil_image.save(output_path)
-        
-        # Create a visualization comparing input and output
-        plt.figure(figsize=(10, 5))
-        
-        plt.subplot(1, 2, 1)
-        plt.imshow(Image.open(mask_path).convert('L'), cmap='gray')
-        plt.title('Input Mask')
-        plt.axis('off')
-        
-        plt.subplot(1, 2, 2)
-        plt.imshow(generated_image)
-        plt.title('Generated Cell Image')
-        plt.axis('off')
-        
-        plt.tight_layout()
-        
-        # Save the visualization
-        viz_filename = os.path.splitext(mask_file)[0] + "_comparison.png"
-        viz_path = os.path.join(output_dir, viz_filename)
-        plt.savefig(viz_path)
-        plt.close()
-    
-    print(f"Successfully generated {len(mask_files)} images in {output_dir}")
-
-def main():
-    # Parameters
-    batch_size = 8      # This is fine for most GPUs
-    epochs = 300        # Increase this since your model is still improving
+    epochs = 100        # Increase this since your model is still improving
     lr = 0.0001         # This lower learning rate is good
     beta1 = 0.5         # Standard for GANs
     beta2 = 0.999       # Standard value
@@ -1001,12 +960,12 @@ def main():
     mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\labels"
     
     # Output directories
-    sample_dir = "resnet_samples"
+    sample_dir = "bigger_unet_samples"
     checkpoint_dir = "checkpoints"
-    output_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\dataset_pix2pix\\new_samples_resnet"
+    output_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\dataset_pix2pix\\new_samples_bigger_unet"
     
     # Test mask for progress visualization during training
-    test_mask_path = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\src\\data_augmentation\\gans\\base_gan\\generated_samples\\sample_mask.png"
+    test_mask_path = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\src\\data_augmentation\\gans\\base_gan\\generated_samples\\sample_1_epoch_86.png"
     
     # Device configuration
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -1048,13 +1007,13 @@ def main():
     
     # Initialize ResNet generator
     generator = get_generator(
-        arch_type='resnet',
+        arch_type='big_unet',
         input_nc=1,          # 1-channel input (grayscale mask)
         output_nc=3,         # 3-channel output (RGB image)
         ngf=256,             # Increase base filters for more parameters
         norm_layer=nn.InstanceNorm2d,  # Instance norm often works better than BatchNorm
         use_dropout=True,
-        n_blocks=9           # Increase number of ResNet blocks for more parameters
+        n_blocks=1           # Increase number of ResNet blocks for more parameters
     )
     
     # Initialize PatchGAN discriminator
