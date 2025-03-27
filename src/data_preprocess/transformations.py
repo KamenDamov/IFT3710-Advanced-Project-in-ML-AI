@@ -85,3 +85,4 @@ if __name__ == '__main__':
     os.makedirs('../../data/preprocessing_outputs', exist_ok=True)
     apply_tranformations(min(crop_size), args.input_dir, args.label_dir, args.output_dir)
     print("Preprocessing complete.")
+
