@@ -11,7 +11,7 @@
 #SBATCH --mail-user=your_mail@umontreal.ca  # Where to receive all the job-related emails
 
 # Set the path to data and model dir
-PROJECT_DIR=/home/kamendam/projects/def-rmf-384-02/kamendam
+PROJECT_DIR=/home/kamendam/projects/def-bangliu/kamendam
 DATA_DIR=$PROJECT_DIR/data/
 MODEL_DIR=$PROJECT_DIR/models/llama
 REPO_DIR=$SCRATCH/llama_finetune_code
