@@ -10,6 +10,9 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import functools
+import wandb
+import datetime
+import argparse
 
 class CellGANDataset(Dataset):
     """
@@ -532,6 +535,50 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
               epochs=100, lr=0.0002, beta1=0.5, beta2=0.999, lambda_L1=100,
               sample_dir='samples', checkpoint_dir='checkpoints',
               test_mask_path=None):
+
+    
+    # Training history
+    history = {
+        'gen_loss': [], 'disc_loss': [], 'val_gen_loss': [], 'val_disc_loss': []
+    }
+    
+    for epoch in range(epochs):
+        # Your existing training loop
+        
+        # After computing epoch losses, log to wandb
+        
+        
+        # If you generate sample images during training, log those too
+        if test_mask_path and epoch % 10 == 0:  # Adjust frequency as needed
+            # Generate your sample image
+            sample_img = generate_sample_image(generator, test_mask_path, device)
+            
+            # Log the image to wandb
+            wandb.log({f"sample_epoch_{epoch}": wandb.Image(sample_img)})
+        
+        # If you save checkpoints, you can also log those to wandb
+        if epoch % 50 == 0:  # Adjust frequency as needed
+            # Save your checkpoint as usual
+            torch.save({
+                'generator': generator.state_dict(),
+                'discriminator': discriminator.state_dict(),
+                'gen_optimizer': gen_optimizer.state_dict(),
+                'disc_optimizer': disc_optimizer.state_dict(),
+                'epoch': epoch
+            }, f"{checkpoint_dir}/checkpoint_epoch_{epoch}.pt")
+            
+            # Log the checkpoint to wandb
+            wandb.save(f"{checkpoint_dir}/checkpoint_epoch_{epoch}.pt")
+    
+    # Finish the wandb run when training is complete
+    wandb.finish()
+    
+    return generator, discriminator, history
+
+def train_gan(generator, discriminator, train_loader, val_loader, device,
+              epochs=100, lr=0.0002, beta1=0.5, beta2=0.999, lambda_L1=100,
+              sample_dir='samples', checkpoint_dir='checkpoints',
+              test_mask_path=None):
     """
     Train the conditional GAN
     
@@ -581,10 +628,14 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
     generator = generator.to(device)
     discriminator = discriminator.to(device)
     
+    wandb.watch(generator)
+    wandb.watch(discriminator)
+
     # Training history
     history = {
         'generator_loss': [],
         'discriminator_loss': [],
+        'adv_loss': [],
         'val_loss': [],
         'skipped_updates': []
     }
@@ -751,6 +802,7 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
         # Update history
         history['generator_loss'].append(epoch_g_loss)
         history['discriminator_loss'].append(epoch_d_loss)
+        history['adv_loss'].append(epoch_adv_loss)
         history['val_loss'].append(val_loss)
         history['skipped_updates'].append(epoch_skipped)
         
@@ -803,6 +855,8 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
                 plt.tight_layout()
                 plt.savefig(f'{sample_dir}/test_progress_epoch_{epoch+1}.png')
                 plt.close()
+                wandb.log({f"smaple_epoch_{epoch}": wandb.Image(fake_image)})
+
         
         # Save model checkpoint
         if (epoch + 1) % 10 == 0:
@@ -817,15 +871,25 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
                 'val_loss': val_loss,
                 'history': history
             }, f'{checkpoint_dir}/checkpoint_epoch_{epoch+1}.pt')
-            
+
+            wandb.save(f'{checkpoint_dir}/checkpoint_epoch_{epoch+1}.pt')
+                        
             # Save latest model separately
             torch.save(generator.state_dict(), f'{checkpoint_dir}/latest_generator.pth')
             torch.save(discriminator.state_dict(), f'{checkpoint_dir}/latest_discriminator.pth')
-    
+
+        wandb.log({
+            "epoch": epoch,
+            "gen_loss": epoch_g_loss,
+            "disc_loss": epoch_d_loss,
+            "adv_loss": epoch_adv_loss,
+            "val_loss": val_loss,
+            "skipped_updates": skipped_updates
+        })
     # Save final models
     torch.save(generator.state_dict(), f'{checkpoint_dir}/final_generator.pth')
     torch.save(discriminator.state_dict(), f'{checkpoint_dir}/final_discriminator.pth')
-    
+    wandb.finish()
     return generator, discriminator, history
 
 def generate_and_save_samples(generator, masks, real_images, epoch, save_dir='samples'):
@@ -946,116 +1010,6 @@ def inference(generator, mask_path, device):
     
     return fake_image
 
-def main():
-    # Parameters
-    batch_size = 8      # This is fine for most GPUs
-    epochs = 100        # Increase this since your model is still improving
-    lr = 0.0001         # This lower learning rate is good
-    beta1 = 0.5         # Standard for GANs
-    beta2 = 0.999       # Standard value
-    lambda_L1 = 150 
-    
-    # Directories for your data
-    image_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\images"
-    mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\labels"
-    
-    # Output directories
-    sample_dir = "bigger_unet_samples"
-    checkpoint_dir = "checkpoints"
-    output_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\dataset_pix2pix\\new_samples_bigger_unet"
-    
-    # Test mask for progress visualization during training
-    test_mask_path = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\src\\data_augmentation\\gans\\base_gan\\generated_samples\\sample_1_epoch_86.png"
-    
-    # Device configuration
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
-    
-    # Data transformations
-    # For images: scale to [-1, 1]
-    image_transform = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-    ])
-    
-    # For masks: grayscale and scale to [-1, 1]
-    mask_transform = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5], [0.5])
-    ])
-    
-    # Create dataset
-    dataset = CellGANDataset(
-        image_dir, mask_dir, 
-        transform=image_transform, 
-        mask_transform=mask_transform
-    )
-    
-    # Split into train and validation sets
-    train_size = int(0.8 * len(dataset))
-    val_size = len(dataset) - train_size
-    
-    train_dataset, val_dataset = torch.utils.data.random_split(
-        dataset, [train_size, val_size]
-    )
-    
-    # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    
-    # Initialize ResNet generator
-    generator = get_generator(
-        arch_type='big_unet',
-        input_nc=1,          # 1-channel input (grayscale mask)
-        output_nc=3,         # 3-channel output (RGB image)
-        ngf=256,             # Increase base filters for more parameters
-        norm_layer=nn.InstanceNorm2d,  # Instance norm often works better than BatchNorm
-        use_dropout=True,
-        n_blocks=1           # Increase number of ResNet blocks for more parameters
-    )
-    
-    # Initialize PatchGAN discriminator
-    discriminator = PatchGANDiscriminator(
-        input_nc=4,          # 1 for mask + 3 for image
-        ndf=64,
-        n_layers=3,
-        norm_layer=nn.BatchNorm2d
-    )
-    
-    # Print model sizes
-    print(f"Generator Architecture: ResNet")
-    print(f"Generator Parameters: {count_parameters(generator):,}")
-    print(f"Discriminator Parameters: {count_parameters(discriminator):,}")
-    
-    # Create directories if they don't exist
-    os.makedirs(sample_dir, exist_ok=True)
-    os.makedirs(checkpoint_dir, exist_ok=True)
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Train models
-    trained_generator, trained_discriminator, history = train_gan(
-        generator, discriminator, train_loader, val_loader, device,
-        epochs=epochs, lr=lr, beta1=beta1, beta2=beta2, lambda_L1=lambda_L1,
-        sample_dir=sample_dir, checkpoint_dir=checkpoint_dir,
-        test_mask_path=test_mask_path
-    )
-    
-    # Plot training history
-    plot_training_history(history)
-    
-    # Test inference on masks in a directory and save generated images
-    test_mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\src\\data_augmentation\\gans\\base_gan\\generated_samples"
-    
-    # Process each mask and save the generated image
-    process_mask_directory(
-        trained_generator, 
-        test_mask_dir, 
-        output_dir, 
-        device, 
-        make_comparison=True
-    )
 
 def process_mask_directory(generator, mask_dir, output_dir, device, make_comparison=True):
     """
@@ -1120,5 +1074,176 @@ def process_mask_directory(generator, mask_dir, output_dir, device, make_compari
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-if __name__ == "__main__":
-    main()
+# Define argument parser
+def parse_args():
+    parser = argparse.ArgumentParser(description='Train a cGAN model for cell image generation')
+    parser.add_argument('--image_dir', type=str, required=True, help='Directory containing the images')
+    parser.add_argument('--mask_dir', type=str, required=True, help='Directory containing the masks/labels')
+    parser.add_argument('--output_dir', type=str, required=True, help='Directory to save output images')
+    parser.add_argument('--sample_dir', type=str, required=True, help='Directory to save sample images during training')
+    parser.add_argument('--checkpoint_dir', type=str, required=True, help='Directory to save model checkpoints')
+    parser.add_argument('--batch_size', type=int, default=8, help='Batch size for training')
+    parser.add_argument('--epochs', type=int, default=400, help='Number of epochs to train')
+    parser.add_argument('--lr', type=float, default=0.0001, help='Learning rate')
+    parser.add_argument('--beta1', type=float, default=0.5, help='Beta1 for Adam optimizer')
+    parser.add_argument('--beta2', type=float, default=0.999, help='Beta2 for Adam optimizer')
+    parser.add_argument('--lambda_L1', type=float, default=150, help='Weight for L1 loss')
+    parser.add_argument('--test_mask_path', type=str, default=None, help='Path to test mask for generating samples')
+    return parser.parse_args()
+
+
+def main():
+    
+    # Device configuration
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+
+
+def main(): 
+    args = parse_args()
+    
+    # Initialize wandb
+    wandb.init(
+        project="cell-gan",
+        config={
+            "architecture": "big_unet",
+            "batch_size": args.batch_size,
+            "epochs": args.epochs,
+            "learning_rate": args.lr,
+            "beta1": args.beta1,
+            "beta2": args.beta2,
+            "lambda_L1": args.lambda_L1,
+            "input_nc": 1,
+            "output_nc": 3,
+            "ngf": 256,
+            "use_dropout": True,
+            "n_blocks": 1
+        }
+    )
+    
+    # Directories for your data
+    image_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\images"
+    mask_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\labels"
+
+    # Output directories
+    sample_dir = "big_unet"
+    checkpoint_dir = "checkpoints"
+    output_dir = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\dataset_pix2pix\\new_samples_big_unet"
+
+    # Test mask for progress visualization during training
+    test_mask_path = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\src\\data_augmentation\\gans\\base_gan\\generated_samples\\sample_1_epoch_86.png"
+
+    # Initialize wandb before any training happens
+    wandb.login()  # You'll need to enter your API key on first run
+    wandb.init(
+        project="cell-gan",  # Choose an appropriate project name
+        name=f"gan-training-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
+        config={
+            "architecture": "big_unet",
+            "batch_size": batch_size,
+            "epochs": epochs,
+            "learning_rate": lr,
+            "beta1": beta1,
+            "beta2": beta2,
+            "lambda_L1": lambda_L1,
+            "input_nc": 1,
+            "output_nc": 3,
+            "ngf": 256,
+            "use_dropout": True,
+            "n_blocks": 1
+        }
+    )
+
+    # The rest of your code stays the same until the train_gan function
+
+    # Device configuration
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
+
+    # Data transformations
+    # For images: scale to [-1, 1]
+    image_transform = transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+    ])
+
+    # For masks: grayscale and scale to [-1, 1]
+    mask_transform = transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5], [0.5])
+    ])
+
+    # Create dataset
+    dataset = CellGANDataset(
+        image_dir, mask_dir, 
+        transform=image_transform, 
+        mask_transform=mask_transform
+    )
+
+    # Split into train and validation sets
+    train_size = int(0.8 * len(dataset))
+    val_size = len(dataset) - train_size
+
+    train_dataset, val_dataset = torch.utils.data.random_split(
+        dataset, [train_size, val_size]
+    )
+
+    # Create data loaders
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+
+    # Initialize ResNet generator
+    generator = get_generator(
+        arch_type='resnet',
+        input_nc=1,          # mask channels
+        output_nc=3,         # cell image
+        ngf=256,             
+        norm_layer=nn.InstanceNorm2d, 
+        use_dropout=True,
+        n_blocks=9           # Increase number of ResNet blocks for more parameters
+    )
+
+    # Initialize PatchGAN discriminator
+    discriminator = PatchGANDiscriminator(
+        input_nc=4,          # 1 for mask + 3 for image
+        ndf=64,
+        n_layers=3,
+        norm_layer=nn.BatchNorm2d
+    )
+
+    # Print model sizes
+    print(f"Generator Architecture: Big Unet")
+    print(f"Generator Parameters: {count_parameters(generator):,}")
+    print(f"Discriminator Parameters: {count_parameters(discriminator):,}")
+
+    # Create directories if they don't exist
+    os.makedirs(sample_dir, exist_ok=True)
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Train models
+    # Train models
+    trained_generator, trained_discriminator, history = train_gan(
+        generator, discriminator, train_loader, val_loader, device,
+        epochs=args.epochs, lr=args.lr, beta1=args.beta1, beta2=args.beta2, 
+        lambda_L1=args.lambda_L1, sample_dir=args.sample_dir, 
+        checkpoint_dir=args.checkpoint_dir, test_mask_path=args.test_mask_path
+    )
+    
+    # Plot training history
+    plot_training_history(history)
+    
+    # Test inference on masks in a directory and save generated images
+    process_mask_directory(
+        trained_generator, 
+        args.mask_dir,  # You can change this to a different test directory if needed
+        args.output_dir, 
+        device, 
+        make_comparison=True
+    )
+    
+    # Finish wandb logging
+    wandb.finish()
+
