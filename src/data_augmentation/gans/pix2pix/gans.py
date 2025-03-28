@@ -5,12 +5,12 @@ import os
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-from cycle_gan.models.pix2pix_model import Pix2PixModel
-from cycle_gan.options.base_options import BaseOptions
-from cycle_gan.data.produce_dataset import Pix2PixDataset
+from models.pix2pix_model import Pix2PixModel
+from options.base_options import BaseOptions
+from data.produce_dataset import Pix2PixDataset
 import argparse
 #from models import create_model
-from cycle_gan.util.visualizer import Visualizer
+from util.visualizer import Visualizer
 import time
 
 
@@ -51,8 +51,8 @@ class Options:
         opt.beta1 = 0.5
         opt.lr_policy = "linear"
         opt.epoch_count = 1
-        opt.n_epochs = 25
-        opt.n_epochs_decay = 25
+        opt.n_epochs = 1
+        opt.n_epochs_decay = 0
         opt.lr_decay_iters = 50
         opt.continue_train = False
         opt.verbose = True

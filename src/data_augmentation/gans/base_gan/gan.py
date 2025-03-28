@@ -221,13 +221,6 @@ class Trainer:
             # Convert tensor to PIL image and save
             save_image(fake_image, f"{sample_dir}/sample_epoch_{epoch+1}.png")
             
-            # Alternative method using PIL directly
-            # from PIL import Image
-            # import numpy as np
-            # img_array = fake_image[0, 0].numpy() * 255
-            # img_array = img_array.astype(np.uint8)
-            # img = Image.fromarray(img_array)
-            # img.save(f"{sample_dir}/sample_epoch_{epoch+1}.png")
         if proceed_training: 
             self.model.generator.train()
 

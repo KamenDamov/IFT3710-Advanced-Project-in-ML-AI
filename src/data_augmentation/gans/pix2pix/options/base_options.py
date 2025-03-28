@@ -1,9 +1,9 @@
 import argparse
 import os
-from cycle_gan.util import util
+from util import util
 import torch
-import cycle_gan.models as models 
-import cycle_gan.data as data
+import models as models 
+import data as data
 
 
 class BaseOptions():

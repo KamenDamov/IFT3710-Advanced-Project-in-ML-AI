@@ -1089,6 +1089,7 @@ def parse_args():
     parser.add_argument('--beta2', type=float, default=0.999, help='Beta2 for Adam optimizer')
     parser.add_argument('--lambda_L1', type=float, default=150, help='Weight for L1 loss')
     parser.add_argument('--test_mask_path', type=str, default=None, help='Path to test mask for generating samples')
+    parser.add_argument('--generator_choice', type=str, default='small_unet', help='Type of generator architecture')
     return parser.parse_args()
 
 def main(): 
@@ -1098,7 +1099,7 @@ def main():
     wandb.init(
         project="cell-gan",
         config={
-            "architecture": "big_unet",
+            "architecture": args.generator_choice,
             "batch_size": args.batch_size,
             "epochs": args.epochs,
             "learning_rate": args.lr,
@@ -1131,13 +1132,13 @@ def main():
         project="cell-gan",  # Choose an appropriate project name
         name=f"gan-training-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
         config={
-            "architecture": "big_unet",
-            "batch_size": batch_size,
-            "epochs": epochs,
-            "learning_rate": lr,
-            "beta1": beta1,
-            "beta2": beta2,
-            "lambda_L1": lambda_L1,
+            "architecture": args.generator_choice,
+            "batch_size": args.batch_size,
+            "epochs": args.epochs,
+            "learning_rate": args.lr,
+            "beta1": args.beta1,
+            "beta2": args.beta2,
+            "lambda_L1": args.lambda_L1,
             "input_nc": 1,
             "output_nc": 3,
             "ngf": 256,
@@ -1183,12 +1184,12 @@ def main():
     )
 
     # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
     # Initialize ResNet generator
     generator = get_generator(
-        arch_type='resnet',
+        arch_type=args.generator_choice,
         input_nc=1,          # mask channels
         output_nc=3,         # cell image
         ngf=256,             
