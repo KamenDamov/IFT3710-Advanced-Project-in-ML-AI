@@ -89,7 +89,7 @@ class ZenodoNeurIPS:
             if img in folder:
                 return folder.replace(img, mask)
         return None
-
+    
     def categorize(self, dirpath):
         for (img, mask) in self.label_patterns(MASK):
             if mask in dirpath:

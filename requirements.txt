@@ -13,3 +13,6 @@ psutil
 pandas
 einops
 sam2
+wandb
+pytorch
+numpy
