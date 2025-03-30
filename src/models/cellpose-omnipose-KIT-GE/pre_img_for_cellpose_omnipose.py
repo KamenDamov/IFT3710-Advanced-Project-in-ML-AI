@@ -16,9 +16,9 @@ import tifffile as tif
 from tqdm import tqdm
 
 
-tr_img_path = 'path to training images' 
-gt_path =  'path to training GT'
-target_path = 'path to pre-train'
+tr_img_path = '/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/Training-labeled/images'
+gt_path =  '/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/Training-labeled/labels'
+target_path = '/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/pre-train_cellpose'
 os.makedirs(target_path, exist_ok=True)
 
 img_names = sorted(os.listdir(tr_img_path))
@@ -42,8 +42,8 @@ for img_name, gt_name in zip(tqdm(img_names), gt_names):
     tif.imwrite(join(target_path, basename+'_img.tif'), cellpose_dataformat)
     tif.imwrite(join(target_path, basename+'_masks.tif'), gt_data.astype(np.uint16))
 
-ts_img_path = 'path to val/test images'
-ts_pre_path = 'path to pre-val/test'
+ts_img_path = '/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/Tuning/images'
+ts_pre_path = '/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/pre-tune_cellpose'
 os.makedirs(ts_pre_path, exist_ok=True)
 names = sorted(os.listdir(ts_img_path))
 print('Processing test images ...')

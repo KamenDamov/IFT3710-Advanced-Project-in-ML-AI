@@ -13,13 +13,13 @@ import time
 
 # DEFINE CELLPOSE MODEL
 # model_type='cyto' or model_type='nuclei'
-model = models.Cellpose(gpu=True, model_type='cyto2', net_avg=False)
+model = models.Cellpose(gpu=True, model_type='cyto3')
 
 
 print('start predicting....')
 #%%
-img_path = 'path to pre-val/test'
-seg_path = 'path to cp-default-seg'
+img_path = '/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/Tuning/images'
+seg_path = '/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/tuning-seg_cellpose'
 os.makedirs(seg_path, exist_ok=True)
 
 names = sorted(os.listdir(img_path))
