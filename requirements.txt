@@ -10,3 +10,4 @@ tqdm
 psutil
 pandas
 einops
+ultralytics
