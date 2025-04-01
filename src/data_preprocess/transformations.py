@@ -37,6 +37,9 @@ def get_crop_size(images_path):
             selected_image = image
     return min_size, selected_image
 
+def validate_mask(transformed_mask, crop_size):
+    return ( sum(transformed_mask.flatten()) / (crop_size*crop_size) ) >= 0.20
+
 def apply_tranformations(crop_size, img_path, gt_path, target_path):
     os.makedirs(os.path.join(target_path, "images"), exist_ok=True)
     os.makedirs(os.path.join(target_path, "labels"), exist_ok=True)
@@ -69,16 +72,15 @@ def apply_tranformations(crop_size, img_path, gt_path, target_path):
         img_name = batch["name"][0]
         transformed_img = batch["img"].squeeze().numpy().transpose(1, 2, 0)
         transformed_label = batch["label"].squeeze().numpy()
-        
-        Image.fromarray((transformed_img * 255).astype(np.uint8)).save(os.path.join(target_path, "images", f"{img_name}.png"))
-        Image.fromarray((transformed_label * 255).astype(np.uint8)).save(os.path.join(target_path, "labels", f"{img_name}.png"))
+        if validate_mask(transformed_label, crop_size):
+            Image.fromarray((transformed_img * 255).astype(np.uint8)).save(os.path.join(target_path, "images", f"{img_name}.png"))
+            Image.fromarray((transformed_label * 255).astype(np.uint8)).save(os.path.join(target_path, "labels", f"{img_name}.png"))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Apply transformations.")
     parser.add_argument("--input_dir", default="C:/Users/Samir/Documents/GitHub/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/normalized_data/images" , type=str, required=False, help="Path to input images.")
     parser.add_argument("--label_dir", default="C:/Users/Samir/Documents/GitHub/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/normalized_data/labels", type=str, required=False, help="Path to label images.")
     parser.add_argument("--output_dir", default="C:/Users/Samir/Documents/GitHub/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/transformed_images_labels" , type=str, required=False, help="Path to save transformed images.")
-    # parser.add_argument("--input_size", default=256 , type=int, required=False, help="Image size for transformation.")
     args = parser.parse_args()
     crop_size, _ = get_crop_size(args.input_dir)
     print(f"Input size: {crop_size}")
