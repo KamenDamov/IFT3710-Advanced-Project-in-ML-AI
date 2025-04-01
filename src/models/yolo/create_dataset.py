@@ -79,7 +79,7 @@ for img_name, gt_name in zip(tqdm(img_names), gt_names):
         if len(img_channel_i[np.nonzero(img_channel_i)]) > 0:
             pre_img_data[:, :, i] = normalize_channel(img_channel_i, lower=1, upper=99)
 
-    io.imsave(join(target_path, 'images', img_name.split('.')[0] + '.png'), pre_img_data.astype(np.uint8),
+    io.imsave(join(target_path, 'images', img_name.split('.')[0] + '.jpg'), pre_img_data.astype(np.uint8),
               check_contrast=False)
 
     # boundary_map = create_boundary_map(gt_data.astype(np.uint16))

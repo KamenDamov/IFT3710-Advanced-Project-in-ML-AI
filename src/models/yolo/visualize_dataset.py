@@ -32,7 +32,7 @@ plt.title("Original Image")
 plt.imshow(image, cmap='gray')
 
 plt.subplot(1,2,2)
-plt.title("Image with Mask Overlay")
+plt.title("Image with Mask Overlay of Whole Cells from Tiff")
 plt.imshow(overlay)
 plt.show()
 
@@ -65,7 +65,7 @@ def create_interior_map(inst_map):
 
 interior_map = create_interior_map(mask)
 plt.figure(figsize=(10,5))
-plt.title("Image with Mask Overlay")
+plt.title("Image with Mask Overlay Boundaries from Tiff")
 plt.imshow(interior_map==2)
 plt.show()
 
@@ -85,9 +85,10 @@ def draw_yolo_labels(image_path, label_path):
 
         cv2.polylines(image, [points], isClosed=True, color=(0, 255, 0), thickness=2)
 
-    cv2.imshow("YOLO Annotations", image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    plt.figure(figsize=(10, 5))
+    plt.title("YOLO Annotations")
+    plt.imshow(image)
+    plt.show()
 
 # Example usage
 draw_yolo_labels(image_path, yolo_mask_path)

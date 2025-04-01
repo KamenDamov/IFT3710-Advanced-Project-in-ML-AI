@@ -5,7 +5,7 @@ model = YOLO("yolo12n.pt")  # load an official model
 # model = YOLO("path/to/best.pt")  # load a custom model
 # model = YOLO("yolo11n-seg.pt")
 
-results = model.train(data="coco128.yaml", epochs=5)
+results = model.train(data="/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/dataset/data.yaml", epochs=5, device="cpu")
 
 
 # Validate the model
