@@ -37,7 +37,7 @@ class Options:
         opt.output_nc = 1
         opt.ngf = 64
         opt.ndf = 64
-        opt.netG = "resnet_9blocks"
+        opt.netG = "unet_256"
         opt.netD = "basic"
         opt.norm = "instance"
         opt.init_type = "normal"

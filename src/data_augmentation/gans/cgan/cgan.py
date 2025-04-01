@@ -542,28 +542,13 @@ def train_gan(generator, discriminator, train_loader, val_loader, device,
         'gen_loss': [], 'disc_loss': [], 'val_gen_loss': [], 'val_disc_loss': []
     }
     
-    for epoch in range(epochs):
-        # Your existing training loop
-        
-        # After computing epoch losses, log to wandb
-        
-        
-        # If you generate sample images during training, log those too
-        if test_mask_path and epoch % 10 == 0:  # Adjust frequency as needed
-            # Generate your sample image
-            sample_img = generate_sample_image(generator, test_mask_path, device)
-            
-            # Log the image to wandb
-            wandb.log({f"sample_epoch_{epoch}": wandb.Image(sample_img)})
-        
+    for epoch in range(epochs):        
         # If you save checkpoints, you can also log those to wandb
         if epoch % 50 == 0:  # Adjust frequency as needed
             # Save your checkpoint as usual
             torch.save({
                 'generator': generator.state_dict(),
                 'discriminator': discriminator.state_dict(),
-                'gen_optimizer': gen_optimizer.state_dict(),
-                'disc_optimizer': disc_optimizer.state_dict(),
                 'epoch': epoch
             }, f"{checkpoint_dir}/checkpoint_epoch_{epoch}.pt")
             
