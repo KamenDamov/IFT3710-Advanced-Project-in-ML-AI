@@ -76,15 +76,19 @@ def apply_tranformations(crop_size, img_path, gt_path, target_path):
             Image.fromarray((transformed_img * 255).astype(np.uint8)).save(os.path.join(target_path, "images", f"{img_name}.png"))
             Image.fromarray((transformed_label * 255).astype(np.uint8)).save(os.path.join(target_path, "labels", f"{img_name}.png"))
 
-if __name__ == '__main__':
+def main(base_dir):
     parser = argparse.ArgumentParser(description="Apply transformations.")
-    parser.add_argument("--input_dir", default="C:/Users/Samir/Documents/GitHub/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/normalized_data/images" , type=str, required=False, help="Path to input images.")
-    parser.add_argument("--label_dir", default="C:/Users/Samir/Documents/GitHub/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/normalized_data/labels", type=str, required=False, help="Path to label images.")
-    parser.add_argument("--output_dir", default="C:/Users/Samir/Documents/GitHub/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/transformed_images_labels" , type=str, required=False, help="Path to save transformed images.")
+    parser.add_argument("--input_dir", default=f"{base_dir}/preprocessing_outputs/normalized_data/images" , type=str, required=False, help="Path to input images.")
+    parser.add_argument("--label_dir", default=f"{base_dir}/preprocessing_outputs/normalized_data/labels", type=str, required=False, help="Path to label images.")
+    parser.add_argument("--output_dir", default=f"{base_dir}/preprocessing_outputs/transformed_images_labels" , type=str, required=False, help="Path to save transformed images.")
     args = parser.parse_args()
     crop_size, _ = get_crop_size(args.input_dir)
     print(f"Input size: {crop_size}")
-    os.makedirs('../../data/preprocessing_outputs', exist_ok=True)
+    os.makedirs(f'{base_dir}/preprocessing_outputs', exist_ok=True)
     apply_tranformations(min(crop_size), args.input_dir, args.label_dir, args.output_dir)
     print("Preprocessing complete.")
+
+if __name__ == '__main__':
+    base_dir = "../../data"
+    main(base_dir)
 
