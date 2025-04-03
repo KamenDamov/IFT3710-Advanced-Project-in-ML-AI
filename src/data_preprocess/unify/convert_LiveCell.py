@@ -16,6 +16,7 @@ def main(root, destination, json_path):
     # Define paths
     image_output_dir = os.path.join(destination, "images")
     mask_output_dir = os.path.join(destination, "labels")
+    os.makedirs(destination, exist_ok=True)
     os.makedirs(image_output_dir, exist_ok=True)
     os.makedirs(mask_output_dir, exist_ok=True)
 
@@ -24,7 +25,7 @@ def main(root, destination, json_path):
     annotations = data["annotations"]
 
     # Process each image
-    for idx, (image_id, file_name) in tqdm(enumerate(image_dict.items())):
+    for idx, (image_id, file_name) in tqdm(sorted(enumerate(image_dict.items()))):
         new_basename = f"cell_lc_{idx + 1:05d}"
         new_image_path = os.path.join(image_output_dir, new_basename + ".jpg")
         new_mask_path = os.path.join(mask_output_dir, new_basename + "_label.tiff")
