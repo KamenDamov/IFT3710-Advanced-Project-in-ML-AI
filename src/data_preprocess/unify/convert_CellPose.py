@@ -23,7 +23,7 @@ def main(root, destination):
     mask_dict = {os.path.basename(p).replace("_masks.png", ""): p for p in mask_paths}
 
     # Process each pair
-    for idx, (key, image_path) in tqdm(enumerate(image_dict.items())):
+    for idx, (key, image_path) in tqdm(sorted(enumerate(image_dict.items()))):
         if key not in mask_dict:
             print(f"Warning: No mask found for {key}, skipping.")
             continue
