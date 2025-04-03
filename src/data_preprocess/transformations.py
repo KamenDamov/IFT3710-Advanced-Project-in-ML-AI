@@ -183,14 +183,15 @@ class RandSmartCropd(Cropd, Randomizable):
     def select_slices(self, meta_path):
         df = pd.read_csv(meta_path)
         width, height = df['Right'][0], df['Bottom'][0]
-        weights = list(df['Area'].sum() / df['Area'])
+        weights = df['Area'].sum() / df['Area']
+        weights = list(weights / weights.sum())
         # sample an integer according to given weights
         choice = self.R.choice(len(df), p=weights)
         df = df.iloc[choice]
         left = self.R.randint(0, df['Left']+1)
-        right = self.R.randint(df['Right']+1, width+1)
+        right = self.R.randint(df['Right'], width+1)
         top = self.R.randint(0, df['Top']+1)
-        bottom = self.R.randint(df['Bottom']+1, height+1)
+        bottom = self.R.randint(df['Bottom'], height+1)
         slices = self.cropper.compute_slices(roi_start=[top, left], roi_end=[bottom, right])
         return slices
 
