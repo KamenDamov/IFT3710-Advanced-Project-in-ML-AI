@@ -1,47 +1,21 @@
 import pickle
-
-import torch
-import torchvision.transforms as transforms
-from PIL import Image
 from sklearn.cluster import KMeans
 from glob import glob
 import os
-import numpy as np
-import shutil
-from skimage import io, segmentation, morphology, exposure
-import tifffile as tif
 from monai.data import Dataset, DataLoader
 import torch
-import skimage.io as io
-import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
-
-from train_tools.data_utils.transforms import get_pred_transforms
-from train_tools.data_utils.transforms import train_transforms, public_transforms
-# from train_tools import *
+from train_tools.data_utils.transforms import train_transforms
 from train_tools.models import MEDIARFormer
-# from core.MEDIAR import Predictor, EnsemblePredictor
 join = os.path.join
 
 
-model_path1 = 'src/data_preprocess/modalities/phase1.pth'
+model_path1 = 'phase1.pth'
 weights1 = torch.load(model_path1, map_location="cpu")
 
 model = MEDIARFormer()
 model.load_state_dict(weights1, strict=False)
-
-
-# Function to pad image to the nearest multiple of 32
-def pad_image(image):
-    c, h, w = image.shape
-    new_h = (h + 31) // 32 * 32  # Round up to the nearest multiple of 32
-    new_w = (w + 31) // 32 * 32
-    padded_image = np.zeros((c, new_h, new_w), dtype=image.dtype)
-    padded_image[:, :h, :w] = image  # Copy original image content
-    return padded_image
-
-
 
 # Load all image paths
 image_folder = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/normalized_data/images"
@@ -50,8 +24,6 @@ label_folder = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/
 label_paths = glob(os.path.join(label_folder, "*"))
 
 # Extract features for all images
-# data_dicts = [{"img": img, "label": lbl} for img, lbl in zip(image_paths, label_paths)]
-
 image_files = {f.split(".")[0]: f for f in os.listdir(image_folder) if f.endswith(".png")}
 label_files = {f.split("_label.")[0]: f for f in os.listdir(label_folder) if f.endswith(".png")}
 
