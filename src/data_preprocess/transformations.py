@@ -36,51 +36,6 @@ import argparse
 from ..data_exploration import explore
 from . import normalization
 
-def get_crop_size(images_paths):
-    min_size = (np.inf, np.inf)
-    selected_image = ""
-    for _, image in enumerate(tqdm(images_paths, desc="getting min input size")):
-        img = Image.open(f"{image}")
-        width, high = img.size[0], img.size[1]
-        if width < min_size[0] and high < min_size[1]:
-            min_size = img.size
-            selected_image = image
-    return min_size, selected_image
-
-def validate_mask(transformed_mask, crop_size):
-    return ( sum(transformed_mask.flatten()) / (crop_size*crop_size) ) >= 0.20
-
-def composed_transforms(crop_size):
-    return Compose([
-        LoadImaged(keys=["img", "label"], reader=PILReader, dtype=np.uint8),
-        AddChanneld(keys=["label"], allow_missing_keys=True),
-        AsChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
-        ScaleIntensityd(keys=["img"], allow_missing_keys=True),
-        SpatialPadd(keys=["img", "label"], spatial_size=crop_size),
-        RandSpatialCropd(keys=["img", "label"], roi_size=crop_size, random_size=False),
-        RandAxisFlipd(keys=["img", "label"], prob=0.5),
-        RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=[0, 1]),
-        RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),
-        RandAdjustContrastd(keys=["img"], prob=0.25, gamma=(1, 2)),
-        RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
-        RandHistogramShiftd(keys=["img"], prob=0.25, num_control_points=3),
-        #RandZoomd(keys=["img", "label"], prob=0.15, min_zoom=0.8, max_zoom=1.5, mode=["area", "nearest"]),
-        Resized(keys=["img", "label"], spatial_size=(256, 256), mode=["area", "nearest"]),
-        EnsureTyped(keys=["img", "label"]),
-    ])
-
-def apply_tranformations(crop_size, img_path, gt_path, target_path):
-    os.makedirs(os.path.join(target_path, "images"), exist_ok=True)
-    os.makedirs(os.path.join(target_path, "labels"), exist_ok=True)
-
-    image_files = sorted([f for f in os.listdir(img_path) if f.endswith(('.png', '.jpg', '.jpeg'))])
-    label_files = sorted([f for f in os.listdir(gt_path) if f.endswith(('.png', '.jpg', '.jpeg'))])
-    data_dicts = [{"img": os.path.join(img_path, img), "label": os.path.join(gt_path, lbl), "name": os.path.splitext(img)[0]} for img, lbl in zip(image_files, label_files)]
-    
-    dataset = Dataset(data=data_dicts, transform=composed_transforms(crop_size))
-    loader = DataLoader(dataset, batch_size=1, num_workers=4)
-    batch_transform(loader, crop_size, target_path)
-    
 def batch_transform(loader, target_path):
     for _, batch in enumerate(tqdm(loader, desc="Transforming images and labels")):
         img_name = batch["name"][0]
@@ -94,8 +49,6 @@ def main(dataroot):
     os.makedirs(os.path.join(target_path, "images"), exist_ok=True)
     os.makedirs(os.path.join(target_path, "labels"), exist_ok=True)
     data_dicts = list(assemble_dataset(dataroot))
-    #crop_size, _ = get_crop_size([d['img'] for d in data_dicts])
-    #dataset = Dataset(data=data_dicts, transform=composed_transforms(crop_size))
     dataset = Dataset(data=data_dicts, transform=smart_transforms())
     loader = DataLoader(dataset, batch_size=1, num_workers=4)
     batch_transform(loader, target_path)
@@ -118,17 +71,13 @@ def smart_transforms():
         AddChanneld(keys=["label"], allow_missing_keys=True),
         AsChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
-        #SpatialPadd(keys=["img", "label"], spatial_size=crop_size),
-        #RandSpatialCropd(keys=["img", "label"], roi_size=crop_size, random_size=False),
         RandSmartCropd(keys=["img", "label"], source_key="meta"),
-        #CropForegroundd(keys=["img", "label"], source_key="meta", select_fn=lambda csv: pd.read_csv(csv)),
         RandAxisFlipd(keys=["img", "label"], prob=0.5),
         RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=[0, 1]),
         RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),
         RandAdjustContrastd(keys=["img"], prob=0.25, gamma=(1, 2)),
         RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
         RandHistogramShiftd(keys=["img"], prob=0.25, num_control_points=3),
-        #RandZoomd(keys=["img", "label"], prob=0.15, min_zoom=0.8, max_zoom=1.5, mode=["area", "nearest"]),
         Resized(keys=["img", "label"], spatial_size=(512, 512), mode=["area", "nearest-exact"]),
         EnsureTyped(keys=["img", "label"]),
     ])
@@ -178,9 +127,7 @@ class RandSmartCropd(Cropd, Randomizable):
             kwargs = {}
             if isinstance(self.cropper, LazyTrait):
                 kwargs["lazy"] = lazy_
-            print(d[key].shape, slices)
             d[key] = self.cropper(d[key], slices, **kwargs)  # type: ignore
-            print(d[key].shape)
         return d
     
     def select_slices(self, dims, meta_path):
@@ -199,18 +146,6 @@ class RandSmartCropd(Cropd, Randomizable):
         bottom = self.R.randint(df['Bottom'], height+1)
         slices = self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
         return slices
-
-def main2(base_dir):
-    parser = argparse.ArgumentParser(description="Apply transformations.")
-    parser.add_argument("--input_dir", default=f"{base_dir}/preprocessing_outputs/normalized_data/images" , type=str, required=False, help="Path to input images.")
-    parser.add_argument("--label_dir", default=f"{base_dir}/preprocessing_outputs/normalized_data/labels", type=str, required=False, help="Path to label images.")
-    parser.add_argument("--output_dir", default=f"{base_dir}/preprocessing_outputs/transformed_images_labels" , type=str, required=False, help="Path to save transformed images.")
-    args = parser.parse_args()
-    crop_size, _ = get_crop_size(args.input_dir)
-    print(f"Input size: {crop_size}")
-    os.makedirs(f'{base_dir}/preprocessing_outputs', exist_ok=True)
-    apply_tranformations(min(crop_size), args.input_dir, args.label_dir, args.output_dir)
-    print("Preprocessing complete.")
 
 if __name__ == '__main__':
     base_dir = "../../data"
