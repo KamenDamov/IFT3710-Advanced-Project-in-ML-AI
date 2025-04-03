@@ -25,7 +25,7 @@ def main(root, destination, json_path):
 
     # Process each image
     for idx, (image_id, file_name) in tqdm(enumerate(image_dict.items())):
-        new_basename = f"cell_sb_{idx + 1:05d}"
+        new_basename = f"cell_lc_{idx + 1:05d}"
         new_image_path = os.path.join(image_output_dir, new_basename + ".jpg")
         new_mask_path = os.path.join(mask_output_dir, new_basename + "_label.tiff")
 
