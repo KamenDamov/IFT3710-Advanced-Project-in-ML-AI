@@ -64,7 +64,8 @@ def composed_transforms(crop_size):
         RandAdjustContrastd(keys=["img"], prob=0.25, gamma=(1, 2)),
         RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
         RandHistogramShiftd(keys=["img"], prob=0.25, num_control_points=3),
-        RandZoomd(keys=["img", "label"], prob=0.15, min_zoom=0.8, max_zoom=1.5, mode=["area", "nearest"]),
+        #RandZoomd(keys=["img", "label"], prob=0.15, min_zoom=0.8, max_zoom=1.5, mode=["area", "nearest"]),
+        Resized(keys=["img", "label"], spatial_size=(256, 256), mode=["area", "nearest"]),
         EnsureTyped(keys=["img", "label"]),
     ])
 
@@ -128,7 +129,7 @@ def smart_transforms():
         RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
         RandHistogramShiftd(keys=["img"], prob=0.25, num_control_points=3),
         #RandZoomd(keys=["img", "label"], prob=0.15, min_zoom=0.8, max_zoom=1.5, mode=["area", "nearest"]),
-        Resized(keys=["img", "label"], spatial_size=(256, 256), mode=["area", "nearest"]),
+        Resized(keys=["img", "label"], spatial_size=(512, 512), mode=["area", "nearest-exact"]),
         EnsureTyped(keys=["img", "label"]),
     ])
 
@@ -172,17 +173,21 @@ class RandSmartCropd(Cropd, Randomizable):
                 "'self.cropper' must inherit LazyTrait if lazy is True "
                 f"'self.cropper' is of type({type(self.cropper)}"
             )
-        slices = self.select_slices(d[self.source_key])
+        slices = self.select_slices(data['img'].shape, d[self.source_key])
         for key in self.key_iterator(d):
             kwargs = {}
             if isinstance(self.cropper, LazyTrait):
                 kwargs["lazy"] = lazy_
+            print(d[key].shape, slices)
             d[key] = self.cropper(d[key], slices, **kwargs)  # type: ignore
+            print(d[key].shape)
         return d
     
-    def select_slices(self, meta_path):
+    def select_slices(self, dims, meta_path):
         df = pd.read_csv(meta_path)
         width, height = df['Right'][0], df['Bottom'][0]
+        assert width == dims[1]
+        assert height == dims[2]
         weights = df['Area'].sum() / df['Area']
         weights = list(weights / weights.sum())
         # sample an integer according to given weights
@@ -192,7 +197,7 @@ class RandSmartCropd(Cropd, Randomizable):
         right = self.R.randint(df['Right'], width+1)
         top = self.R.randint(0, df['Top']+1)
         bottom = self.R.randint(df['Bottom'], height+1)
-        slices = self.cropper.compute_slices(roi_start=[top, left], roi_end=[bottom, right])
+        slices = self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
         return slices
 
 def main2(base_dir):
