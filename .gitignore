@@ -11,4 +11,10 @@ references/papers/
 *.pth
 # weigths for sam2 model
 src/SAM-2/weights/sam_vit_h_4b8939.pth
+
 *.zip
+# weights for cGAN model
+src/data_augmentation/models/
+*.pth
+*.pt
+*.png
