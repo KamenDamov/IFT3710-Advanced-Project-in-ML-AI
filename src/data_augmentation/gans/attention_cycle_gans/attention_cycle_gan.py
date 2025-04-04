@@ -13,6 +13,7 @@ import functools
 import datetime
 import argparse
 import random
+from networks import AttentionGenerator
 
 class CellCycleGANDataset(Dataset):
     """
@@ -57,116 +58,6 @@ class CellCycleGANDataset(Dataset):
             cell = self.transform(cell)
             
         return {'A': mask, 'B': cell, 'A_path': mask_path, 'B_path': cell_path}
-
-# Building blocks for the CycleGAN architecture
-
-class ResNetBlock(nn.Module):
-    """Define a Resnet block"""
-    
-    def __init__(self, dim, padding_type='reflect', norm_layer=nn.InstanceNorm2d, use_dropout=False, use_bias=True):
-        super(ResNetBlock, self).__init__()
-        self.conv_block = self.build_conv_block(dim, padding_type, norm_layer, use_dropout, use_bias)
-        
-    def build_conv_block(self, dim, padding_type, norm_layer, use_dropout, use_bias):
-        conv_block = []
-        p = 0
-        if padding_type == 'reflect':
-            conv_block += [nn.ReflectionPad2d(1)]
-        elif padding_type == 'replicate':
-            conv_block += [nn.ReplicationPad2d(1)]
-        elif padding_type == 'zero':
-            p = 1
-        else:
-            raise NotImplementedError(f'padding {padding_type} is not implemented')
-            
-        conv_block += [
-            nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias),
-            norm_layer(dim),
-            nn.ReLU(True)
-        ]
-        if use_dropout:
-            conv_block += [nn.Dropout(0.5)]
-            
-        p = 0
-        if padding_type == 'reflect':
-            conv_block += [nn.ReflectionPad2d(1)]
-        elif padding_type == 'replicate':
-            conv_block += [nn.ReplicationPad2d(1)]
-        elif padding_type == 'zero':
-            p = 1
-        else:
-            raise NotImplementedError(f'padding {padding_type} is not implemented')
-            
-        conv_block += [
-            nn.Conv2d(dim, dim, kernel_size=3, padding=p, bias=use_bias),
-            norm_layer(dim)
-        ]
-            
-        return nn.Sequential(*conv_block)
-        
-    def forward(self, x):
-        out = x + self.conv_block(x)  # Add skip connection
-        return out
-
-class ResNetGenerator(nn.Module):
-    """Generator for CycleGAN - Transforms between domains"""
-    
-    def __init__(self, input_nc=1, output_nc=3, ngf=64, n_blocks=9, norm_layer=nn.InstanceNorm2d, 
-                 use_dropout=False, padding_type='reflect'):
-        super(ResNetGenerator, self).__init__()
-        
-        # Set bias based on normalization layer
-        if type(norm_layer) == functools.partial:
-            use_bias = norm_layer.func == nn.InstanceNorm2d
-        else:
-            use_bias = norm_layer == nn.InstanceNorm2d
-            
-        # Initial convolution block
-        model = [
-            nn.ReflectionPad2d(3),
-            nn.Conv2d(input_nc, ngf, kernel_size=7, padding=0, bias=use_bias),
-            norm_layer(ngf),
-            nn.ReLU(True)
-        ]
-        
-        # Downsampling
-        n_downsampling = 2
-        for i in range(n_downsampling):
-            mult = 2 ** i
-            model += [
-                nn.Conv2d(ngf * mult, ngf * mult * 2, kernel_size=3, stride=2, padding=1, bias=use_bias),
-                norm_layer(ngf * mult * 2),
-                nn.ReLU(True)
-            ]
-            
-        # ResNet blocks
-        mult = 2 ** n_downsampling
-        for i in range(n_blocks):
-            model += [ResNetBlock(ngf * mult, padding_type=padding_type, norm_layer=norm_layer, 
-                                 use_dropout=use_dropout, use_bias=use_bias)]
-            
-        # Upsampling
-        for i in range(n_downsampling):
-            mult = 2 ** (n_downsampling - i)
-            model += [
-                nn.ConvTranspose2d(ngf * mult, int(ngf * mult / 2), kernel_size=3, stride=2,
-                                  padding=1, output_padding=1, bias=use_bias),
-                norm_layer(int(ngf * mult / 2)),
-                nn.ReLU(True)
-            ]
-            
-        # Output layer
-        model += [
-            nn.ReflectionPad2d(3),
-            nn.Conv2d(ngf, output_nc, kernel_size=7, padding=0),
-            nn.Tanh()
-        ]
-        
-        self.model = nn.Sequential(*model)
-        
-    def forward(self, input):
-        """Standard forward pass"""
-        return self.model(input)
 
 class PatchDiscriminator(nn.Module):
     """Discriminator for CycleGAN - PatchGAN architecture"""
@@ -266,7 +157,7 @@ class ImagePool:
         return_images = torch.cat(return_images, 0)
         return return_images
 
-class CycleGANModel:
+class AttentionCycleGANModel:
     """CycleGAN Model - Ties together all components"""
     
     def __init__(self, input_nc_A=1, input_nc_B=3, ngf=64, ndf=64, n_blocks=9, device='cuda'):
@@ -274,10 +165,10 @@ class CycleGANModel:
         
         # Define networks
         # Generator A to B (mask to cell)
-        self.netG_A2B = ResNetGenerator(input_nc=input_nc_A, output_nc=input_nc_B, ngf=ngf, n_blocks=n_blocks).to(device)
+        self.netG_A2B = AttentionGenerator(input_nc=input_nc_A, output_nc=input_nc_B, ngf=ngf, n_blocks=n_blocks).to(device)
         
         # Generator B to A (cell to mask)
-        self.netG_B2A = ResNetGenerator(input_nc=input_nc_B, output_nc=input_nc_A, ngf=ngf, n_blocks=n_blocks).to(device)
+        self.netG_B2A = AttentionGenerator(input_nc=input_nc_B, output_nc=input_nc_A, ngf=ngf, n_blocks=n_blocks).to(device)
         
         # Discriminator A (for masks)
         self.netD_A = PatchDiscriminator(input_nc=input_nc_A, ndf=ndf).to(device)
@@ -323,11 +214,11 @@ class CycleGANModel:
         self.fake_A = self.netG_B2A(self.real_B)  # G_B(B): 3-channels -> 1-channel
         
         # For cycle consistency
-        if self.fake_A.shape[1] == 1 and getattr(self.netG_A2B.model[1], 'in_channels', 0) == 1:
+        if self.fake_A.shape[1] == 1:
             self.rec_B = self.netG_A2B(self.fake_A)  # G_A(G_B(B)): 1-channel -> 3-channels
         else:
             # Handle any other channel mismatch
-            print(f"Warning: Channel mismatch - fake_A: {self.fake_A.shape[1]}, G_A2B expects: {getattr(self.netG_A2B.model[1], 'in_channels', 'unknown')}")
+            # print(f"Warning: Channel mismatch - fake_A: {self.fake_A.shape[1]}, G_A2B expects: {getattr(self.netG_A2B.model[1], 'in_channels', 'unknown')}")
             self.rec_B = self.fake_A  # Fallback
         
     def backward_D_basic(self, netD, real, fake):
@@ -355,20 +246,6 @@ class CycleGANModel:
     def backward_G(self):
         self.loss_idt_A = 0
         self.loss_idt_B = 0
-        # Identity loss
-        #if self.lambda_idt > 0:
-        #    # For G_A2B: Requires grayscale input, but real_B is RGB
-        #    # Convert real_B to grayscale for identity loss
-        #    real_B_gray = torch.mean(self.real_B, dim=1, keepdim=True)  # Convert RGB to grayscale
-        #    self.idt_A = self.netG_A2B(real_B_gray)  # Now passes 1-channel input to generator
-        #    self.loss_idt_A = self.criterionIdt(self.idt_A, self.real_B) * self.lambda_B * self.lambda_idt
-        #    
-        #    # For G_B2A: Already expects RGB input, and outputs grayscale
-        #    self.idt_B = self.netG_B2A(self.real_A)
-        #    self.loss_idt_B = self.criterionIdt(self.idt_B, self.real_A) * self.lambda_A * self.lambda_idt
-        #else:
-        #    self.loss_idt_A = 0
-        #    self.loss_idt_B = 0
             
         # GAN loss D_A(G_A(A))
         self.loss_G_A = self.criterionGAN(self.netD_B(self.fake_B), True)
@@ -449,7 +326,6 @@ class CycleGANModel:
                              [self.netG_A2B, self.netG_B2A, self.netD_A, self.netD_B]):
             load_path = os.path.join(load_dir, f"{name}_epoch_{epoch}.pth")
             net.load_state_dict(torch.load(load_path, map_location=self.device))
-
 
 
 def train_cyclegan(model, dataloader, num_epochs=200, num_sub_epochs=3, display_freq=100, 
@@ -574,7 +450,7 @@ def main():
     )
     
     # Initialize CycleGAN model
-    model = CycleGANModel(
+    model = AttentionCycleGANModel(
         input_nc_A=args.input_nc_A,  # Usually 1 for masks
         input_nc_B=args.input_nc_B,  # Usually 3 for cell images
         ngf=64,
