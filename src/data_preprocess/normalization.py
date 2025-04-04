@@ -79,28 +79,46 @@ def load_image(img_path):
 
 def target_file(filepath, ext):
     dirpath, name, _ = explore.split_filepath(filepath)
-    os.makedirs(dirpath, exist_ok=True)
     return dirpath + name + ext
 
-def batch_process(log, source_path, target_path, extract, process):
+def assemble_dataset(dataroot):
     for name, df in explore.enumerate_frames(dataroot):
         if ".labels" in name:
-            for filepath in tqdm(extract(df), desc="Normalizing images"):
-                source_filepath = source_path + filepath
-                target_filepath = target_file(target_path + filepath, ".png")
-                if not os.path.exists(target_filepath):
-                    try:
-                        process(source_filepath, target_filepath)
-                    except Exception as e: 
-                        print(e)
-                        log.append(source_filepath + " -> " + target_filepath)
+            for img, mask in zip(df["Path"], df["Mask"]):
+                yield img, mask
+
+def safely_process(log, process):
+    def wrapper(source, target):
+        try:
+            if not os.path.exists(target):
+                dirpath, _, _ = explore.split_filepath(target)
+                os.makedirs(dirpath, exist_ok=True)
+                process(source, target)
+        except Exception as e:
+            print(e)
+            log.append(source + " -> " + target)
+    return wrapper
+
+def batch_process(log, process):
+    def wrapper(dataset):
+        for source, target in tqdm(dataset, desc="Normalizing images"):
+            safely_process(log, process)(source, target)
+    return wrapper
 
 def main(dataroot):
+    dataset = list(assemble_dataset(dataroot))
+
+    norm_source = f"{dataroot}/raw"
     norm_target = f"{dataroot}/preprocessing_outputs/normalized_data"
+    imgset = [(norm_source + imgpath, target_file(norm_target + imgpath, ".png")) for imgpath, _ in dataset]
+    maskset = [(norm_source + maskpath, target_file(norm_target + maskpath, ".png")) for _, maskpath in dataset]
+
     log = ["Failed to process images: \n"]
-    batch_process(log, f"{dataroot}/raw", norm_target, lambda df: df["Path"], normalize_image)
-    batch_process(log, f"{dataroot}/raw", norm_target, lambda df: df["Mask"], normalize_mask)
-            
+    for source, target in tqdm(imgset, desc="Normalizing images"):
+        safely_process(log, normalize_image)(source, target)
+    for source, target in tqdm(maskset, desc="Transforming masks"):
+        safely_process(log, normalize_mask)(source, target)
+    
     with open('logs.txt', 'a') as f:
         f.write("\n".join(log))
         f.close()
