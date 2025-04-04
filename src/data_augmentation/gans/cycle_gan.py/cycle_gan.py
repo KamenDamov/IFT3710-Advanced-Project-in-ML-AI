@@ -635,45 +635,49 @@ def main():
         
         print("Generation completed")
 
-
-
 def save_image_grid(visuals, epoch, iter_idx, save_dir):
     """Save a grid of images for visual comparison"""
     fig, axs = plt.subplots(2, 3, figsize=(15, 10))
     
-    # Process images
-    def tensor_to_image(tensor):
-        # Convert tensor to numpy array
+    def tensor_to_image(tensor, batch_idx=0):
+        # Convert tensor to numpy array, handling batches correctly
+        # Pick a single sample from the batch
+        tensor = tensor[batch_idx:batch_idx+1]  # Keep batch dimension but with size 1
+        
         if tensor.shape[1] == 1:  # If grayscale
-            image = tensor.detach().cpu().squeeze().numpy()
+            image = tensor.detach().cpu().squeeze().numpy()  # Now squeeze works as expected
             return (image + 1) / 2.0
         else:  # If RGB
-            image = tensor.detach().cpu().squeeze().numpy()
-            image = np.transpose(image, (1, 2, 0))
+            image = tensor.detach().cpu().squeeze().numpy()  # Remove batch dim
+            image = np.transpose(image, (1, 2, 0))  # Correct ordering for matplotlib
             return (image + 1) / 2.0
     
+    # Use the first image in the batch for visualization
+    batch_idx = 0
+    
     # Generate grid
-    axs[0, 0].imshow(tensor_to_image(visuals['real_A']), cmap='gray' if visuals['real_A'].shape[1] == 1 else None)
+    axs[0, 0].imshow(tensor_to_image(visuals['real_A'], batch_idx), 
+                     cmap='gray' if visuals['real_A'].shape[1] == 1 else None)
     axs[0, 0].set_title('Real Mask (A)')
     axs[0, 0].axis('off')
-    
-    axs[0, 1].imshow(tensor_to_image(visuals['fake_B']))
+
+    axs[0, 1].imshow(tensor_to_image(visuals['fake_B'], batch_idx))
     axs[0, 1].set_title('Generated Cell (B)')
     axs[0, 1].axis('off')
     
-    axs[0, 2].imshow(tensor_to_image(visuals['rec_A']), cmap='gray' if visuals['real_A'].shape[1] == 1 else None)
+    axs[0, 2].imshow(tensor_to_image(visuals['rec_A'], batch_idx), cmap='gray' if visuals['real_A'].shape[1] == 1 else None)
     axs[0, 2].set_title('Reconstructed Mask (A)')
     axs[0, 2].axis('off')
     
-    axs[1, 0].imshow(tensor_to_image(visuals['real_B']))
+    axs[1, 0].imshow(tensor_to_image(visuals['real_B'], batch_idx))
     axs[1, 0].set_title('Real Cell (B)')
     axs[1, 0].axis('off')
     
-    axs[1, 1].imshow(tensor_to_image(visuals['fake_A']), cmap='gray' if visuals['real_A'].shape[1] == 1 else None)
+    axs[1, 1].imshow(tensor_to_image(visuals['fake_A'], batch_idx), cmap='gray' if visuals['real_A'].shape[1] == 1 else None)
     axs[1, 1].set_title('Generated Mask (A)')
     axs[1, 1].axis('off')
     
-    axs[1, 2].imshow(tensor_to_image(visuals['rec_B']))
+    axs[1, 2].imshow(tensor_to_image(visuals['rec_B'], batch_idx))
     axs[1, 2].set_title('Reconstructed Cell (B)')
     axs[1, 2].axis('off')
     
@@ -733,7 +737,7 @@ def get_fixed_args():
     args.output_dir = 'output'
     args.sample_dir = 'samples'
     args.checkpoint_dir = 'checkpoints'
-    args.batch_size = 1
+    args.batch_size = 2
     args.epochs = 1
     args.lr = 0.0002
     args.beta1 = 0.5
