@@ -83,20 +83,6 @@ def smart_transforms():
     ])
 
 class RandSmartCropd(Cropd, Randomizable):
-    """
-    Base class for random crop transform.
-
-    This transform is capable of lazy execution. See the :ref:`Lazy Resampling topic<lazy_resampling>`
-    for more information.
-
-    Args:
-        keys: keys of the corresponding items to be transformed.
-            See also: :py:class:`monai.transforms.compose.MapTransform`
-        cropper: random crop transform for the input image.
-        allow_missing_keys: don't raise exception if key is missing.
-        lazy: a flag to indicate whether this transform should execute lazily or not. Defaults to False.
-    """
-
     backend = Crop.backend
 
     def __init__(self, keys, source_key, allow_missing_keys: bool = False, lazy: bool = False):
