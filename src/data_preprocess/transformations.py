@@ -38,7 +38,7 @@ def get_crop_size(images_path):
     return min_size, selected_image
 
 def validate_mask(transformed_mask, crop_size):
-    return ( sum(transformed_mask.flatten()) / (crop_size*crop_size) ) >= 0.20
+    return ( sum(transformed_mask.flatten()) / (crop_size*crop_size) ) >= 0.5
 
 def apply_tranformations(crop_size, img_path, gt_path, target_path):
     os.makedirs(os.path.join(target_path, "images"), exist_ok=True)
