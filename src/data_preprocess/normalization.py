@@ -53,7 +53,8 @@ def normalization(source_path, target_path):
     labels = source_path + "/labels" #join(source_path, 'labels')
 
     img_names = sorted(os.listdir(images))
-    gt_names = [img_name.split('.')[0]+'_label.tiff' if img_name.split('.')[-1] == "tiff" else img_name.split('.')[0]+'.png' for img_name in img_names]
+    # gt_names = [img_name.split('.')[0]+'_label.tiff' if img_name.split('.')[-1] in ["tiff", "bmp", "tif"] else img_name.split('.')[0]+'.png' for img_name in img_names]
+    gt_names = sorted(os.listdir(labels))
 
     # Create directories for preprocessed images and ground truth
     pre_img_path = join(target_path, 'images')

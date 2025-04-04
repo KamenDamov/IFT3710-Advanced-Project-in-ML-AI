@@ -4,7 +4,11 @@ dataset/
 
 **/__pycache__*/
 
-/notebooks/preprocessing_outputs/
+src/models/blip
+src/models/blip2
+src/models/t5
+src/models/clip
+
 models/**/*.pth
 models/**/*.pt
 references/papers/
