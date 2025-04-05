@@ -1,5 +1,6 @@
 import os
 join = os.path.join
+import time
 import torch
 import argparse
 import numpy as np
@@ -7,7 +8,7 @@ import pandas as pd
 import random as rd
 from tqdm import tqdm
 from monai.data import PILReader
-from monai.transforms.traits import LazyTrait
+from monai.transforms.traits import LazyTrait, MultiSampleTrait
 from monai.transforms.croppad.array import Crop
 from monai.transforms import (
     LoadImaged,
@@ -37,17 +38,19 @@ from ..data_exploration import explore
 from . import normalization
 
 def batch_transform(loader, target_path):
-    for _, batch in enumerate(tqdm(loader, desc="Transforming images and labels")):
-        img_name = batch["name"][0]
-        transformed_img = batch["img"].squeeze().numpy().transpose(1, 2, 0)
-        transformed_label = batch["label"].squeeze().numpy()
-        Image.fromarray((transformed_img * 255).astype(np.uint8)).save(os.path.join(target_path, "images", f"{img_name}.png"))
-        Image.fromarray((transformed_label * 255).astype(np.uint8)).save(os.path.join(target_path, "labels", f"{img_name}.png"))
+    for batch in tqdm(loader, desc="Transforming images and labels"):
+        for index in range(len(batch["name"])):
+            img_name = batch["name"][index]
+            transformed_img = batch["img"][index].numpy().transpose(1, 2, 0)
+            transformed_label = batch["label"][index].squeeze().numpy()
+            Image.fromarray((transformed_img * 255).astype(np.uint8)).save(os.path.join(target_path, "images", f"{img_name}.{index}.png"))
+            Image.fromarray((transformed_label * 255).astype(np.uint8)).save(os.path.join(target_path, "labels", f"{img_name}.{index}.png"))
 
 def main(dataroot):
     target_path = f"{dataroot}/preprocessing_outputs/transformed_images_labels"
     os.makedirs(os.path.join(target_path, "images"), exist_ok=True)
     os.makedirs(os.path.join(target_path, "labels"), exist_ok=True)
+
     data_dicts = list(assemble_dataset(dataroot))
     dataset = Dataset(data=data_dicts, transform=smart_transforms())
     loader = DataLoader(dataset, batch_size=1, num_workers=4)
@@ -61,8 +64,8 @@ def assemble_dataset(dataroot):
             image_files = [normalization.target_file(norm_target + img_path, ".png") for img_path in df["Path"]]
             label_files = [normalization.target_file(norm_target + mask_path, ".png") for mask_path in df["Mask"]]
             object_files = [normalization.target_file(process_target + mask_path, ".csv") for mask_path in df["Mask"]]
-            for img, lbl, meta in sorted(zip(image_files, label_files, object_files)):
-                if "Tuning" in img:
+            for img, lbl, meta in sorted(zip(image_files, label_files, object_files), key=lambda x: x[0]):
+                if ("WSI" not in img):
                     yield {"img": img, "label": lbl, "meta": meta, "name": explore.split_filepath(img)[1]}
 
 def smart_transforms():
@@ -71,7 +74,7 @@ def smart_transforms():
         AddChanneld(keys=["label"], allow_missing_keys=True),
         AsChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
-        RandSmartCropd(keys=["img", "label"], source_key="meta"),
+        RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=5),
         RandAxisFlipd(keys=["img", "label"], prob=0.5),
         RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=[0, 1]),
         RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),
@@ -82,13 +85,14 @@ def smart_transforms():
         EnsureTyped(keys=["img", "label"]),
     ])
 
-class RandSmartCropd(Cropd, Randomizable):
+class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
     backend = Crop.backend
 
-    def __init__(self, keys, source_key, allow_missing_keys: bool = False, lazy: bool = False):
+    def __init__(self, keys, source_key, num_samples:int = 1, allow_missing_keys: bool = False, lazy: bool = False):
         cropper = Crop(lazy=lazy)
         super().__init__(keys, cropper=cropper, allow_missing_keys=allow_missing_keys, lazy=lazy)
         self.source_key = source_key
+        self.num_samples = num_samples
 
     def set_random_state(self, seed: int | None = None, state: np.random.RandomState | None = None):
         super().set_random_state(seed, state)
@@ -101,6 +105,9 @@ class RandSmartCropd(Cropd, Randomizable):
             self.cropper.randomize(img_size)
 
     def __call__(self, data, lazy: bool | None = None):
+        return list(self.internalCrop(data, lazy) for _ in range(self.num_samples))
+    
+    def internalCrop(self, data, lazy: bool | None = None):
         d = dict(data)
         lazy_ = self.lazy if lazy is None else lazy
         if lazy_ is True and not isinstance(self.cropper, LazyTrait):
@@ -108,7 +115,7 @@ class RandSmartCropd(Cropd, Randomizable):
                 "'self.cropper' must inherit LazyTrait if lazy is True "
                 f"'self.cropper' is of type({type(self.cropper)}"
             )
-        slices = self.select_slices(data['img'].shape, d[self.source_key])
+        slices = self.select_slices(d[self.source_key])
         for key in self.key_iterator(d):
             kwargs = {}
             if isinstance(self.cropper, LazyTrait):
@@ -116,22 +123,26 @@ class RandSmartCropd(Cropd, Randomizable):
             d[key] = self.cropper(d[key], slices, **kwargs)  # type: ignore
         return d
     
-    def select_slices(self, dims, meta_path):
+    def select_slices(self, meta_path):
         df = pd.read_csv(meta_path)
-        width, height = df['Right'][0], df['Bottom'][0]
-        assert width == dims[1]
-        assert height == dims[2]
+        width, height = df['Right'].max(), df['Bottom'].max()
+        choice = self.randobject(df)
+        df = df.iloc[choice]
+        slices = self.randbox(width, height, df)
+        return slices
+    
+    def randobject(self, df):
         weights = df['Area'].sum() / df['Area']
         weights = list(weights / weights.sum())
         # sample an integer according to given weights
-        choice = self.R.choice(len(df), p=weights)
-        df = df.iloc[choice]
+        return self.R.choice(len(df), p=weights)
+    
+    def randbox(self, width, height, df):
         left = self.R.randint(0, df['Left']+1)
         right = self.R.randint(df['Right'], width+1)
         top = self.R.randint(0, df['Top']+1)
         bottom = self.R.randint(df['Bottom'], height+1)
-        slices = self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
-        return slices
+        return self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
 
 if __name__ == '__main__':
     base_dir = "../../data"
