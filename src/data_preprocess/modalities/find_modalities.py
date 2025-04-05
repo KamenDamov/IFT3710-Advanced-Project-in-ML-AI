@@ -10,22 +10,20 @@ from train_tools.data_utils.transforms import train_transforms
 from train_tools.models import MEDIARFormer
 join = os.path.join
 
-
 model_path1 = 'phase1.pth'
-weights1 = torch.load(model_path1, map_location="cpu")
-
+weights1 = torch.load(model_path1, map_location='cuda:0' if torch.cuda.is_available() else 'cpu')
 model = MEDIARFormer()
-model.load_state_dict(weights1, strict=False)
+model.load_state_dict(weights1)
 
 # Load all image paths
-image_folder = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/normalized_data/images"
+image_folder = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\images"
 image_paths = glob(os.path.join(image_folder, "*"))
-label_folder = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/normalized_data/labels"
+label_folder = "C:\\Users\\kamen\\Dev\\School\\H25\\IFT3710\\IFT3710-Advanced-Project-in-ML-AI\\data\\preprocessing_outputs\\unified_set\\labels"
 label_paths = glob(os.path.join(label_folder, "*"))
 
 # Extract features for all images
 image_files = {f.split(".")[0]: f for f in os.listdir(image_folder) if f.endswith(".png")}
-label_files = {f.split("_label.")[0]: f for f in os.listdir(label_folder) if f.endswith(".png")}
+label_files = {f.split(".")[0]: f for f in os.listdir(label_folder) if f.endswith(".png")}
 
 # Create dictionary mapping image files to label files
 data_dicts = [{'img': join(image_folder, img_file), 'label': join(label_folder, label_files[img_name])} for img_name, img_file in image_files.items() if img_name in label_files]
