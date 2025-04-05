@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 import tifffile as tif
 import pandas as pd
 import PIL.Image as Image
@@ -89,7 +90,7 @@ class ZenodoNeurIPS:
             if img in folder:
                 return folder.replace(img, mask)
         return None
-
+    
     def categorize(self, dirpath):
         for (img, mask) in self.label_patterns(MASK):
             if mask in dirpath:
@@ -121,9 +122,7 @@ def collect_datamap(root, matcher, files_by_type):
     return assoc
 
 def collect_dataset(root, assoc):
-    expected = len(assoc)
-    for index, (img_path, datapath) in enumerate(assoc.items()):
-        print(index, "/", expected)
+    for (img_path, datapath) in tqdm(assoc.items()):
         # Get global statistics
         imgT = tif.imread(root + datapath)
         background = (imgT == 0).sum()
@@ -159,13 +158,12 @@ def mask_frame_leaf(tensor, bounds):
     objectIDs = np.unique(tensor)
     return [detectObject(tensor, bounds, id) for id in objectIDs]
 
-def mask_frame(root, mask_path):
-    tensor = tif.imread(root + mask_path)
+def mask_frame(tensor):
     bounds = BoundingBox()
     bounds.right = tensor.shape[1]
     bounds.bottom = tensor.shape[0]
-    print(bounds.width(), "x", bounds.height())
-    print(tensor.max(), "objects")
+    #print(bounds.width(), "x", bounds.height())
+    #print(tensor.max(), "objects")
     objects = mask_frame_branch(tensor, bounds)
     for object in objects:
         normalizeObject(object)
@@ -252,13 +250,30 @@ def mergeObjects(objectA, objectB):
 def save_maskframes(dataroot, df):
     root = dataroot + "/raw"
     store = dataroot + "/processed"
-    for index, mask_path in enumerate(df["Mask"]):
-        print(index, "/", len(df))
-        folder, name, ext = split_filepath(mask_path)
-        maskframe = mask_frame(root, mask_path)
-        target = store + folder + name
-        os.makedirs(store + folder, exist_ok=True)
-        maskframe.to_csv(target + ".csv")
+    dataset = [(root + mask_path, store + target_file(mask_path, ".csv")) for mask_path in df["Mask"]]
+    for mask_path, frame_path in tqdm(dataset):
+        safely_process([], save_maskframe)(mask_path, frame_path)
+
+def save_maskframe(mask_path, frame_path):
+    tensor = tif.imread(mask_path)
+    maskframe = mask_frame(tensor)
+    maskframe.to_csv(frame_path)
+
+def target_file(filepath, ext):
+    dirpath, name, _ = split_filepath(filepath)
+    return dirpath + name + ext
+
+def safely_process(log, process):
+    def wrapper(source, target):
+        try:
+            if not os.path.exists(target):
+                dirpath, _, _ = split_filepath(target)
+                os.makedirs(dirpath, exist_ok=True)
+                process(source, target)
+        except Exception as e:
+            print(e)
+            log.append(source + " -> " + target)
+    return wrapper
 
 # Save black-white mask
 def save_bw_mask(root, store, datapath):
@@ -309,28 +324,36 @@ def enumerate_frames(dataroot):
 def preprocess_masks(dataroot, df, color = False):
     rawroot = dataroot + "/raw"
     procroot = dataroot + "/processed"
-    for index, datapath in enumerate(df["Mask"]):
-        print(index, "/", len(df))
+    for datapath in tqdm(df["Mask"]):
         if color:
             save_hue_mask(rawroot, procroot, datapath)
         else:
             save_bw_mask(rawroot, procroot, datapath)
 
 def preprocess_images(dataroot, df):
-    for index, filepath in enumerate(df["Path"]):
-        print(index, "/", len(df), filepath)
+    for filepath in tqdm(df["Path"]):
         folder, name, ext = split_filepath(filepath)
         img = cv2.imread(dataroot + "/raw" + filepath)
         target = dataroot + "/processed" + folder
         os.makedirs(target, exist_ok=True)
         cv2.imwrite(target + name + ".png", img)
 
-def preprocess_dataset(dataroot):
+def prepare_metaframes(dataroot):
     rawroot = dataroot + "/raw"
     zenodo = ZenodoNeurIPS('/zenodo')
     unzip_dataset(rawroot, zenodo.root + "/")
     for category, label in [(MASK, ".labels"), (SYNTHETIC, ".synth")]:
-        zenodo.category = category
-        data_map = dataset_frame(rawroot, zenodo)
-        data_map.to_csv(dataroot + zenodo.root + label + ".csv")
-        
+        target_path = dataroot + zenodo.root + label + ".csv"
+        if not os.path.exists(target_path):
+            zenodo.category = category
+            data_map = dataset_frame(rawroot, zenodo)
+            data_map.to_csv(target_path)
+
+if __name__ == "__main__":
+    dataroot = "./data"
+    prepare_metaframes(dataroot)
+    for name, df in enumerate_frames(dataroot):
+        #preprocess_images(dataroot, df)
+        #preprocess_masks(dataroot, df)
+        save_maskframes(dataroot, df)
+        pass
