@@ -30,7 +30,6 @@ from monai.data import Dataset, DataLoader
 from PIL import Image
 import argparse
 from src.data_exploration import explore
-from src.data_preprocess import normalization
 
 def batch_transform(loader, target_path):
     for batch in tqdm(loader, desc="Transforming images and labels"):
@@ -56,9 +55,9 @@ def assemble_dataset(dataroot):
     norm_target = f"{dataroot}/preprocessing_outputs/normalized_data"
     for name, df in explore.enumerate_frames(dataroot):
         if ".labels" in name:
-            image_files = [normalization.target_file(norm_target + img_path, ".png") for img_path in df["Path"]]
-            label_files = [normalization.target_file(norm_target + mask_path, ".png") for mask_path in df["Mask"]]
-            object_files = [normalization.target_file(process_target + mask_path, ".csv") for mask_path in df["Mask"]]
+            image_files = [explore.target_file(norm_target + img_path, ".png") for img_path in df["Path"]]
+            label_files = [explore.target_file(norm_target + mask_path, ".png") for mask_path in df["Mask"]]
+            object_files = [explore.target_file(process_target + mask_path, ".csv") for mask_path in df["Mask"]]
             for img, lbl, meta in sorted(zip(image_files, label_files, object_files), key=lambda x: x[0]):
                 if ("WSI" not in img):
                     yield {"img": img, "label": lbl, "meta": meta, "name": explore.split_filepath(img)[1]}

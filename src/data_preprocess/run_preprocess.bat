@@ -5,6 +5,9 @@ IF NOT EXIST "./data" (
     exit /b 1
 )
 
+echo Collect metadata from training set
+python -m src.data_exploration.explore
+
 echo Normalization
 python -m src.data_preprocess.normalization
 
