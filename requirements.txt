@@ -13,3 +13,4 @@ psutil
 pandas
 einops
 sam2
+imagecodecs

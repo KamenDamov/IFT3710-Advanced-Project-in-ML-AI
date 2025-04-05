@@ -1,6 +1,5 @@
 import os
 join = os.path.join
-import time
 import torch
 import argparse
 import numpy as np
@@ -12,12 +11,8 @@ from monai.transforms.traits import LazyTrait, MultiSampleTrait
 from monai.transforms.croppad.array import Crop
 from monai.transforms import (
     LoadImaged,
-    AsChannelFirstd,
-    AddChanneld,
+    EnsureChannelFirstd,
     ScaleIntensityd,
-    SpatialPadd,
-    RandSpatialCropd,
-    CropForegroundd,
     RandAxisFlipd,
     RandRotate90d,
     RandGaussianNoised,
@@ -71,8 +66,8 @@ def assemble_dataset(dataroot):
 def smart_transforms():
     return Compose([
         LoadImaged(keys=["img", "label"], reader=PILReader, dtype=np.uint8),
-        AddChanneld(keys=["label"], allow_missing_keys=True),
-        AsChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
+        EnsureChannelFirstd(channel_dim="no_channel", keys=["label"], allow_missing_keys=True),
+        EnsureChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
         RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=5),
         RandAxisFlipd(keys=["img", "label"], prob=0.5),
