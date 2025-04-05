@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from sklearn.metrics import f1_score
 from sklearn.cluster import KMeans
+import csv
 
 
 # NB : les mask générer sont en noir et blanc actuellement et non en nuance de gris
