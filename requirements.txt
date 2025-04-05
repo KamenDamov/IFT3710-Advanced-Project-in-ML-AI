@@ -15,5 +15,5 @@ einops
 sam2
 imagecodecs
 wandb
-pytorch
 numpy
+segmentation-models-pytorch

@@ -5,33 +5,24 @@ import os
 from monai.data import Dataset, DataLoader
 import torch
 import numpy as np
+import multiprocessing
 from tqdm import tqdm
-from train_tools.data_utils.transforms import train_transforms
-from train_tools.models import MEDIARFormer
+from src.data_preprocess.modalities.train_tools.data_utils.transforms import train_transforms
+from src.data_preprocess.modalities.train_tools.models import MEDIARFormer
+from src.data_exploration import explore
 join = os.path.join
 
-
-model_path1 = 'phase1.pth'
-weights1 = torch.load(model_path1, map_location="cpu")
-
-model = MEDIARFormer()
-model.load_state_dict(weights1, strict=False)
-
-# Load all image paths
-image_folder = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/normalized_data/images"
-image_paths = glob(os.path.join(image_folder, "*"))
-label_folder = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/preprocessing_outputs/normalized_data/labels"
-label_paths = glob(os.path.join(label_folder, "*"))
-
-# Extract features for all images
-image_files = {f.split(".")[0]: f for f in os.listdir(image_folder) if f.endswith(".png")}
-label_files = {f.split("_label.")[0]: f for f in os.listdir(label_folder) if f.endswith(".png")}
-
-# Create dictionary mapping image files to label files
-data_dicts = [{'img': join(image_folder, img_file), 'label': join(label_folder, label_files[img_name])} for img_name, img_file in image_files.items() if img_name in label_files]
-
-dataset = Dataset(data=data_dicts, transform=train_transforms)
-loader = DataLoader(dataset, batch_size=1, num_workers=1)
+def generate_dataset(dataroot):
+    # Load all image paths
+    for name, df in explore.enumerate_frames(dataroot):
+        if ".labels" in name:
+            meta_target = f"{dataroot}/processed"
+            norm_target = f"{dataroot}/preprocessing_outputs/normalized_data"
+            for img_path, mask_path in zip(df["Path"], df["Mask"]):
+                img_path = norm_target + explore.target_file(img_path, ".png")
+                mask_path = norm_target + explore.target_file(mask_path, ".png")
+                meta_path = meta_target + explore.target_file(mask_path, ".csv")
+                yield { "img": img_path, "label": mask_path, "meta": meta_path }
 
 # Function to extract features from model
 def extract_features(model, loader):
@@ -45,30 +36,46 @@ def extract_features(model, loader):
 
     return np.array(features_list)
 
+if __name__ == "__main__":
+    multiprocessing.freeze_support()
 
-# Run feature extraction
-print("Extracting features...")
-features = extract_features(model, loader)
+    model_path1 = './models/mediar/pretrained/phase1.pth'
+    weights1 = torch.load(model_path1, map_location="cpu")
 
-# Perform K-Means clustering
-print("Extracting modalities...")
-kmeans = KMeans(n_clusters=40)
-modalities = kmeans.fit_predict(features)
+    model = MEDIARFormer()
+    model.load_state_dict(weights1, strict=False)
 
-print("Saving modalities...")
-modalities_map = {}
-for idx, modality in tqdm(enumerate(modalities)):
-    image_basename = os.path.splitext(os.path.basename(image_paths[idx]))[0]
-    if modality in modalities_map.keys():
-        modalities_map[modality].append(image_basename)
-    else:
-        modalities_map[modality] = [image_basename]
-print(modalities_map)
+    # Create dictionary mapping image files to label files
+    data_dicts = list(generate_dataset('./data'))[:100]
 
-# Save dictionary to a pickle file
-pickle_file = "new_modalities.pkl"
+    dataset = Dataset(data=data_dicts, transform=train_transforms)
+    loader = DataLoader(dataset, batch_size=1, num_workers=1)
 
-with open(pickle_file, "wb") as f:
-    pickle.dump(modalities_map, f)
+    # Run feature extraction
+    print("Extracting features...")
+    features = extract_features(model, loader)
+    print("Feature extraction complete!", features.shape)
 
-print("Images sorted into modalities!")
+    # Perform K-Means clustering
+    print("Extracting modalities...")
+    kmeans = KMeans(n_clusters=40, n_init=10, verbose=5)
+    modalities = kmeans.fit_predict(features)
+    print("Clustering complete!", kmeans.centers_)
+
+    print("Saving modalities...")
+    modalities_map = {}
+    for idx, modality in tqdm(enumerate(modalities)):
+        image_basename = os.path.splitext(os.path.basename(data_dicts[idx]['img']))
+        if modality in modalities_map.keys():
+            modalities_map[modality].append(image_basename)
+        else:
+            modalities_map[modality] = [image_basename]
+    print(modalities_map)
+
+    # Save dictionary to a pickle file
+    pickle_file = "new_modalities.pkl"
+
+    with open(pickle_file, "wb") as f:
+        pickle.dump(modalities_map, f)
+
+    print("Images sorted into modalities!")
