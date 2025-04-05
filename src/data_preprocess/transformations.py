@@ -29,8 +29,8 @@ from monai.transforms import (
 from monai.data import Dataset, DataLoader
 from PIL import Image
 import argparse
-from ..data_exploration import explore
-from . import normalization
+from src.data_exploration import explore
+from src.data_preprocess import normalization
 
 def batch_transform(loader, target_path):
     for batch in tqdm(loader, desc="Transforming images and labels"):
@@ -140,6 +140,4 @@ class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
         return self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
 
 if __name__ == '__main__':
-    base_dir = "../../data"
-    main(base_dir)
-
+    main("./data")

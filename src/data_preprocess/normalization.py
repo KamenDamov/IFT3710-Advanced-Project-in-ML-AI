@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import argparse
 import os
-from ..data_exploration import explore
+from src.data_exploration import explore
 
 join = os.path.join
 
@@ -124,10 +124,4 @@ def main(dataroot):
         f.close()
 
 if __name__ == "__main__":
-    dataroot = "../../data"
-    parser = argparse.ArgumentParser(description="Applying Normalization")
-    parser.add_argument("--source_path", default=f"{dataroot}/Training-labeled" , type=str, required=False, help="Path to input images.")
-    parser.add_argument("--target_path", default=f"{dataroot}/preprocessing_outputs/normalized_data" , type=str, required=False, help="Path to save transformed images.")
-
-    args = parser.parse_args()
-    normalization(args.source_path, args.target_path)
+    main("./data")
