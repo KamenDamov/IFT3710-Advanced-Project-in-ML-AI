@@ -7,7 +7,7 @@ import torch
 import numpy as np
 import multiprocessing
 from tqdm import tqdm
-from src.data_preprocess.modalities.train_tools.data_utils.transforms import train_transforms
+from src.data_preprocess.modalities.train_tools.data_utils.transforms import modality_transforms, train_transforms
 from src.data_preprocess.modalities.train_tools.models import MEDIARFormer
 from src.data_exploration import explore
 join = os.path.join
@@ -19,9 +19,9 @@ def generate_dataset(dataroot):
             meta_target = f"{dataroot}/processed"
             norm_target = f"{dataroot}/preprocessing_outputs/normalized_data"
             for img_path, mask_path in zip(df["Path"], df["Mask"]):
-                img_path = norm_target + explore.target_file(img_path, ".png")
-                mask_path = norm_target + explore.target_file(mask_path, ".png")
                 meta_path = meta_target + explore.target_file(mask_path, ".csv")
+                mask_path = norm_target + explore.target_file(mask_path, ".png")
+                img_path = norm_target + explore.target_file(img_path, ".png")
                 yield { "img": img_path, "label": mask_path, "meta": meta_path }
 
 # Function to extract features from model
@@ -46,10 +46,10 @@ if __name__ == "__main__":
     model.load_state_dict(weights1, strict=False)
 
     # Create dictionary mapping image files to label files
-    data_dicts = list(generate_dataset('./data'))[:100]
+    data_dicts = list(generate_dataset('./data'))
 
     dataset = Dataset(data=data_dicts, transform=train_transforms)
-    loader = DataLoader(dataset, batch_size=1, num_workers=1)
+    loader = DataLoader(dataset, batch_size=1, num_workers=4)
 
     # Run feature extraction
     print("Extracting features...")
@@ -70,7 +70,6 @@ if __name__ == "__main__":
             modalities_map[modality].append(image_basename)
         else:
             modalities_map[modality] = [image_basename]
-    print(modalities_map)
 
     # Save dictionary to a pickle file
     pickle_file = "new_modalities.pkl"

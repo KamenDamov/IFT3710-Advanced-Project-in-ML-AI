@@ -1,9 +1,12 @@
 from .custom import *
 
+import numpy as np
+import pandas as pd
 from monai.transforms import *
 
 __all__ = [
     "train_transforms",
+    "modality_transforms"
     "public_transforms",
     "valid_transforms",
     "tuning_transforms",
@@ -47,6 +50,74 @@ train_transforms = Compose(
     ]
 )
 
+class EnumerateObjectCropd(Cropd, MultiSampleTrait):
+    backend = Crop.backend
+
+    def __init__(self, keys, source_key, allow_missing_keys: bool = False, lazy: bool = False):
+        cropper = Crop(lazy=lazy)
+        super().__init__(keys, cropper=cropper, allow_missing_keys=allow_missing_keys, lazy=lazy)
+        self.source_key = source_key
+
+    def __call__(self, data, lazy: bool | None = None):
+        return list(self.generate_crops(data, lazy))
+    
+    def generate_crops(self, data, lazy: bool | None = None):
+        lazy_ = self.lazy if lazy is None else lazy
+        if lazy_ is True and not isinstance(self.cropper, LazyTrait):
+            raise ValueError(
+                "'self.cropper' must inherit LazyTrait if lazy is True "
+                f"'self.cropper' is of type({type(self.cropper)}"
+            )
+        for box, slices in self.generate_slices(data[self.source_key]):
+            d = dict(data)
+            d['box'] = box
+            for key in self.key_iterator(d):
+                kwargs = {}
+                if isinstance(self.cropper, LazyTrait):
+                    kwargs["lazy"] = lazy_
+                    print(d[key].shape, slices)
+                    d[key] = self.cropper(d[key], slices, **kwargs)  # type: ignore
+                    print(d[key].shape)
+            yield d
+    
+    def generate_slices(self, meta_path):
+        df = pd.read_csv(meta_path)
+        for i in range(len(df)):
+            yield self.bounding_box(df.iloc[i])
+    
+    def bounding_box(self, df):
+        left = df['Left']
+        right = df['Right']
+        top = df['Top']
+        bottom = df['Bottom']
+        if (right - left) < 2:
+            raise ValueError("Width of the bounding box is too small.")
+        if (bottom - top) < 2:
+            raise ValueError("Height of the bounding box is too small.")
+        return [left, right, top, bottom], self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
+
+modality_transforms = Compose(
+    [
+        # >>> Load and refine data --- img: (H, W, 3); label: (H, W)
+        CustomLoadImaged(keys=["img", "label"], image_only=True),
+        EnsureChannelFirstd(keys=["img", "label"], channel_dim=-1),
+        RemoveRepeatedChanneld(keys=["label"], repeats=3),  # label: (H, W)
+        ScaleIntensityd(keys=["img"], allow_missing_keys=True),  # Do not scale label
+        # >>> Spatial transforms
+        EnumerateObjectCropd(keys=["img", "label"], source_key="meta"),
+        RandAxisFlipd(keys=["img", "label"], prob=0.5),
+        RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=[0, 1]),
+        #IntensityDiversification(keys=["img", "label"], allow_missing_keys=True),
+        # # >>> Intensity transforms
+        #RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),
+        #RandAdjustContrastd(keys=["img"], prob=0.25, gamma=(1, 2)),
+        #RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
+        #RandHistogramShiftd(keys=["img"], prob=0.25, num_control_points=3),
+        #RandGaussianSharpend(keys=["img"], prob=0.25),
+        Resized(keys=["img", "label"], spatial_size=(512, 512), mode=["area", "nearest-exact"]),
+        EnsureTyped(keys=["img", "label"]),
+    ]
+)
 
 public_transforms = Compose(
     [
