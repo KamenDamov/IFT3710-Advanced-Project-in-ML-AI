@@ -4,7 +4,11 @@ dataset/
 
 **/__pycache__*/
 
-/notebooks/preprocessing_outputs/
+src/models/blip
+src/models/blip2
+src/models/t5
+src/models/clip
+
 models/**/*.pth
 models/**/*.pt
 references/papers/
@@ -12,5 +16,13 @@ references/papers/
 *.pt
 # weigths for sam2 model
 src/SAM-2/weights/sam_vit_h_4b8939.pth
+
 *.zip
 *.png
+
+# weights for cGAN model
+src/data_augmentation/models/
+*.pth
+*.pt
+*.png
+

@@ -13,3 +13,7 @@ psutil
 pandas
 einops
 sam2
+imagecodecs
+wandb
+pytorch
+numpy

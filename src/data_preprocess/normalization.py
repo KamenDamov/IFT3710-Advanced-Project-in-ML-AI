@@ -2,8 +2,11 @@ from skimage import io, segmentation, morphology, exposure
 import tifffile as tif
 from tqdm import tqdm
 import numpy as np
+import pandas as pd
 import argparse
 import os
+from src.data_exploration import explore
+
 join = os.path.join
 
 def normalize_channel(img, lower=1, upper=99):
@@ -43,65 +46,60 @@ def create_interior_map(inst_map):
     interior[boundary] = 2
     return interior
 
-def normalization(source_path, target_path):
+def normalize_mask(mask_path, target_path):
+    gt_data = load_image(mask_path)
+    # conver instance bask to three-class mask: interior, boundary
+    interior_map = create_interior_map(gt_data.astype(np.int16))
+    io.imsave(target_path, interior_map.astype(np.uint8), check_contrast=False)
 
-    if not os.path.exists(target_path):
-        os.makedirs(target_path)
+def normalize_image(img_path, target_path):
+    img_data = load_image(img_path)
 
-    # Get images names
-    images = source_path + "/images" #join(source_path, 'images')
-    labels = source_path + "/labels" #join(source_path, 'labels')
+    # normalize image data
+    if len(img_data.shape) == 2:
+        img_data = np.repeat(np.expand_dims(img_data, axis=-1), 3, axis=-1)
+    elif len(img_data.shape) == 3 and img_data.shape[-1] > 3:
+        img_data = img_data[:,:, :3]
+    else:
+        pass
+    pre_img_data = np.zeros(img_data.shape, dtype=np.uint8)
+    for i in range(3):
+        img_channel_i = img_data[:,:,i]
+        if len(img_channel_i[np.nonzero(img_channel_i)])>0:
+            pre_img_data[:,:,i] = normalize_channel(img_channel_i, lower=1, upper=99)
+    
+    io.imsave(target_path, pre_img_data.astype(np.uint8), check_contrast=False)
 
-    img_names = sorted(os.listdir(images))
-    gt_names = [img_name.split('.')[0]+'_label.tiff' if img_name.split('.')[-1] == "tiff" else img_name.split('.')[0]+'.png' for img_name in img_names]
+def load_image(img_path):
+    dirpath, name, ext = explore.split_filepath(img_path)
+    if ext in ['.tif', '.tiff']:
+        return tif.imread(img_path)
+    else:
+        return io.imread(img_path)
 
-    # Create directories for preprocessed images and ground truth
-    pre_img_path = join(target_path, 'images')
-    pre_gt_path = join(target_path, 'labels')
-    os.makedirs(pre_img_path, exist_ok=True)
-    os.makedirs(pre_gt_path, exist_ok=True)
+def assemble_dataset(dataroot):
+    for name, df in explore.enumerate_frames(dataroot):
+        if ".labels" in name:
+            for img, mask in zip(df["Path"], df["Mask"]):
+                yield img, mask
+
+def main(dataroot):
+    dataset = list(assemble_dataset(dataroot))
+
+    norm_source = f"{dataroot}/raw"
+    norm_target = f"{dataroot}/preprocessing_outputs/normalized_data"
+    imgset = [(norm_source + imgpath, norm_target + explore.target_file(imgpath, ".png")) for imgpath, _ in dataset]
+    maskset = [(norm_source + maskpath, norm_target + explore.target_file(maskpath, ".png")) for _, maskpath in dataset]
 
     log = ["Failed to process images: \n"]
-    for img_name, gt_name in zip(tqdm(img_names, desc="Normalizing images"), gt_names):
-        try:
-            if img_name.endswith('.tif') or img_name.endswith('.tiff'):
-                img_data = tif.imread(join(images, img_name))
-            else:
-                img_data = io.imread(join(images, img_name))
-            if gt_name.endswith('.tif') or gt_name.endswith('.tiff'):
-                gt_data = tif.imread(join(labels, gt_name))
-            else: 
-                gt_data = io.imread(join(labels, gt_name))
-
-            # normalize image data
-            if len(img_data.shape) == 2:
-                img_data = np.repeat(np.expand_dims(img_data, axis=-1), 3, axis=-1)
-            elif len(img_data.shape) == 3 and img_data.shape[-1] > 3:
-                img_data = img_data[:,:, :3]
-            else:
-                pass
-            pre_img_data = np.zeros(img_data.shape, dtype=np.uint8)
-            for i in range(3):
-                img_channel_i = img_data[:,:,i]
-                if len(img_channel_i[np.nonzero(img_channel_i)])>0:
-                    pre_img_data[:,:,i] = normalize_channel(img_channel_i, lower=1, upper=99)
-                
-            # conver instance bask to three-class mask: interior, boundary
-            interior_map = create_interior_map(gt_data.astype(np.int16))
-            
-            io.imsave(join(target_path, 'images', img_name.split('.')[0]+'.png'), pre_img_data.astype(np.uint8), check_contrast=False)
-            io.imsave(join(target_path, 'labels', gt_name.split('.')[0]+'.png'), interior_map.astype(np.uint8), check_contrast=False)
-        except Exception as e: 
-            print(e)
-            log.append(img_name)      
-
-    with open('logs.txt', 'a') as f: 
+    for source, target in tqdm(imgset, desc="Normalizing images"):
+        explore.safely_process(log, normalize_image)(source, target)
+    for source, target in tqdm(maskset, desc="Transforming masks"):
+        explore.safely_process(log, normalize_mask)(source, target)
+    
+    with open('logs.txt', 'a') as f:
         f.write("\n".join(log))
-        f.close()  
+        f.close()
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Applying Normalization")
-    parser.add_argument("--source_path", default="../../data/Training-labeled" , type=str, required=False, help="Path to input images.")
-    parser.add_argument("--target_path", default="../../data/preprocessing_outputs/normalized_data" , type=str, required=False, help="Path to save transformed images.")
-    args = parser.parse_args()
-    normalization(args.source_path, args.target_path)
+    main("./data")
