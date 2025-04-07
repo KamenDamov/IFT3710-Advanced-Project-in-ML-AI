@@ -349,6 +349,86 @@ def prepare_metaframes(dataroot):
             data_map = dataset_frame(rawroot, zenodo)
             data_map.to_csv(target_path)
 
+class DataSample:
+    def __init__(self, meta_path):
+        self.df = pd.read_csv(meta_path)
+    
+    def init_paths(self, image_path, mask_path):
+        self.raw_image = dataroot + "/raw" + image_path
+        self.raw_mask = dataroot + "/raw" + mask_path
+        self.norm_image = dataroot + "/processed" + target_file(image_path, ".png")
+        self.bw_mask = dataroot + "/processed" + target_file(mask_path, ".png")
+        self.meta_frame = dataroot + "/processed" + target_file(mask_path, ".csv")
+        self.normal_image = dataroot + "/preprocessing_outputs/normalized_data" + target_file(image_path, ".png")
+        self.normal_mask = dataroot + "/preprocessing_outputs/normalized_data" + target_file(mask_path, ".png")
+    
+    def __str__(self):
+        return str(self.df)
+
+    def lerp(self, a, b):
+        return a + b - (a * b)
+    
+    def randobject(self, random, df):
+        weights = df['Area'].sum() / df['Area']
+        weights = list(weights / weights.sum())
+        # sample an integer according to given weights
+        return random.choice(len(df), p=weights)
+    
+    def randboxsmart(self, random):
+        width = self.df['Width']
+        height = self.df['Height']
+        scalar = self.randscalar(random)
+        relbox = self.relbox(scalar)
+        return self.absbox(width, height, relbox)
+    
+    def relscalar(self, box):
+        [left, top, right, bottom] = box
+        sx = right - left
+        sy = bottom - top
+        x = left / (1 - sx) if sx != 1 else 0.5
+        y = top / (1 - sy) if sy != 1 else 0.5
+        return [x, y, sx, sy]
+    
+    def relbox(self, scalar):
+        [x, y, sx, sy] = scalar
+        # x = left/(1 - s)
+        left = x * (1 - sx)
+        right = left + sx
+        top = y * (1 - sy)
+        bottom = top + sy
+        return [left, top, right, bottom]
+
+    def absbox(self, width, height, box):
+        [left, top, right, bottom] = box
+        left = int(np.rint(left * width))
+        right = int(np.rint(right * width))
+        top = int(np.rint(top * height))
+        bottom = int(np.rint(bottom * height))
+        width = right - left
+        height = bottom - top
+        area = width * height
+        return { 'Left': left, 'Top': top, 'Right': right, 'Bottom': bottom, 'Width': width, 'Height': height, 'Area': area }
+
+    def randscalar(self, random):
+        x = random.beta(0.5, 0.5)
+        y = random.beta(0.5, 0.5)
+        sx = random.beta(2, 2)
+        sy = sx #random.beta(2, 1)
+        return [x, y, sx, sy]
+    
+    def select_slices(self, random):
+        choice = self.randobject(random, self.df)
+        if not choice:
+            return self.randboxsmart(random)
+        df = self.df.iloc[choice]
+        width, height = self.df['Right'].max(), self.df['Bottom'].max()
+        relbox = [df['Left']/width, df['Top']/height, df['Right']/width, df['Bottom']/height]
+        [x, y, sx, sy] = self.relscalar(relbox)
+        [_, _, s, _] = self.randscalar(random)
+        scalar = [x, y, self.lerp(sx, s), self.lerp(sy, s)]
+        relbox = self.relbox(scalar)
+        return self.absbox(width, height, relbox)
+
 if __name__ == "__main__":
     dataroot = "./data"
     prepare_metaframes(dataroot)

@@ -68,7 +68,7 @@ def smart_transforms():
         EnsureChannelFirstd(channel_dim="no_channel", keys=["label"], allow_missing_keys=True),
         EnsureChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
-        RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=5),
+        RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=1),
         RandAxisFlipd(keys=["img", "label"], prob=0.5),
         RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=[0, 1]),
         RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),
@@ -109,7 +109,9 @@ class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
                 "'self.cropper' must inherit LazyTrait if lazy is True "
                 f"'self.cropper' is of type({type(self.cropper)}"
             )
-        slices = self.select_slices(d[self.source_key])
+
+        sample = explore.DataSample(d[self.source_key])
+        slices = sample.select_slices(self.R)
         for key in self.key_iterator(d):
             kwargs = {}
             if isinstance(self.cropper, LazyTrait):
@@ -117,26 +119,5 @@ class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
             d[key] = self.cropper(d[key], slices, **kwargs)  # type: ignore
         return d
     
-    def select_slices(self, meta_path):
-        df = pd.read_csv(meta_path)
-        width, height = df['Right'].max(), df['Bottom'].max()
-        choice = self.randobject(df)
-        df = df.iloc[choice]
-        slices = self.randbox(width, height, df)
-        return slices
-    
-    def randobject(self, df):
-        weights = df['Area'].sum() / df['Area']
-        weights = list(weights / weights.sum())
-        # sample an integer according to given weights
-        return self.R.choice(len(df), p=weights)
-    
-    def randbox(self, width, height, df):
-        left = self.R.randint(0, df['Left']+1)
-        right = self.R.randint(df['Right'], width+1)
-        top = self.R.randint(0, df['Top']+1)
-        bottom = self.R.randint(df['Bottom'], height+1)
-        return self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
-
 if __name__ == '__main__':
     main("./data")
