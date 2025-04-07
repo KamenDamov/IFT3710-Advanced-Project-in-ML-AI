@@ -47,7 +47,7 @@ def main(dataroot):
 
     data_dicts = list(assemble_dataset(dataroot))
     dataset = Dataset(data=data_dicts, transform=smart_transforms())
-    loader = DataLoader(dataset, batch_size=1, num_workers=4)
+    loader = DataLoader(dataset, batch_size=1, num_workers=1)
     batch_transform(loader, target_path)
 
 def assemble_dataset(dataroot):
@@ -111,7 +111,8 @@ class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
             )
 
         sample = explore.DataSample(d[self.source_key])
-        slices = sample.select_slices(self.R)
+        cropping = sample.select_slices(self.R)
+        slices = self.cropper.compute_slices(roi_start=[cropping['Left'], cropping['Top']], roi_end=[cropping['Right'], cropping['Bottom']])
         for key in self.key_iterator(d):
             kwargs = {}
             if isinstance(self.cropper, LazyTrait):
