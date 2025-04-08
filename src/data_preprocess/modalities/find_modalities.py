@@ -16,13 +16,9 @@ def generate_dataset(dataroot):
     # Load all image paths
     for name, df in explore.enumerate_frames(dataroot):
         if ".labels" in name:
-            meta_target = f"{dataroot}/processed"
-            norm_target = f"{dataroot}/preprocessing_outputs/normalized_data"
-            for img_path, mask_path in zip(df["Path"], df["Mask"]):
-                meta_path = meta_target + explore.target_file(mask_path, ".csv")
-                mask_path = norm_target + explore.target_file(mask_path, ".png")
-                img_path = norm_target + explore.target_file(img_path, ".png")
-                yield { "img": img_path, "label": mask_path, "meta": meta_path }
+            for index in range(len(df)):
+                sample = explore.DataSample(dataroot, df.iloc[index])
+                yield { "img": sample.normal_image, "label": sample.normal_mask, "meta": sample.meta_frame, "name": sample.name }
 
 # Function to extract features from model
 def extract_features(model, loader):
