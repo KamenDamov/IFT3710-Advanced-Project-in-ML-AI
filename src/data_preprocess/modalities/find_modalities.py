@@ -12,27 +12,29 @@ from train_tools.data_utils.transforms import train_transforms
 from train_tools.models import MEDIARFormer
 join = os.path.join
 
-partition = 10
+partition = 0
 batch_size = 100
-image_folder = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/Training-labeled/images"
-label_folder = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/Training-labeled/labels"
+image_folder = "./data/raw/zenodo/Training-labeled/images"
+label_folder = "./data/raw/zenodo/Training-labeled/labels"
 save_path = 'features_list.pkl'
+accel_device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def load_features(save_path):
     features = []
-    with open(save_path, "rb") as f:
-        while True:
-            try:
-                features.append(pickle.load(f))
-            except EOFError:
-                break
+    if os.path.exists(save_path):
+        with open(save_path, "rb") as f:
+            while True:
+                try:
+                    features.append(pickle.load(f))
+                except EOFError:
+                    break
     return features
 
 
 def main(partition, batch_size, image_folder, label_folder):
-    model_path1 = 'phase1.pth'
-    weights1 = torch.load(model_path1, map_location="cpu")
+    model_path1 = './models/mediar/pretrained/phase1.pth'
+    weights1 = torch.load(model_path1, map_location=accel_device)
 
     model = MEDIARFormer()
     model.load_state_dict(weights1, strict=False)
@@ -51,13 +53,13 @@ def main(partition, batch_size, image_folder, label_folder):
 
     # Function to extract features from model
     def extract_features(model, loader):
-        model.to('cuda')
+        model.to(accel_device)
         features_list = []
         model.eval()
 
         with torch.no_grad():
             for batch in tqdm(loader):
-                img_tensor = batch["img"].to("cuda")
+                img_tensor = batch["img"].to(accel_device)
                 features = model(img_tensor)
 
                 with open(save_path, mode="ab") as f:
