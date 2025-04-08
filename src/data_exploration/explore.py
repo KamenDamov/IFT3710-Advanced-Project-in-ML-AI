@@ -353,11 +353,16 @@ def prepare_metaframes(dataroot):
 class DataSample:
     def __init__(self, dataroot, df):
         self.dataroot = dataroot
+        self.df = df
+
         self.name = split_filepath(df["Path"])[1]
         self.init_paths(df["Path"], df["Mask"])
         self.width = df.get('Width')
         self.height = df.get('Height')
     
+    def __str__(self):
+        return str(self.df)
+
     def labels(self):
         if not os.path.exists(self.meta_frame):
             save_maskframe(self.raw_mask, self.meta_frame)
@@ -391,19 +396,6 @@ class DataLabels:
     def lerp(self, a, b):
         return a + b - (a * b)
     
-    def randobject(self, random, df):
-        weights = df['Area'].sum() / df['Area']
-        weights = list(weights / weights.sum())
-        # sample an integer according to given weights
-        return random.choice(len(df), p=weights)
-    
-    def randboxsmart(self, random):
-        width = self.width
-        height = self.height
-        scalar = self.randscalar(random)
-        relbox = self.relbox(scalar)
-        return self.absbox(width, height, relbox)
-    
     def relscalar(self, box):
         [left, top, right, bottom] = box
         sx = right - left
@@ -421,17 +413,24 @@ class DataLabels:
         bottom = top + sy
         return [left, top, right, bottom]
 
-    def absbox(self, width, height, box):
+    def absbox(self, relbox):
+        [left, top, right, bottom] = relbox
+        left = int(np.rint(left * self.width))
+        right = int(np.rint(right * self.width))
+        top = int(np.rint(top * self.height))
+        bottom = int(np.rint(bottom * self.height))
+        return [left, top, right, bottom]
+
+    def dictbox(self, box):
         [left, top, right, bottom] = box
-        left = int(np.rint(left * width))
-        right = int(np.rint(right * width))
-        top = int(np.rint(top * height))
-        bottom = int(np.rint(bottom * height))
         width = right - left
         height = bottom - top
         area = width * height
         return { 'Left': left, 'Top': top, 'Right': right, 'Bottom': bottom, 'Width': width, 'Height': height, 'Area': area }
-
+    
+    def flatbox(self, df):
+        return [df['Left']/self.width, df['Top']/self.height, df['Right']/self.width, df['Bottom']/self.height]
+    
     def randscalar(self, random):
         x = random.beta(0.5, 0.5)
         y = random.beta(0.5, 0.5)
@@ -439,18 +438,30 @@ class DataLabels:
         sy = sx #random.beta(2, 1)
         return [x, y, sx, sy]
     
+    def randboxsmart(self, random):
+        scalar = self.randscalar(random)
+        relbox = self.relbox(scalar)
+        absbox = self.absbox(relbox)
+        return self.dictbox(absbox)
+    
+    def randobject(self, random):
+        weights = self.df['Area'].sum() / self.df['Area']
+        weights = list(weights / weights.sum())
+        # sample an integer according to given weights
+        return random.choice(len(self.df), p=weights)
+    
     def select_slices(self, random):
-        choice = self.randobject(random, self.df)
+        choice = self.randobject(random)
         if not choice:
             return self.randboxsmart(random)
-        df = self.df.iloc[choice]
-        width, height = self.width, self.height
-        relbox = [df['Left']/width, df['Top']/height, df['Right']/width, df['Bottom']/height]
+        dictbox = self.df.iloc[choice]
+        relbox = self.flatbox(dictbox)
         [x, y, sx, sy] = self.relscalar(relbox)
         [_, _, rx, ry] = self.randscalar(random)
         scalar = [x, y, self.lerp(sx, rx), self.lerp(sy, ry)]
         relbox = self.relbox(scalar)
-        return self.absbox(width, height, relbox)
+        absbox = self.absbox(relbox)
+        return self.dictbox(absbox)
 
 if __name__ == "__main__":
     dataroot = "./data"
