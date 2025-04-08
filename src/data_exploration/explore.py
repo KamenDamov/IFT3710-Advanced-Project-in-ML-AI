@@ -352,6 +352,8 @@ def prepare_metaframes(dataroot):
 class DataSample:
     def __init__(self, meta_path):
         self.df = pd.read_csv(meta_path)
+        self.width = self.df['Right'].max()
+        self.height = self.df['Bottom'].max()
     
     def init_paths(self, image_path, mask_path):
         self.raw_image = dataroot + "/raw" + image_path
@@ -375,8 +377,8 @@ class DataSample:
         return random.choice(len(df), p=weights)
     
     def randboxsmart(self, random):
-        width = self.df['Width']
-        height = self.df['Height']
+        width = self.width
+        height = self.height
         scalar = self.randscalar(random)
         relbox = self.relbox(scalar)
         return self.absbox(width, height, relbox)
@@ -421,11 +423,11 @@ class DataSample:
         if not choice:
             return self.randboxsmart(random)
         df = self.df.iloc[choice]
-        width, height = self.df['Right'].max(), self.df['Bottom'].max()
+        width, height = self.width, self.height
         relbox = [df['Left']/width, df['Top']/height, df['Right']/width, df['Bottom']/height]
         [x, y, sx, sy] = self.relscalar(relbox)
-        [_, _, s, _] = self.randscalar(random)
-        scalar = [x, y, self.lerp(sx, s), self.lerp(sy, s)]
+        [_, _, rx, ry] = self.randscalar(random)
+        scalar = [x, y, self.lerp(sx, rx), self.lerp(sy, ry)]
         relbox = self.relbox(scalar)
         return self.absbox(width, height, relbox)
 
