@@ -3,6 +3,7 @@ from .custom import *
 import numpy as np
 import pandas as pd
 from monai.transforms import *
+from src.data_exploration import explore
 
 __all__ = [
     "train_transforms",
@@ -50,6 +51,47 @@ train_transforms = Compose(
     ]
 )
 
+class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
+    backend = Crop.backend
+
+    def __init__(self, keys, source_key, num_samples:int = 1, allow_missing_keys: bool = False, lazy: bool = False):
+        cropper = Crop(lazy=lazy)
+        super().__init__(keys, cropper=cropper, allow_missing_keys=allow_missing_keys, lazy=lazy)
+        self.source_key = source_key
+        self.num_samples = num_samples
+
+    def set_random_state(self, seed: int | None = None, state: np.random.RandomState | None = None):
+        super().set_random_state(seed, state)
+        if isinstance(self.cropper, Randomizable):
+            self.cropper.set_random_state(seed, state)
+        return self
+
+    def randomize(self, img_size) -> None:
+        if isinstance(self.cropper, Randomizable):
+            self.cropper.randomize(img_size)
+
+    def __call__(self, data, lazy: bool | None = None):
+        return list(self.internalCrop(data, lazy) for _ in range(self.num_samples))
+    
+    def internalCrop(self, data, lazy: bool | None = None):
+        d = dict(data)
+        lazy_ = self.lazy if lazy is None else lazy
+        if lazy_ is True and not isinstance(self.cropper, LazyTrait):
+            raise ValueError(
+                "'self.cropper' must inherit LazyTrait if lazy is True "
+                f"'self.cropper' is of type({type(self.cropper)}"
+            )
+
+        sample = explore.DataLabels(d[self.source_key])
+        cropping = sample.select_slices(self.R)
+        slices = self.cropper.compute_slices(roi_start=[cropping['Left'], cropping['Top']], roi_end=[cropping['Right'], cropping['Bottom']])
+        for key in self.key_iterator(d):
+            kwargs = {}
+            if isinstance(self.cropper, LazyTrait):
+                kwargs["lazy"] = lazy_
+            d[key] = self.cropper(d[key], slices, **kwargs)  # type: ignore
+        return d
+
 class EnumerateObjectCropd(Cropd, MultiSampleTrait):
     backend = Crop.backend
 
@@ -68,33 +110,23 @@ class EnumerateObjectCropd(Cropd, MultiSampleTrait):
                 "'self.cropper' must inherit LazyTrait if lazy is True "
                 f"'self.cropper' is of type({type(self.cropper)}"
             )
-        for box, slices in self.generate_slices(data[self.source_key]):
+        for [left, top, right, bottom] in self.generate_bounds(data[self.source_key]):
             d = dict(data)
-            d['box'] = box
+            d['box'] = [left, top, right, bottom]
+            slices = self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
             for key in self.key_iterator(d):
                 kwargs = {}
                 if isinstance(self.cropper, LazyTrait):
                     kwargs["lazy"] = lazy_
-                    print(d[key].shape, slices)
                     d[key] = self.cropper(d[key], slices, **kwargs)  # type: ignore
-                    print(d[key].shape)
             yield d
     
-    def generate_slices(self, meta_path):
-        df = pd.read_csv(meta_path)
-        for i in range(len(df)):
-            yield self.bounding_box(df.iloc[i])
-    
-    def bounding_box(self, df):
-        left = df['Left']
-        right = df['Right']
-        top = df['Top']
-        bottom = df['Bottom']
-        if (right - left) < 2:
-            raise ValueError("Width of the bounding box is too small.")
-        if (bottom - top) < 2:
-            raise ValueError("Height of the bounding box is too small.")
-        return [left, right, top, bottom], self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
+    def generate_bounds(self, meta_path):
+        labels = explore.DataLabels(meta_path)
+        for index in range(len(labels.df)):
+            box = labels.df.iloc[index]
+            yield [box['Left'], box['Top'], box['Right'], box['Bottom']]
+
 
 modality_transforms = Compose(
     [
@@ -104,9 +136,9 @@ modality_transforms = Compose(
         RemoveRepeatedChanneld(keys=["label"], repeats=3),  # label: (H, W)
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),  # Do not scale label
         # >>> Spatial transforms
-        EnumerateObjectCropd(keys=["img", "label"], source_key="meta"),
+        RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=1),
         RandAxisFlipd(keys=["img", "label"], prob=0.5),
-        RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=[0, 1]),
+        RandRotate90d(keys=["img", "label"], prob=0.75, spatial_axes=[0, 1]),
         #IntensityDiversification(keys=["img", "label"], allow_missing_keys=True),
         # # >>> Intensity transforms
         #RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),

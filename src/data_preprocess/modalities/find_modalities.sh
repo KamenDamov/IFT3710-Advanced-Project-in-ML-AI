@@ -14,8 +14,8 @@ for (( PARTITION=0; PARTITION<N_PARTITION; PARTITION++ ))
 do
     echo "Running partition $PARTITION / $((N_PARTITION - 1)) with batch size $BATCH_SIZE"
     if [ "$PARTITION" -eq "$((N_PARTITION - 1))" ]; then
-        python "./src/data_preprocess/modalities/find_modalities.py" --partition "$PARTITION" --batch_size "$BATCH_SIZE" --do_get_modalities True
+        python -m src.data_preprocess.modalities.find_modalities --partition "$PARTITION" --batch_size "$BATCH_SIZE" --do_get_modalities True
     else
-        python "./src/data_preprocess/modalities/find_modalities.py" --partition "$PARTITION" --batch_size "$BATCH_SIZE"
+        python -m src.data_preprocess.modalities.find_modalities --partition "$PARTITION" --batch_size "$BATCH_SIZE"
     fi
 done

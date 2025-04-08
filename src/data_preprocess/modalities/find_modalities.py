@@ -8,8 +8,9 @@ from monai.data import Dataset, DataLoader
 import torch
 import numpy as np
 from tqdm import tqdm
-from train_tools.data_utils.transforms import train_transforms
-from train_tools.models import MEDIARFormer
+from src.data_preprocess.modalities.train_tools.data_utils.transforms import train_transforms, modality_transforms
+from src.data_preprocess.modalities.train_tools.models import MEDIARFormer
+from src.data_exploration import explore
 join = os.path.join
 
 partition = 0
@@ -19,6 +20,13 @@ label_folder = "./data/raw/zenodo/Training-labeled/labels"
 save_path = 'features_list.pkl'
 accel_device = "cuda" if torch.cuda.is_available() else "cpu"
 
+def generate_dataset(dataroot):
+    # Load all image paths
+    for name, df in explore.enumerate_frames(dataroot):
+        if ".labels" in name:
+            for index in range(len(df)):
+                sample = explore.DataSample(dataroot, df.iloc[index])
+                yield { "img": sample.normal_image, "label": sample.normal_mask, "meta": sample.meta_frame, "name": sample.name }
 
 def load_features(save_path):
     features = []
@@ -32,7 +40,7 @@ def load_features(save_path):
     return features
 
 
-def main(partition, batch_size, image_folder, label_folder):
+def main(partition, batch_size):
     model_path1 = './models/mediar/pretrained/phase1.pth'
     weights1 = torch.load(model_path1, map_location=accel_device)
 
@@ -40,14 +48,11 @@ def main(partition, batch_size, image_folder, label_folder):
     model.load_state_dict(weights1, strict=False)
 
     # Extract features for all images
-    image_files = {f.split(".")[0]: f for f in os.listdir(image_folder)}
-    label_files = {f.split("_label.")[0]: f for f in os.listdir(label_folder)}
-
     # Create dictionary mapping image files to label files
-    data_dicts = [{'img': join(image_folder, img_file), 'label': join(label_folder, label_files[img_name])} for img_name, img_file in image_files.items() if img_name in label_files]
+    data_dicts = list(generate_dataset("./data"))
     data_dicts = data_dicts[partition*batch_size:partition*batch_size+batch_size]
 
-    dataset = Dataset(data=data_dicts, transform=train_transforms)
+    dataset = Dataset(data=data_dicts, transform=modality_transforms)
     loader = DataLoader(dataset, batch_size=1, num_workers=1)
     dataset.cache_data = False
 
@@ -124,7 +129,7 @@ if __name__ == '__main__':
     label_folder = args.label_folder
 
     if do_get_features:
-        features = main(partition, batch_size, image_folder, label_folder)
+        features = main(partition, batch_size)
     else:
         features = load_features(save_path)
 

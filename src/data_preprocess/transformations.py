@@ -74,46 +74,5 @@ def smart_transforms():
         EnsureTyped(keys=["img", "label"]),
     ])
 
-class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
-    backend = Crop.backend
-
-    def __init__(self, keys, source_key, num_samples:int = 1, allow_missing_keys: bool = False, lazy: bool = False):
-        cropper = Crop(lazy=lazy)
-        super().__init__(keys, cropper=cropper, allow_missing_keys=allow_missing_keys, lazy=lazy)
-        self.source_key = source_key
-        self.num_samples = num_samples
-
-    def set_random_state(self, seed: int | None = None, state: np.random.RandomState | None = None):
-        super().set_random_state(seed, state)
-        if isinstance(self.cropper, Randomizable):
-            self.cropper.set_random_state(seed, state)
-        return self
-
-    def randomize(self, img_size) -> None:
-        if isinstance(self.cropper, Randomizable):
-            self.cropper.randomize(img_size)
-
-    def __call__(self, data, lazy: bool | None = None):
-        return list(self.internalCrop(data, lazy) for _ in range(self.num_samples))
-    
-    def internalCrop(self, data, lazy: bool | None = None):
-        d = dict(data)
-        lazy_ = self.lazy if lazy is None else lazy
-        if lazy_ is True and not isinstance(self.cropper, LazyTrait):
-            raise ValueError(
-                "'self.cropper' must inherit LazyTrait if lazy is True "
-                f"'self.cropper' is of type({type(self.cropper)}"
-            )
-
-        sample = explore.DataLabels(d[self.source_key])
-        cropping = sample.select_slices(self.R)
-        slices = self.cropper.compute_slices(roi_start=[cropping['Left'], cropping['Top']], roi_end=[cropping['Right'], cropping['Bottom']])
-        for key in self.key_iterator(d):
-            kwargs = {}
-            if isinstance(self.cropper, LazyTrait):
-                kwargs["lazy"] = lazy_
-            d[key] = self.cropper(d[key], slices, **kwargs)  # type: ignore
-        return d
-    
 if __name__ == '__main__':
     main("./data")
