@@ -84,7 +84,7 @@ class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
 
         sample = explore.DataLabels(d[self.source_key])
         cropping = sample.select_slices(self.R)
-        slices = self.cropper.compute_slices(roi_start=[cropping['Left'], cropping['Top']], roi_end=[cropping['Right'], cropping['Bottom']])
+        slices = self.cropper.compute_slices(roi_start=[cropping['Top'], cropping['Left']], roi_end=[cropping['Bottom'], cropping['Right']])
         for key in self.key_iterator(d):
             kwargs = {}
             if isinstance(self.cropper, LazyTrait):
@@ -113,7 +113,7 @@ class EnumerateObjectCropd(Cropd, MultiSampleTrait):
         for [left, top, right, bottom] in self.generate_bounds(data[self.source_key]):
             d = dict(data)
             d['box'] = [left, top, right, bottom]
-            slices = self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
+            slices = self.cropper.compute_slices(roi_start=[top, left], roi_end=[bottom, right])
             for key in self.key_iterator(d):
                 kwargs = {}
                 if isinstance(self.cropper, LazyTrait):
