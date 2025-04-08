@@ -6,7 +6,6 @@ from segmentation_models_pytorch.base.modules import Activation
 
 __all__ = ["MEDIARFormer"]
 
-
 class MEDIARFormer(MAnet):
     """MEDIAR-Former Model"""
 

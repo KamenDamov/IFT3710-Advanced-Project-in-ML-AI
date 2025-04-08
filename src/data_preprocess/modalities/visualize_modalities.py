@@ -2,7 +2,7 @@ import pickle
 import matplotlib.pyplot as plt
 
 # Load from the .pkl file
-with open("modalities.pkl", "rb") as f:  # "rb" means read binary
+with open("new_modalities.pkl", "rb") as f:  # "rb" means read binary
     loaded_data = pickle.load(f)
 
 keys = list(loaded_data.keys())

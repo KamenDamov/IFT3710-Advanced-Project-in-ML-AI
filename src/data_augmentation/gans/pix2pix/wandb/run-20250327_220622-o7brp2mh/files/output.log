@@ -1,0 +1,477 @@
+C:\Users\kamen\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\torch\optim\lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+learning rate 0.0002000 -> 0.0000000
+(epoch: 1, iters: 200, time: 0.028, data: 0.033) G_GAN: 221.628 G_L1: 67.153 D_real: 219.030 D_fake: 242.424
+(epoch: 1, iters: 400, time: 0.030, data: 0.004) G_GAN: 216.972 G_L1: 49.828 D_real: 237.086 D_fake: 235.366
+(epoch: 1, iters: 600, time: 0.030, data: 0.007) G_GAN: 245.581 G_L1: 40.260 D_real: 220.038 D_fake: 267.204
+(epoch: 1, iters: 800, time: 0.028, data: 0.006) G_GAN: 232.035 G_L1: 123.492 D_real: 217.783 D_fake: 253.212
+(epoch: 1, iters: 1000, time: 0.029, data: 0.004) G_GAN: 255.236 G_L1: 45.461 D_real: 248.810 D_fake: 277.015
+(epoch: 1, iters: 1200, time: 0.024, data: 0.005) G_GAN: 227.932 G_L1: 59.745 D_real: 233.921 D_fake: 249.523
+(epoch: 1, iters: 1400, time: 0.029, data: 0.006) G_GAN: 232.548 G_L1: 56.260 D_real: 198.219 D_fake: 254.009
+(epoch: 1, iters: 1600, time: 0.031, data: 0.001) G_GAN: 252.410 G_L1: 79.997 D_real: 254.892 D_fake: 273.995
+(epoch: 1, iters: 1800, time: 0.030, data: 0.008) G_GAN: 235.944 G_L1: 138.312 D_real: 257.582 D_fake: 257.584
+(epoch: 1, iters: 2000, time: 0.029, data: 0.004) G_GAN: 233.745 G_L1: 63.313 D_real: 233.288 D_fake: 255.837
+(epoch: 1, iters: 2200, time: 0.030, data: 0.009) G_GAN: 254.144 G_L1: 61.271 D_real: 260.965 D_fake: 276.378
+(epoch: 1, iters: 2400, time: 0.025, data: 0.006) G_GAN: 242.903 G_L1: 138.117 D_real: 289.220 D_fake: 264.850
+(epoch: 1, iters: 2600, time: 0.029, data: 0.009) G_GAN: 228.982 G_L1: 84.787 D_real: 197.343 D_fake: 249.657
+(epoch: 1, iters: 2800, time: 0.027, data: 0.004) G_GAN: 247.487 G_L1: 147.033 D_real: 239.600 D_fake: 268.977
+(epoch: 1, iters: 3000, time: 0.025, data: 0.000) G_GAN: 236.147 G_L1: 163.676 D_real: 249.734 D_fake: 257.614
+(epoch: 1, iters: 3200, time: 0.028, data: 0.004) G_GAN: 227.994 G_L1: 78.127 D_real: 213.894 D_fake: 248.529
+(epoch: 1, iters: 3400, time: 0.026, data: 0.006) G_GAN: 253.521 G_L1: 106.117 D_real: 256.819 D_fake: 275.536
+(epoch: 1, iters: 3600, time: 0.027, data: 0.028) G_GAN: 242.840 G_L1: 113.812 D_real: 252.370 D_fake: 265.135
+(epoch: 1, iters: 3800, time: 0.020, data: 0.021) G_GAN: 248.731 G_L1: 76.097 D_real: 233.704 D_fake: 270.471
+(epoch: 1, iters: 4000, time: 0.025, data: 0.021) G_GAN: 238.654 G_L1: 133.325 D_real: 254.217 D_fake: 259.677
+(epoch: 1, iters: 4200, time: 0.021, data: 0.012) G_GAN: 232.679 G_L1: 138.212 D_real: 241.190 D_fake: 253.296
+(epoch: 1, iters: 4400, time: 0.026, data: 0.009) G_GAN: 231.038 G_L1: 79.163 D_real: 241.671 D_fake: 252.302
+(epoch: 1, iters: 4600, time: 0.024, data: 0.026) G_GAN: 242.836 G_L1: 76.706 D_real: 250.261 D_fake: 264.619
+(epoch: 1, iters: 4800, time: 0.029, data: 0.012) G_GAN: 251.647 G_L1: 33.143 D_real: 253.367 D_fake: 273.174
+(epoch: 1, iters: 5000, time: 0.024, data: 0.023) G_GAN: 236.394 G_L1: 37.216 D_real: 229.299 D_fake: 257.995
+saving the latest model (epoch 1, total_iters 5000)
+(epoch: 1, iters: 5200, time: 0.025, data: 0.019) G_GAN: 248.114 G_L1: 42.156 D_real: 243.389 D_fake: 269.498
+(epoch: 1, iters: 5400, time: 0.027, data: 0.007) G_GAN: 247.832 G_L1: 31.893 D_real: 255.264 D_fake: 269.938
+(epoch: 1, iters: 5600, time: 0.023, data: 0.008) G_GAN: 226.032 G_L1: 38.120 D_real: 233.923 D_fake: 247.113
+(epoch: 1, iters: 5800, time: 0.021, data: 0.007) G_GAN: 225.309 G_L1: 59.489 D_real: 242.891 D_fake: 245.568
+(epoch: 1, iters: 6000, time: 0.024, data: 0.013) G_GAN: 250.273 G_L1: 57.880 D_real: 248.239 D_fake: 272.052
+(epoch: 1, iters: 6200, time: 0.031, data: 0.013) G_GAN: 212.534 G_L1: 45.304 D_real: 239.001 D_fake: 232.964
+(epoch: 1, iters: 6400, time: 0.026, data: 0.022) G_GAN: 245.358 G_L1: 82.778 D_real: 248.332 D_fake: 267.839
+(epoch: 1, iters: 6600, time: 0.028, data: 0.007) G_GAN: 203.378 G_L1: 37.389 D_real: 213.575 D_fake: 222.801
+(epoch: 1, iters: 6800, time: 0.027, data: 0.013) G_GAN: 231.757 G_L1: 48.168 D_real: 242.777 D_fake: 252.840
+(epoch: 1, iters: 7000, time: 0.025, data: 0.005) G_GAN: 220.440 G_L1: 38.288 D_real: 228.271 D_fake: 241.217
+(epoch: 1, iters: 7200, time: 0.026, data: 0.012) G_GAN: 230.979 G_L1: 55.612 D_real: 251.168 D_fake: 252.481
+(epoch: 1, iters: 7400, time: 0.021, data: 0.016) G_GAN: 233.287 G_L1: 40.482 D_real: 234.385 D_fake: 254.012
+(epoch: 1, iters: 7600, time: 0.028, data: 0.022) G_GAN: 260.661 G_L1: 40.010 D_real: 265.698 D_fake: 282.302
+(epoch: 1, iters: 7800, time: 0.024, data: 0.017) G_GAN: 234.746 G_L1: 35.812 D_real: 228.998 D_fake: 255.482
+(epoch: 1, iters: 8000, time: 0.028, data: 0.011) G_GAN: 222.344 G_L1: 44.100 D_real: 252.789 D_fake: 242.807
+(epoch: 1, iters: 8200, time: 0.024, data: 0.018) G_GAN: 220.312 G_L1: 40.013 D_real: 226.710 D_fake: 239.577
+(epoch: 1, iters: 8400, time: 0.026, data: 0.026) G_GAN: 200.366 G_L1: 38.606 D_real: 191.826 D_fake: 217.132
+(epoch: 1, iters: 8600, time: 0.028, data: 0.013) G_GAN: 246.345 G_L1: 46.316 D_real: 252.937 D_fake: 268.101
+(epoch: 1, iters: 8800, time: 0.025, data: 0.010) G_GAN: 211.767 G_L1: 79.551 D_real: 256.519 D_fake: 233.283
+(epoch: 1, iters: 9000, time: 0.027, data: 0.015) G_GAN: 239.752 G_L1: 51.226 D_real: 246.671 D_fake: 260.923
+(epoch: 1, iters: 9200, time: 0.024, data: 0.017) G_GAN: 226.303 G_L1: 35.583 D_real: 222.203 D_fake: 247.082
+(epoch: 1, iters: 9400, time: 0.025, data: 0.009) G_GAN: 209.054 G_L1: 37.055 D_real: 195.221 D_fake: 228.325
+(epoch: 1, iters: 9600, time: 0.024, data: 0.021) G_GAN: 244.715 G_L1: 32.608 D_real: 240.516 D_fake: 266.723
+(epoch: 1, iters: 9800, time: 0.028, data: 0.012) G_GAN: 268.604 G_L1: 27.654 D_real: 310.144 D_fake: 290.615
+(epoch: 1, iters: 10000, time: 0.028, data: 0.013) G_GAN: 247.908 G_L1: 39.117 D_real: 183.208 D_fake: 269.343
+saving the latest model (epoch 1, total_iters 10000)
+(epoch: 1, iters: 10200, time: 0.025, data: 0.013) G_GAN: 225.705 G_L1: 98.542 D_real: 202.642 D_fake: 246.913
+(epoch: 1, iters: 10400, time: 0.026, data: 0.012) G_GAN: 248.699 G_L1: 28.165 D_real: 257.998 D_fake: 269.285
+(epoch: 1, iters: 10600, time: 0.028, data: 0.009) G_GAN: 256.625 G_L1: 27.850 D_real: 274.079 D_fake: 277.971
+(epoch: 1, iters: 10800, time: 0.027, data: 0.022) G_GAN: 223.239 G_L1: 29.633 D_real: 182.044 D_fake: 244.383
+(epoch: 1, iters: 11000, time: 0.024, data: 0.007) G_GAN: 238.173 G_L1: 36.178 D_real: 236.073 D_fake: 259.458
+(epoch: 1, iters: 11200, time: 0.024, data: 0.015) G_GAN: 241.602 G_L1: 29.043 D_real: 213.339 D_fake: 263.552
+(epoch: 1, iters: 11400, time: 0.029, data: 0.033) G_GAN: 229.831 G_L1: 28.938 D_real: 219.987 D_fake: 252.055
+(epoch: 1, iters: 11600, time: 0.027, data: 0.021) G_GAN: 266.098 G_L1: 52.781 D_real: 248.391 D_fake: 288.098
+(epoch: 1, iters: 11800, time: 0.024, data: 0.018) G_GAN: 232.201 G_L1: 43.912 D_real: 248.146 D_fake: 253.806
+(epoch: 1, iters: 12000, time: 0.025, data: 0.017) G_GAN: 236.652 G_L1: 38.348 D_real: 238.458 D_fake: 258.614
+(epoch: 1, iters: 12200, time: 0.024, data: 0.011) G_GAN: 272.705 G_L1: 53.554 D_real: 273.172 D_fake: 294.435
+(epoch: 1, iters: 12400, time: 0.028, data: 0.013) G_GAN: 239.054 G_L1: 33.085 D_real: 216.557 D_fake: 260.177
+(epoch: 1, iters: 12600, time: 0.025, data: 0.009) G_GAN: 232.152 G_L1: 35.994 D_real: 256.001 D_fake: 253.900
+(epoch: 1, iters: 12800, time: 0.026, data: 0.011) G_GAN: 248.887 G_L1: 52.787 D_real: 216.256 D_fake: 270.818
+(epoch: 1, iters: 13000, time: 0.026, data: 0.014) G_GAN: 241.071 G_L1: 72.873 D_real: 216.673 D_fake: 263.081
+(epoch: 1, iters: 13200, time: 0.025, data: 0.026) G_GAN: 226.255 G_L1: 39.018 D_real: 229.286 D_fake: 247.224
+(epoch: 1, iters: 13400, time: 0.028, data: 0.018) G_GAN: 239.839 G_L1: 58.059 D_real: 248.945 D_fake: 261.486
+(epoch: 1, iters: 13600, time: 0.024, data: 0.009) G_GAN: 245.310 G_L1: 34.297 D_real: 252.559 D_fake: 267.327
+(epoch: 1, iters: 13800, time: 0.024, data: 0.025) G_GAN: 222.004 G_L1: 57.224 D_real: 225.393 D_fake: 241.433
+(epoch: 1, iters: 14000, time: 0.030, data: 0.009) G_GAN: 246.329 G_L1: 163.030 D_real: 240.359 D_fake: 268.095
+(epoch: 1, iters: 14200, time: 0.022, data: 0.011) G_GAN: 211.767 G_L1: 52.573 D_real: 248.163 D_fake: 231.790
+(epoch: 1, iters: 14400, time: 0.026, data: 0.022) G_GAN: 220.544 G_L1: 72.380 D_real: 245.705 D_fake: 240.843
+(epoch: 1, iters: 14600, time: 0.025, data: 0.012) G_GAN: 230.132 G_L1: 51.633 D_real: 246.283 D_fake: 250.755
+(epoch: 1, iters: 14800, time: 0.032, data: 0.009) G_GAN: 231.315 G_L1: 102.851 D_real: 221.726 D_fake: 252.807
+(epoch: 1, iters: 15000, time: 0.030, data: 0.005) G_GAN: 211.466 G_L1: 82.995 D_real: 245.150 D_fake: 231.010
+saving the latest model (epoch 1, total_iters 15000)
+(epoch: 1, iters: 15200, time: 0.031, data: 0.006) G_GAN: 222.527 G_L1: 122.852 D_real: 231.008 D_fake: 243.991
+(epoch: 1, iters: 15400, time: 0.032, data: 0.005) G_GAN: 245.329 G_L1: 31.995 D_real: 246.781 D_fake: 267.456
+(epoch: 1, iters: 15600, time: 0.031, data: 0.006) G_GAN: 247.473 G_L1: 126.508 D_real: 218.987 D_fake: 269.025
+(epoch: 1, iters: 15800, time: 0.028, data: 0.008) G_GAN: 229.470 G_L1: 121.816 D_real: 223.740 D_fake: 251.339
+(epoch: 1, iters: 16000, time: 0.030, data: 0.039) G_GAN: 232.008 G_L1: 44.039 D_real: 231.858 D_fake: 252.902
+(epoch: 1, iters: 16200, time: 0.027, data: 0.024) G_GAN: 234.286 G_L1: 163.964 D_real: 241.572 D_fake: 255.653
+(epoch: 1, iters: 16400, time: 0.029, data: 0.017) G_GAN: 218.001 G_L1: 103.699 D_real: 210.642 D_fake: 238.707
+(epoch: 1, iters: 16600, time: 0.024, data: 0.011) G_GAN: 233.211 G_L1: 165.912 D_real: 238.597 D_fake: 254.987
+(epoch: 1, iters: 16800, time: 0.026, data: 0.021) G_GAN: 241.660 G_L1: 131.991 D_real: 224.255 D_fake: 263.490
+(epoch: 1, iters: 17000, time: 0.024, data: 0.007) G_GAN: 237.068 G_L1: 152.706 D_real: 233.385 D_fake: 258.522
+(epoch: 1, iters: 17200, time: 0.021, data: 0.015) G_GAN: 195.991 G_L1: 46.779 D_real: 166.961 D_fake: 214.742
+(epoch: 1, iters: 17400, time: 0.027, data: 0.013) G_GAN: 238.249 G_L1: 130.853 D_real: 246.541 D_fake: 260.389
+(epoch: 1, iters: 17600, time: 0.026, data: 0.023) G_GAN: 220.816 G_L1: 38.377 D_real: 227.916 D_fake: 240.240
+saving the model at the end of epoch 1, iters 17680
+End of epoch 1 / 1 	 Time Taken: 351 sec
+initialize network with normal
+initialize network with normal
+C:\Users\kamen\AppData\Local\Temp\ipykernel_15288\818903959.py:24: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  pix2pix_model.netG.load_state_dict(torch.load(checkpoint_path))
+Model loaded successfully!
+Processing cell_00001.png
+initialize network with normal
+initialize network with normal
+---------- Networks initialized -------------
+DataParallel(
+  (module): ResnetGenerator(
+    (model): Sequential(
+      (0): ReflectionPad2d((3, 3, 3, 3))
+      (1): Conv2d(3, 64, kernel_size=(7, 7), stride=(1, 1))
+      (2): InstanceNorm2d(64, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+      (3): ReLU(inplace=True)
+      (4): Conv2d(64, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+      (5): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+      (6): ReLU(inplace=True)
+      (7): Conv2d(128, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+      (8): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+      (9): ReLU(inplace=True)
+      (10): ResnetBlock(
+        (conv_block): Sequential(
+          (0): ReflectionPad2d((1, 1, 1, 1))
+          (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+          (3): ReLU(inplace=True)
+          (4): Dropout(p=0.5, inplace=False)
+          (5): ReflectionPad2d((1, 1, 1, 1))
+          (6): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (7): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+        )
+      )
+      (11): ResnetBlock(
+        (conv_block): Sequential(
+          (0): ReflectionPad2d((1, 1, 1, 1))
+          (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+          (3): ReLU(inplace=True)
+          (4): Dropout(p=0.5, inplace=False)
+          (5): ReflectionPad2d((1, 1, 1, 1))
+          (6): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (7): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+        )
+      )
+      (12): ResnetBlock(
+        (conv_block): Sequential(
+          (0): ReflectionPad2d((1, 1, 1, 1))
+          (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+          (3): ReLU(inplace=True)
+          (4): Dropout(p=0.5, inplace=False)
+          (5): ReflectionPad2d((1, 1, 1, 1))
+          (6): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (7): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+        )
+      )
+      (13): ResnetBlock(
+        (conv_block): Sequential(
+          (0): ReflectionPad2d((1, 1, 1, 1))
+          (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+          (3): ReLU(inplace=True)
+          (4): Dropout(p=0.5, inplace=False)
+          (5): ReflectionPad2d((1, 1, 1, 1))
+          (6): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (7): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+        )
+      )
+      (14): ResnetBlock(
+        (conv_block): Sequential(
+          (0): ReflectionPad2d((1, 1, 1, 1))
+          (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+          (3): ReLU(inplace=True)
+          (4): Dropout(p=0.5, inplace=False)
+          (5): ReflectionPad2d((1, 1, 1, 1))
+          (6): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (7): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+        )
+      )
+      (15): ResnetBlock(
+        (conv_block): Sequential(
+          (0): ReflectionPad2d((1, 1, 1, 1))
+          (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+          (3): ReLU(inplace=True)
+          (4): Dropout(p=0.5, inplace=False)
+          (5): ReflectionPad2d((1, 1, 1, 1))
+          (6): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (7): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+        )
+      )
+      (16): ResnetBlock(
+        (conv_block): Sequential(
+          (0): ReflectionPad2d((1, 1, 1, 1))
+          (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+          (3): ReLU(inplace=True)
+          (4): Dropout(p=0.5, inplace=False)
+          (5): ReflectionPad2d((1, 1, 1, 1))
+          (6): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (7): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+        )
+      )
+      (17): ResnetBlock(
+        (conv_block): Sequential(
+          (0): ReflectionPad2d((1, 1, 1, 1))
+          (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+          (3): ReLU(inplace=True)
+          (4): Dropout(p=0.5, inplace=False)
+          (5): ReflectionPad2d((1, 1, 1, 1))
+          (6): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (7): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+        )
+      )
+      (18): ResnetBlock(
+        (conv_block): Sequential(
+          (0): ReflectionPad2d((1, 1, 1, 1))
+          (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (2): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+          (3): ReLU(inplace=True)
+          (4): Dropout(p=0.5, inplace=False)
+          (5): ReflectionPad2d((1, 1, 1, 1))
+          (6): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1))
+          (7): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+        )
+      )
+      (19): ConvTranspose2d(256, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), output_padding=(1, 1))
+      (20): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+      (21): ReLU(inplace=True)
+      (22): ConvTranspose2d(128, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), output_padding=(1, 1))
+      (23): InstanceNorm2d(64, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+      (24): ReLU(inplace=True)
+      (25): ReflectionPad2d((3, 3, 3, 3))
+      (26): Conv2d(64, 1, kernel_size=(7, 7), stride=(1, 1))
+      (27): Tanh()
+    )
+  )
+)
+[Network G] Total number of parameters : 11.372 M
+DataParallel(
+  (module): NLayerDiscriminator(
+    (model): Sequential(
+      (0): Conv2d(4, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+      (1): LeakyReLU(negative_slope=0.2, inplace=True)
+      (2): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+      (3): InstanceNorm2d(128, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+      (4): LeakyReLU(negative_slope=0.2, inplace=True)
+      (5): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+      (6): InstanceNorm2d(256, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+      (7): LeakyReLU(negative_slope=0.2, inplace=True)
+      (8): Conv2d(256, 512, kernel_size=(4, 4), stride=(1, 1), padding=(1, 1))
+      (9): InstanceNorm2d(512, eps=1e-05, momentum=0.1, affine=False, track_running_stats=False)
+      (10): LeakyReLU(negative_slope=0.2, inplace=True)
+      (11): Conv2d(512, 1, kernel_size=(4, 4), stride=(1, 1), padding=(1, 1))
+    )
+  )
+)
+[Network D] Total number of parameters : 2.766 M
+-----------------------------------------------
+initialize network with normal
+initialize network with normal
+C:\Users\kamen\AppData\Local\Temp\ipykernel_15288\3955859348.py:24: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  pix2pix_model.netG.load_state_dict(torch.load(checkpoint_path))
+Model loaded successfully!
+Processing cell_00001.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00001.png
+Processing cell_00002.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00002.png
+Processing cell_00003.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00003.png
+Processing cell_00004.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00004.png
+Processing cell_00005.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00005.png
+Processing cell_00006.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00006.png
+Processing cell_00007.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00007.png
+Processing cell_00008.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00008.png
+Processing cell_00009.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00009.png
+Processing cell_00010.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00010.png
+Processing cell_00011.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00011.png
+Processing cell_00012.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00012.png
+Processing cell_00013.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00013.png
+Processing cell_00014.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00014.png
+Processing cell_00015.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00015.png
+Processing cell_00016.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00016.png
+Processing cell_00017.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00017.png
+Processing cell_00018.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00018.png
+Processing cell_00019.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00019.png
+Processing cell_00020.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00020.png
+Processing cell_00021.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00021.png
+Processing cell_00022.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00022.png
+Processing cell_00023.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00023.png
+Processing cell_00024.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00024.png
+Processing cell_00025.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00025.png
+Processing cell_00026.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00026.png
+Processing cell_00027.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00027.png
+Processing cell_00028.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00028.png
+Processing cell_00029.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00029.png
+Processing cell_00030.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00030.png
+Processing cell_00031.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00031.png
+Processing cell_00032.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00032.png
+Processing cell_00033.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00033.png
+Processing cell_00034.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00034.png
+Processing cell_00035.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00035.png
+Processing cell_00036.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00036.png
+Processing cell_00037.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00037.png
+Processing cell_00038.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00038.png
+Processing cell_00039.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00039.png
+Processing cell_00040.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00040.png
+Processing cell_00041.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00041.png
+Processing cell_00042.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00042.png
+Processing cell_00043.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00043.png
+Processing cell_00044.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00044.png
+Processing cell_00045.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00045.png
+Processing cell_00046.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00046.png
+Processing cell_00047.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00047.png
+Processing cell_00048.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00048.png
+Processing cell_00049.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00049.png
+Processing cell_00050.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00050.png
+Processing cell_00051.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00051.png
+Processing cell_00052.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00052.png
+Processing cell_00053.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00053.png
+Processing cell_00054.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00054.png
+Processing cell_00055.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00055.png
+Processing cell_00056.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00056.png
+Processing cell_00057.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00057.png
+Processing cell_00058.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00058.png
+Processing cell_00059.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00059.png
+Processing cell_00060.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00060.png
+Processing cell_00061.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00061.png
+Processing cell_00062.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00062.png
+Processing cell_00063.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00063.png
+Processing cell_00064.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00064.png
+Processing cell_00065.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00065.png
+Processing cell_00066.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00066.png
+Processing cell_00067.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00067.png
+Processing cell_00068.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00068.png
+Processing cell_00069.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00069.png
+Processing cell_00070.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00070.png
+Processing cell_00071.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00071.png
+Processing cell_00072.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00072.png
+Processing cell_00073.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00073.png
+Processing cell_00074.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00074.png
+Processing cell_00075.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00075.png
+Processing cell_00076.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00076.png
+Processing cell_00077.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00077.png
+Processing cell_00078.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00078.png
+Processing cell_00079.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00079.png
+Processing cell_00080.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00080.png
+Processing cell_00081.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00081.png
+Processing cell_00082.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00082.png
+Processing cell_00083.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00083.png
+Processing cell_00084.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00084.png
+Processing cell_00085.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00085.png
+Processing cell_00086.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00086.png
+Processing cell_00087.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00087.png
+Processing cell_00088.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00088.png
+Processing cell_00089.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00089.png
+Processing cell_00090.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00090.png
+Processing cell_00091.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00091.png
+Processing cell_00092.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00092.png
+Processing cell_00093.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00093.png
+Processing cell_00094.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00094.png
+Processing cell_00095.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00095.png
+Processing cell_00096.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00096.png
+Processing cell_00097.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00097.png
+Processing cell_00098.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00098.png
+Processing cell_00099.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00099.png
+Processing cell_00100.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00100.png
+Processing cell_00101.png
+Generated pseudo-mask saved: c:\Users\kamen\Dev\School\H25\IFT3710\IFT3710-Advanced-Project-in-ML-AI\data\dataset_pix2pix\tuning\generated_masks_test\cell_00101.png
+Synthetic pseudo-masks added to training dataset!
+compute metrics at threshold: 0.5
+100%|██████████| 101/101 [00:04<00:00, 21.37it/s]
+threshold: 0.5 mean F1 Score: 0.0066009900990099 median F1 Score: 0.0
+threshold: 0.5 mean DICE Score: 0.6867524752475247 median DICE Score: 0.7706
+failed cases: []
+compute metrics at threshold: 0.6
+100%|██████████| 101/101 [00:00<00:00, 101.42it/s]
+threshold: 0.6 mean F1 Score: 0.0066009900990099 median F1 Score: 0.0
+threshold: 0.6 mean DICE Score: 0.6867524752475247 median DICE Score: 0.7706
+failed cases: []
