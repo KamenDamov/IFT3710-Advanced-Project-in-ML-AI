@@ -80,22 +80,17 @@ def load_image(img_path):
 def assemble_dataset(dataroot):
     for name, df in explore.enumerate_frames(dataroot):
         if ".labels" in name:
-            for img, mask in zip(df["Path"], df["Mask"]):
-                yield img, mask
+            for index in range(len(df)):
+                yield explore.DataSample(dataroot, df.iloc[index])
 
 def main(dataroot):
     dataset = list(assemble_dataset(dataroot))
 
-    norm_source = f"{dataroot}/raw"
-    norm_target = f"{dataroot}/preprocessing_outputs/normalized_data"
-    imgset = [(norm_source + imgpath, norm_target + explore.target_file(imgpath, ".png")) for imgpath, _ in dataset]
-    maskset = [(norm_source + maskpath, norm_target + explore.target_file(maskpath, ".png")) for _, maskpath in dataset]
-
     log = ["Failed to process images: \n"]
-    for source, target in tqdm(imgset, desc="Normalizing images"):
-        explore.safely_process(log, normalize_image)(source, target)
-    for source, target in tqdm(maskset, desc="Transforming masks"):
-        explore.safely_process(log, normalize_mask)(source, target)
+    for sample in tqdm(dataset, desc="Normalizing images"):
+        explore.safely_process(log, normalize_image)(sample.raw_image, sample.normal_image)
+    for sample in tqdm(dataset, desc="Transforming masks"):
+        explore.safely_process(log, normalize_mask)(sample.raw_mask, sample.normal_mask)
     
     with open('logs.txt', 'a') as f:
         f.write("\n".join(log))

@@ -263,10 +263,10 @@ def target_file(filepath, ext):
     dirpath, name, _ = split_filepath(filepath)
     return dirpath + name + ext
 
-def safely_process(log, process):
+def safely_process(log, process, overwrite=False):
     def wrapper(source, target):
         try:
-            if not os.path.exists(target):
+            if overwrite or not os.path.exists(target):
                 dirpath, _, _ = split_filepath(target)
                 os.makedirs(dirpath, exist_ok=True)
                 process(source, target)
@@ -349,20 +349,41 @@ def prepare_metaframes(dataroot):
             data_map = dataset_frame(rawroot, zenodo)
             data_map.to_csv(target_path)
 
+
 class DataSample:
+    def __init__(self, dataroot, df):
+        self.dataroot = dataroot
+        self.name = split_filepath(df["Path"])[1]
+        self.init_paths(df["Path"], df["Mask"])
+        self.width = df.get('Width')
+        self.height = df.get('Height')
+    
+    def labels(self):
+        if not os.path.exists(self.meta_frame):
+            save_maskframe(self.raw_mask, self.meta_frame)
+        return DataLabels(self.meta_frame)
+    
+    def init_paths(self, image_path, mask_path):
+        self.raw_image = self.dataroot + "/raw" + image_path
+        self.raw_mask = self.dataroot + "/raw" + mask_path
+        self.proc_image = self.dataroot + "/processed" + target_file(image_path, ".png")
+        self.bw_mask = self.dataroot + "/processed" + target_file(mask_path, ".png")
+        self.meta_frame = self.dataroot + "/processed" + target_file(mask_path, ".csv")
+        self.normal_image = self.dataroot + "/preprocessing_outputs/normalized_data" + target_file(image_path, ".png")
+        self.normal_mask = self.dataroot + "/preprocessing_outputs/normalized_data" + target_file(mask_path, ".png")
+    
+    def transform_image(self, index):
+        return self.dataroot + "/preprocessing_outputs/transformed_images_labels/images" + f"/{self.name}.{index}.png"
+
+    def transform_mask(self, index):
+        return self.dataroot + "/preprocessing_outputs/transformed_images_labels/labels" + f"/{self.name}.{index}.png"
+
+
+class DataLabels:
     def __init__(self, meta_path):
         self.df = pd.read_csv(meta_path)
         self.width = self.df['Right'].max()
         self.height = self.df['Bottom'].max()
-    
-    def init_paths(self, image_path, mask_path):
-        self.raw_image = dataroot + "/raw" + image_path
-        self.raw_mask = dataroot + "/raw" + mask_path
-        self.norm_image = dataroot + "/processed" + target_file(image_path, ".png")
-        self.bw_mask = dataroot + "/processed" + target_file(mask_path, ".png")
-        self.meta_frame = dataroot + "/processed" + target_file(mask_path, ".csv")
-        self.normal_image = dataroot + "/preprocessing_outputs/normalized_data" + target_file(image_path, ".png")
-        self.normal_mask = dataroot + "/preprocessing_outputs/normalized_data" + target_file(mask_path, ".png")
     
     def __str__(self):
         return str(self.df)

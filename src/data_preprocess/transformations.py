@@ -31,36 +31,31 @@ from PIL import Image
 import argparse
 from src.data_exploration import explore
 
-def batch_transform(loader, target_path):
-    for batch in tqdm(loader, desc="Transforming images and labels"):
+def batch_transform(samples, loader):
+    for sample, batch in zip(samples, tqdm(loader, desc="Transforming images and labels")):
         for index in range(len(batch["name"])):
-            img_name = batch["name"][index]
             transformed_img = batch["img"][index].numpy().transpose(1, 2, 0)
             transformed_label = batch["label"][index].squeeze().numpy()
-            Image.fromarray((transformed_img * 255).astype(np.uint8)).save(os.path.join(target_path, "images", f"{img_name}.{index}.png"))
-            Image.fromarray((transformed_label * 255).astype(np.uint8)).save(os.path.join(target_path, "labels", f"{img_name}.{index}.png"))
+            explore.safely_process([], save_transform, overwrite=True)(transformed_img, sample.transform_image(index))
+            explore.safely_process([], save_transform, overwrite=True)(transformed_label, sample.transform_mask(index))
+
+def save_transform(transformed_img, target):
+    Image.fromarray((transformed_img * 255).astype(np.uint8)).save(target)
 
 def main(dataroot):
-    target_path = f"{dataroot}/preprocessing_outputs/transformed_images_labels"
-    os.makedirs(os.path.join(target_path, "images"), exist_ok=True)
-    os.makedirs(os.path.join(target_path, "labels"), exist_ok=True)
-
-    data_dicts = list(assemble_dataset(dataroot))
+    samples = list(assemble_dataset(dataroot))
+    data_dicts = [{"img": sample.normal_image, "label": sample.normal_mask, "meta": sample.meta_frame, "name": sample.name} for sample in samples]
     dataset = Dataset(data=data_dicts, transform=smart_transforms())
     loader = DataLoader(dataset, batch_size=1, num_workers=1)
-    batch_transform(loader, target_path)
+    batch_transform(samples, loader)
 
 def assemble_dataset(dataroot):
-    process_target = f"{dataroot}/processed"
-    norm_target = f"{dataroot}/preprocessing_outputs/normalized_data"
     for name, df in explore.enumerate_frames(dataroot):
         if ".labels" in name:
-            image_files = [explore.target_file(norm_target + img_path, ".png") for img_path in df["Path"]]
-            label_files = [explore.target_file(norm_target + mask_path, ".png") for mask_path in df["Mask"]]
-            object_files = [explore.target_file(process_target + mask_path, ".csv") for mask_path in df["Mask"]]
-            for img, lbl, meta in sorted(zip(image_files, label_files, object_files), key=lambda x: x[0]):
-                if ("WSI" not in img):
-                    yield {"img": img, "label": lbl, "meta": meta, "name": explore.split_filepath(img)[1]}
+            for index in range(len(df)):
+                sample = explore.DataSample(dataroot, df.iloc[index])
+                if ("WSI" not in sample.normal_image):
+                    yield sample
 
 def smart_transforms():
     return Compose([
@@ -68,9 +63,9 @@ def smart_transforms():
         EnsureChannelFirstd(channel_dim="no_channel", keys=["label"], allow_missing_keys=True),
         EnsureChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
-        RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=1),
+        RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=5),
         RandAxisFlipd(keys=["img", "label"], prob=0.5),
-        RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=[0, 1]),
+        RandRotate90d(keys=["img", "label"], prob=0.75, spatial_axes=[0, 1]),
         RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),
         RandAdjustContrastd(keys=["img"], prob=0.25, gamma=(1, 2)),
         RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
@@ -110,7 +105,7 @@ class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
                 f"'self.cropper' is of type({type(self.cropper)}"
             )
 
-        sample = explore.DataSample(d[self.source_key])
+        sample = explore.DataLabels(d[self.source_key])
         cropping = sample.select_slices(self.R)
         slices = self.cropper.compute_slices(roi_start=[cropping['Left'], cropping['Top']], roi_end=[cropping['Right'], cropping['Bottom']])
         for key in self.key_iterator(d):
