@@ -137,7 +137,7 @@ def collect_dataset(root, assoc):
             if not os.path.exists(root + maskpath):
                 print("Missing mask: ", root, maskpath, imagepath)
             # Get global statistics
-            imgT = load_raw_mask(root + maskpath)
+            imgT = DataSet.load_raw(None, root + maskpath)
             background = (imgT == 0).sum()
             num_objects = imgT.max()
             synthetic = (category == SYNTHETIC)
@@ -262,14 +262,8 @@ def mergeObjects(objectA, objectB):
     bottom = max(objectA["Bottom"], objectB["Bottom"])
     return {"ID": objectA["ID"], "X": x, "Y": y, "Left":left, "Right":right, "Top": top, "Bottom":bottom, "Area": area}
 
-def load_raw_mask(mask_path):
-    tensor = load_image(mask_path)
-    # The Cellpose dataset contains those for some reason
-    tensor[tensor == 65535] = 0
-    return tensor
-
 def save_maskframe(mask_path, frame_path):
-    tensor = load_raw_mask(mask_path)
+    tensor = DataSet.load_raw(None, mask_path)
     maskframe = mask_frame(tensor)
     maskframe.to_csv(frame_path)
 
@@ -291,13 +285,13 @@ def safely_process(log, process, overwrite=False):
 
 # Save black-white mask
 def save_bw_mask(source, target):
-    imgT = load_raw_mask(source)
+    imgT = DataSet.load_raw(None, source)
     im = Image.fromarray((imgT != 0).astype('uint8')*255)
     im.save(target)
 
 # Save grayscale mask
 def save_gray_mask(source, target):
-    imgT = load_raw_mask(source)
+    imgT = DataSet.load_raw(None, source)
     num_objects = imgT.max()
     im = Image.fromarray((imgT / num_objects * 255).astype('uint8'))
     im.save(target)
@@ -305,7 +299,7 @@ def save_gray_mask(source, target):
 # TOO SLOW
 # Save hue-vector mask
 def save_hue_mask(root, store, datapath, df):
-    imgT = load_raw_mask(root + datapath)
+    imgT = DataSet.load_raw(None, root + datapath)
     imgTC = np.zeros((imgT.shape[0], imgT.shape[1], 3), dtype=np.float32)
     for index, row in df[1:].iterrows():
         i = row['ID']
@@ -334,7 +328,7 @@ def save_hue_mask(root, store, datapath, df):
 def preprocess_images(dataroot, df):
     for filepath in tqdm(df["Path"]):
         folder, name, ext = split_filepath(filepath)
-        img = load_image(dataroot + "/raw" + filepath)
+        img = DataSet.load_raw(None, dataroot + "/raw" + filepath)
         target = dataroot + "/processed" + folder
         os.makedirs(target, exist_ok=True)
         cv2.imwrite(target + name + ".png", img)
@@ -391,7 +385,16 @@ class DataSet:
         return sample.df["Synthetic"] \
             or ("train_cyto2/758" in sample.df["Path"]) \
             or ("WSI" in sample.df["Path"])
-        
+    
+    # Load a well-formed tensor from the raw image
+    def load_raw(self, filepath):
+        if "train_cyto2" in filepath and "masks" in filepath:
+            # The Cellpose dataset contains those outliers (65535) as background for some reason
+            tensor = load_image(filepath)
+            tensor[tensor == (2 ** 16 - 1)] = 0
+            return tensor
+        return load_image(filepath)
+
 
 class DataSample:
     def __init__(self, dataroot, df):
@@ -512,9 +515,19 @@ class DataLabels:
         absbox = self.absbox(relbox)
         return self.dictbox(absbox)
 
+def sanity_check(dataset, sample):
+    tensor = dataset.load_raw(sample.raw_mask)
+    dense = (len(np.unique(tensor)) == tensor.max()+1)
+    if 65535 in tensor:
+        print("Found 65535 in: ", sample.raw_mask)
+    if not dense:
+        print("Found non-dense mask: ", sample.raw_mask)
+
 if __name__ == "__main__":
-    for sample in tqdm(DataSet("./data"), desc="Preparing metadata frames"):
+    dataset = DataSet("./data")
+    for sample in tqdm(dataset, desc="Preparing metadata frames"):
         sample.prepare_frame()
+        sanity_check(dataset, sample)
         # Also save human-readable mask images, for debugging
         safely_process([], save_bw_mask)(sample.raw_mask, sample.bw_mask)
         safely_process([], save_gray_mask)(sample.raw_mask, sample.gray_mask)
