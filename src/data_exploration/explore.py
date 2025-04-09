@@ -247,13 +247,6 @@ def mergeObjects(objectA, objectB):
     bottom = max(objectA["Bottom"], objectB["Bottom"])
     return {"ID": objectA["ID"], "X": x, "Y": y, "Left":left, "Right":right, "Top": top, "Bottom":bottom, "Area": area}
 
-def save_maskframes(dataroot, df):
-    root = dataroot + "/raw"
-    store = dataroot + "/processed"
-    dataset = [(root + mask_path, store + target_file(mask_path, ".csv")) for mask_path in df["Mask"]]
-    for mask_path, frame_path in tqdm(dataset):
-        safely_process([], save_maskframe)(mask_path, frame_path)
-
 def save_maskframe(mask_path, frame_path):
     tensor = tif.imread(mask_path)
     maskframe = mask_frame(tensor)
@@ -349,6 +342,20 @@ def prepare_metaframes(dataroot):
             data_map = dataset_frame(rawroot, zenodo)
             data_map.to_csv(target_path)
 
+class DataSet:
+    def __init__(self, dataroot):
+        self.dataroot = dataroot
+
+    def __str__(self):
+        return self.dataroot
+    
+    def prepare_frames(self):
+        prepare_metaframes(self.dataroot)
+
+    def __iter__(self):
+        for name, df in enumerate_frames(self.dataroot):
+            for index in range(len(df)):
+                yield DataSample(self.dataroot, df.iloc[index])
 
 class DataSample:
     def __init__(self, dataroot, df):
@@ -362,6 +369,9 @@ class DataSample:
     
     def __str__(self):
         return str(self.df)
+    
+    def prepare_frame(self):
+        safely_process([], save_maskframe)(self.raw_mask, self.meta_frame)
 
     def labels(self):
         if not os.path.exists(self.meta_frame):
@@ -464,10 +474,11 @@ class DataLabels:
         return self.dictbox(absbox)
 
 if __name__ == "__main__":
-    dataroot = "./data"
-    prepare_metaframes(dataroot)
-    for name, df in enumerate_frames(dataroot):
+    dataset = DataSet("./data")
+    dataset.prepare_frames()
+    for sample in tqdm(dataset):
+        sample.prepare_frame()
         #preprocess_images(dataroot, df)
         #preprocess_masks(dataroot, df)
-        save_maskframes(dataroot, df)
+        #print(mask_path, frame_path)
         pass
