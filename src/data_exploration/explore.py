@@ -68,12 +68,11 @@ def enumerate_dataset(root, folder):
                 yield fullpath
 
 class CellposeSet:
-    def __init__(self, root, category = None):
+    def __init__(self, root):
         self.root = root
-        self.category = category
     
     def mask_filepath(self, filepath):
-        if (self.category == MASK) and ("img" in filepath):
+        if ("img" in filepath):
             return filepath.replace("img", "masks")
         return None
     
@@ -85,12 +84,11 @@ class CellposeSet:
         return UNLABELED
 
 class ZenodoNeurIPS:
-    def __init__(self, root, category = None):
+    def __init__(self, root):
         self.root = root
-        self.category = category
 
     def label_patterns(self, category):
-        if category == MASK:
+        if category == LABELED:
             yield ("/Public/images/", "/Public/labels/")
             yield ("/Public/WSI/", "/Public/WSI-labels/")
             yield ("/Training-labeled/images/", "/Training-labeled/labels/")
@@ -106,47 +104,47 @@ class ZenodoNeurIPS:
         return (folder + name + "_label.tiff") if folder else None
 
     def mask_folder(self, folder):
-        for (img, mask) in self.label_patterns(self.category):
-            if img in folder:
-                return folder.replace(img, mask)
+        for category in [LABELED, SYNTHETIC]:
+            for (img, mask) in self.label_patterns(category):
+                if img in folder:
+                    return folder.replace(img, mask)
         return None
     
     def categorize(self, dirpath):
-        for (img, mask) in self.label_patterns(MASK):
+        for (img, mask) in self.label_patterns(LABELED):
             if mask in dirpath:
                 return MASK
             elif img in dirpath:
                 return LABELED
         for (img, mask) in self.label_patterns(SYNTHETIC):
             if mask in dirpath:
+                return MASK
+            elif img in dirpath:
                 return SYNTHETIC
         return UNLABELED
 
-def dataset_frame(root, matcher):
-    files_by_type = list_dataset(root, matcher.root + '/')
-    assoc = collect_datamap(root, matcher, files_by_type)
-    numbers = list(collect_dataset(root, assoc))
-    return pd.DataFrame(numbers, columns = ["Path", "Mask", "Width", "Height", "Objects", "Background"]).set_index("Path")
-
-def collect_datamap(root, matcher, files_by_type):
+def collect_datamap(matcher, files_by_type):
     assoc = {}
     for ext in IMAGE_TYPES:
         for filepath in files_by_type[ext]:
-            maskpath = matcher.mask_filepath(filepath)
-            if not maskpath:
-                continue
-            elif os.path.exists(root + maskpath):
-                assoc[filepath] = maskpath
-            else:
-                print("Missing mask: ", root, maskpath, filepath)
+            category = matcher.categorize(filepath)
+            if category in [LABELED, SYNTHETIC]:
+                maskpath = matcher.mask_filepath(filepath)
+                if maskpath is None:
+                    raise Exception("Missing mask for: ", filepath)
+                assoc[filepath] = (maskpath, category)
     return assoc
 
 def collect_dataset(root, assoc):
-    for (img_path, datapath) in tqdm(assoc.items()):
+    for (filepath, (maskpath, category)) in tqdm(assoc.items()):
+        if not os.path.exists(root + maskpath):
+            print("Missing mask: ", root, maskpath, filepath)
         # Get global statistics
-        imgT = load_image(root + datapath)
+        imgT = load_image(root + maskpath)
         background = (imgT == 0).sum()
-        yield {"Path":img_path, "Mask":datapath, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": imgT.max(), "Background": background}
+        num_objects = imgT.max()
+        synthetic = (category == SYNTHETIC)
+        yield {"Path":filepath, "Mask":maskpath, "Synthetic": synthetic, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": num_objects, "Background": background}
 
 def merge_lists(compare, merge, listA, listB):
     merged = [0] * (len(listA) + len(listB))
@@ -289,14 +287,10 @@ def safely_process(log, process, overwrite=False):
     return wrapper
 
 # Save black-white mask
-def save_bw_mask(root, store, datapath):
-    imgT = load_image(root + datapath)
+def save_bw_mask(source, target):
+    imgT = load_image(source)
     im = Image.fromarray((imgT != 0).astype('uint8')*255)
-    folder, name, ext = split_filepath(datapath)
-    target = store + folder
-    os.makedirs(target, exist_ok=True)
-    maskfile = target + name + ".png"
-    im.save(maskfile)
+    im.save(target)
 
 # TOO SLOW
 # Save hue-vector mask
@@ -327,22 +321,6 @@ def save_hue_mask(root, store, datapath, df):
     maskfile = target + name + ".vect.png"
     im.save(maskfile)
 
-def enumerate_frames(dataroot):
-    for filename in os.listdir(dataroot):
-        dirpath, name, ext = split_filepath(filename)
-        if ext == ".csv":
-            dataframe = pd.read_csv(dataroot + dirpath + filename)
-            yield name, dataframe
-
-def preprocess_masks(dataroot, df, color = False):
-    rawroot = dataroot + "/raw"
-    procroot = dataroot + "/processed"
-    for datapath in tqdm(df["Mask"]):
-        if color:
-            save_hue_mask(rawroot, procroot, datapath)
-        else:
-            save_bw_mask(rawroot, procroot, datapath)
-
 def preprocess_images(dataroot, df):
     for filepath in tqdm(df["Path"]):
         folder, name, ext = split_filepath(filepath)
@@ -358,32 +336,41 @@ def load_image(img_path):
     elif ext in VISIBLE_TYPES:
         return io.imread(img_path)
 
-def prepare_metaframes(dataroot, overwrite=False):
-    rawroot = dataroot + "/raw"
-    for dataset in [ZenodoNeurIPS('/zenodo'), CellposeSet("/cellpose")]:
-        unzip_dataset(rawroot, dataset.root + "/")
-        for category, label in [(MASK, ".labels"), (SYNTHETIC, ".synth")]:
-            target_path = dataroot + dataset.root + label + ".csv"
-            if overwrite or not os.path.exists(target_path):
-                dataset.category = category
-                data_map = dataset_frame(rawroot, dataset)
-                data_map.to_csv(target_path)
+def prepare_metaframe(dataroot, target_path):
+    dataset = [ZenodoNeurIPS('/zenodo'), CellposeSet("/cellpose")]
+    data_map = dataset_frame(dataroot, dataset)
+    data_map.to_csv(target_path)
+    return data_map
 
+def dataset_frame(root, matchers):
+    numbers = []
+    for matcher in matchers:
+        unzip_dataset(root, matcher.root + "/")
+        files_by_type = list_dataset(root, matcher.root + '/')
+        assoc = collect_datamap(matcher, files_by_type)
+        numbers += collect_dataset(root, assoc)
+    frame = pd.DataFrame(numbers, columns = ["Path", "Mask", "Width", "Height", "Objects", "Background", "Synthetic"])
+    frame = frame.set_index("Path")
+    return frame.sort_index()
 
 class DataSet:
     def __init__(self, dataroot):
         self.dataroot = dataroot
+        self.meta_frame = self.dataroot + "/dataset.labels.csv"
+        self.df = self.prepare_frame()
 
     def __str__(self):
         return self.dataroot
     
-    def prepare_frames(self):
-        prepare_metaframes(self.dataroot)
+    def prepare_frame(self):
+        rawroot = self.dataroot + "/raw"
+        safely_process([], prepare_metaframe)(rawroot, self.meta_frame)
+        return pd.read_csv(self.meta_frame)
 
     def __iter__(self):
-        for name, df in enumerate_frames(self.dataroot):
-            for index in range(len(df)):
-                yield DataSample(self.dataroot, df.iloc[index])
+        for index in range(len(self.df)):
+            row = self.df.iloc[index]
+            yield DataSample(self.dataroot, row)
 
 
 class DataSample:
@@ -403,8 +390,7 @@ class DataSample:
         safely_process([], save_maskframe)(self.raw_mask, self.meta_frame)
 
     def labels(self):
-        if not os.path.exists(self.meta_frame):
-            save_maskframe(self.raw_mask, self.meta_frame)
+        self.prepare_frame(self)
         return DataLabels(self.meta_frame)
     
     def init_paths(self, image_path, mask_path):
@@ -431,7 +417,10 @@ class DataLabels:
     
     def __str__(self):
         return str(self.df)
-
+    
+    def __len__(self):
+        return len(self.df)
+    
     def lerp(self, a, b):
         return a + b - (a * b)
     
@@ -503,11 +492,9 @@ class DataLabels:
         return self.dictbox(absbox)
 
 if __name__ == "__main__":
-    dataset = DataSet("./data")
-    dataset.prepare_frames()
-    for sample in tqdm(dataset):
+    for sample in tqdm(DataSet("./data")):
         sample.prepare_frame()
         #preprocess_images(dataroot, df)
-        #preprocess_masks(dataroot, df)
+        safely_process([], save_bw_mask)(sample.raw_mask, sample.bw_mask)
         #print(mask_path, frame_path)
         pass
