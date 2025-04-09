@@ -10,10 +10,11 @@ import zipfile
 import os
 import cv2
 
-VISIBLE_TYPES = [".jpg", ".jpeg", ".bmp", ".png"]
+VISIBLE_TYPES = [".bmp", ".png"] # + [".jpg", ".jpeg"]
 TENSOR_TYPES = [".tif", ".tiff"]
 IMAGE_TYPES = VISIBLE_TYPES + TENSOR_TYPES
 MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py", ""]
+FILE_TYPES = IMAGE_TYPES + MISC_TYPES
 
 LABELED = 'Labeled'
 MASK = 'Mask'
@@ -40,7 +41,7 @@ def unzip_archive(root, filepath):
         return []
 
 def list_dataset(root, folder = '/'):
-    files_by_type = {type:set() for type in (IMAGE_TYPES + MISC_TYPES)}
+    files_by_type = {type:set() for type in FILE_TYPES}
     for filepath in enumerate_dataset(root, folder):
         dirpath, name, ext = split_filepath(filepath)
         files_by_type[ext].add(filepath)
@@ -325,13 +326,11 @@ def save_hue_mask(root, store, datapath, df):
     maskfile = target + name + ".vect.png"
     im.save(maskfile)
 
-def preprocess_images(dataroot, df):
-    for filepath in tqdm(df["Path"]):
-        folder, name, ext = split_filepath(filepath)
-        img = DataSet.load_raw(None, dataroot + "/raw" + filepath)
-        target = dataroot + "/processed" + folder
-        os.makedirs(target, exist_ok=True)
-        cv2.imwrite(target + name + ".png", img)
+def save_clean_image(source, target):
+    img = DataSet.load_raw(None, source)
+    img = Image.fromarray(img.astype('uint8'))
+    img.save(target)
+    #cv2.imwrite(target, img)
 
 def load_image(img_path):
     dirpath, name, ext = split_filepath(img_path)
@@ -388,6 +387,14 @@ class DataSet:
     
     # Load a well-formed tensor from the raw image
     def load_raw(self, filepath):
+        if "cellpose" in filepath and "img" in filepath:
+            tensor = load_image(filepath)
+            tensor = np.flip(tensor, axis=2)
+            channels = tensor.sum(axis=(0, 1))
+            # The Cellpose dataset contains grayscale images that are green-coded
+            if channels.sum() == channels[1]:
+                return tensor.sum(axis=2)
+            return tensor
         if "train_cyto2" in filepath and "masks" in filepath:
             # The Cellpose dataset contains those outliers (65535) as background for some reason
             tensor = load_image(filepath)
@@ -419,7 +426,7 @@ class DataSample:
     def init_paths(self, image_path, mask_path):
         self.raw_image = self.dataroot + "/raw" + image_path
         self.raw_mask = self.dataroot + "/raw" + mask_path
-        self.proc_image = self.dataroot + "/processed" + target_file(image_path, ".png")
+        self.clean_image = self.dataroot + "/processed" + target_file(image_path, ".png")
         self.bw_mask = self.dataroot + "/processed" + target_file(mask_path, ".bin.png")
         self.gray_mask = self.dataroot + "/processed" + target_file(mask_path, ".gray.png")
         self.meta_frame = self.dataroot + "/processed" + target_file(mask_path, ".csv")
@@ -516,12 +523,44 @@ class DataLabels:
         return self.dictbox(absbox)
 
 def sanity_check(dataset, sample):
+    image = dataset.load_raw(sample.raw_image)
+    #print(image.shape, sample.raw_image)
+    if len(image.shape) == 3:
+        assert image.shape[2] == 3
+        channels = image.sum(axis=(0, 1))
+        for channel in range(3):
+            if channels[channel] == 0:
+                print("Found empty channel: ", image.shape, channel, sample.raw_image)
     tensor = dataset.load_raw(sample.raw_mask)
     dense = (len(np.unique(tensor)) == tensor.max()+1)
     if 65535 in tensor:
         print("Found 65535 in: ", sample.raw_mask)
     if not dense:
         print("Found non-dense mask: ", sample.raw_mask)
+    df = DataLabels(sample.meta_frame).df
+    width = df['Right'].max()
+    height = df['Bottom'].max()
+    assert tensor.shape[0] == height
+    assert tensor.shape[1] == width
+    area = df['Area'].sum()
+    assert (width * height) == area
+    assert area != 0
+    for index in range(len(df)):
+        bdf = df.iloc[index]
+        sanity_check_box(width, height, bdf)
+
+def sanity_check_box(width, height, bdf):
+    bwidth = bdf['Right'] - bdf['Left']
+    bheight = bdf['Bottom'] - bdf['Top']
+    barea = bwidth * bheight
+    #print(width, height, bdf)
+    assert 0 <= bwidth <= width
+    assert 0 <= bheight <= height
+    assert 0 <= bdf['Area'] <= barea
+    assert 0 <= bdf['Left'] <= width
+    assert 0 <= bdf['Right'] <= width
+    assert 0 <= bdf['Top'] <= height
+    assert 0 <= bdf['Bottom'] <= height
 
 if __name__ == "__main__":
     dataset = DataSet("./data")
@@ -529,5 +568,6 @@ if __name__ == "__main__":
         sample.prepare_frame()
         sanity_check(dataset, sample)
         # Also save human-readable mask images, for debugging
+        safely_process([], save_clean_image)(sample.raw_image, sample.clean_image)
         safely_process([], save_bw_mask)(sample.raw_mask, sample.bw_mask)
         safely_process([], save_gray_mask)(sample.raw_mask, sample.gray_mask)
