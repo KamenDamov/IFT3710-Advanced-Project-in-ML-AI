@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import tifffile as tif
 import pandas as pd
+import skimage.io as io
 import PIL.Image as Image
 import numpy as np
 import colorsys
@@ -9,7 +10,9 @@ import zipfile
 import os
 import cv2
 
-IMAGE_TYPES = [".bmp", ".png", ".tif", ".tiff"]
+VISIBLE_TYPES = [".jpg", ".jpeg", ".bmp", ".png"]
+TENSOR_TYPES = [".tif", ".tiff"]
+IMAGE_TYPES = VISIBLE_TYPES + TENSOR_TYPES
 MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py", ""]
 
 LABELED = 'Labeled'
@@ -63,6 +66,23 @@ def enumerate_dataset(root, folder):
         if not ext:
             for fullpath in enumerate_dataset(root, filepath + "/"):
                 yield fullpath
+
+class CellposeSet:
+    def __init__(self, root, category = None):
+        self.root = root
+        self.category = category
+    
+    def mask_filepath(self, filepath):
+        if (self.category == MASK) and ("img" in filepath):
+            return filepath.replace("img", "masks")
+        return None
+    
+    def categorize(self, dirpath):
+        if "masks" in dirpath:
+            return MASK
+        elif "img" in dirpath:
+            return LABELED
+        return UNLABELED
 
 class ZenodoNeurIPS:
     def __init__(self, root, category = None):
@@ -124,7 +144,7 @@ def collect_datamap(root, matcher, files_by_type):
 def collect_dataset(root, assoc):
     for (img_path, datapath) in tqdm(assoc.items()):
         # Get global statistics
-        imgT = tif.imread(root + datapath)
+        imgT = load_image(root + datapath)
         background = (imgT == 0).sum()
         yield {"Path":img_path, "Mask":datapath, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": imgT.max(), "Background": background}
 
@@ -248,7 +268,7 @@ def mergeObjects(objectA, objectB):
     return {"ID": objectA["ID"], "X": x, "Y": y, "Left":left, "Right":right, "Top": top, "Bottom":bottom, "Area": area}
 
 def save_maskframe(mask_path, frame_path):
-    tensor = tif.imread(mask_path)
+    tensor = load_image(mask_path)
     maskframe = mask_frame(tensor)
     maskframe.to_csv(frame_path)
 
@@ -270,7 +290,7 @@ def safely_process(log, process, overwrite=False):
 
 # Save black-white mask
 def save_bw_mask(root, store, datapath):
-    imgT = tif.imread(root + datapath)
+    imgT = load_image(root + datapath)
     im = Image.fromarray((imgT != 0).astype('uint8')*255)
     folder, name, ext = split_filepath(datapath)
     target = store + folder
@@ -281,7 +301,7 @@ def save_bw_mask(root, store, datapath):
 # TOO SLOW
 # Save hue-vector mask
 def save_hue_mask(root, store, datapath, df):
-    imgT = tif.imread(root + datapath)
+    imgT = load_image(root + datapath)
     imgTC = np.zeros((imgT.shape[0], imgT.shape[1], 3), dtype=np.float32)
     for index, row in df[1:].iterrows():
         i = row['ID']
@@ -326,21 +346,29 @@ def preprocess_masks(dataroot, df, color = False):
 def preprocess_images(dataroot, df):
     for filepath in tqdm(df["Path"]):
         folder, name, ext = split_filepath(filepath)
-        img = cv2.imread(dataroot + "/raw" + filepath)
+        img = load_image(dataroot + "/raw" + filepath)
         target = dataroot + "/processed" + folder
         os.makedirs(target, exist_ok=True)
         cv2.imwrite(target + name + ".png", img)
 
-def prepare_metaframes(dataroot):
+def load_image(img_path):
+    dirpath, name, ext = split_filepath(img_path)
+    if ext in TENSOR_TYPES:
+        return tif.imread(img_path)
+    elif ext in VISIBLE_TYPES:
+        return io.imread(img_path)
+
+def prepare_metaframes(dataroot, overwrite=False):
     rawroot = dataroot + "/raw"
-    zenodo = ZenodoNeurIPS('/zenodo')
-    unzip_dataset(rawroot, zenodo.root + "/")
-    for category, label in [(MASK, ".labels"), (SYNTHETIC, ".synth")]:
-        target_path = dataroot + zenodo.root + label + ".csv"
-        if not os.path.exists(target_path):
-            zenodo.category = category
-            data_map = dataset_frame(rawroot, zenodo)
-            data_map.to_csv(target_path)
+    for dataset in [ZenodoNeurIPS('/zenodo'), CellposeSet("/cellpose")]:
+        unzip_dataset(rawroot, dataset.root + "/")
+        for category, label in [(MASK, ".labels"), (SYNTHETIC, ".synth")]:
+            target_path = dataroot + dataset.root + label + ".csv"
+            if overwrite or not os.path.exists(target_path):
+                dataset.category = category
+                data_map = dataset_frame(rawroot, dataset)
+                data_map.to_csv(target_path)
+
 
 class DataSet:
     def __init__(self, dataroot):
@@ -356,6 +384,7 @@ class DataSet:
         for name, df in enumerate_frames(self.dataroot):
             for index in range(len(df)):
                 yield DataSample(self.dataroot, df.iloc[index])
+
 
 class DataSample:
     def __init__(self, dataroot, df):

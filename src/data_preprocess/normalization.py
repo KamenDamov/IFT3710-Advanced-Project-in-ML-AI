@@ -47,13 +47,13 @@ def create_interior_map(inst_map):
     return interior
 
 def normalize_mask(mask_path, target_path):
-    gt_data = load_image(mask_path)
+    gt_data = explore.load_image(mask_path)
     # conver instance bask to three-class mask: interior, boundary
     interior_map = create_interior_map(gt_data.astype(np.int16))
     io.imsave(target_path, interior_map.astype(np.uint8), check_contrast=False)
 
 def normalize_image(img_path, target_path):
-    img_data = load_image(img_path)
+    img_data = explore.load_image(img_path)
 
     # normalize image data
     if len(img_data.shape) == 2:
@@ -69,13 +69,6 @@ def normalize_image(img_path, target_path):
             pre_img_data[:,:,i] = normalize_channel(img_channel_i, lower=1, upper=99)
     
     io.imsave(target_path, pre_img_data.astype(np.uint8), check_contrast=False)
-
-def load_image(img_path):
-    dirpath, name, ext = explore.split_filepath(img_path)
-    if ext in ['.tif', '.tiff']:
-        return tif.imread(img_path)
-    else:
-        return io.imread(img_path)
 
 def assemble_dataset(dataroot):
     for name, df in explore.enumerate_frames(dataroot):
