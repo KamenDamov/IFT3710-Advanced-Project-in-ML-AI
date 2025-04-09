@@ -386,10 +386,14 @@ class DataSet:
     def __iter__(self):
         for index in range(len(self.df)):
             row = self.df.iloc[index]
-            yield DataSample(self.dataroot, row)
+            sample = DataSample(self.dataroot, row)
+            if not self.blacklist(sample):
+                yield sample
 
-    def blacklist(self):
-        yield "train_cyto2/758"
+    def blacklist(self, sample):
+        return sample.df["Synthetic"] \
+            or ("train_cyto2/758" in sample.df["Path"]) \
+            or ("WSI" in sample.df["Path"])
         
 
 class DataSample:

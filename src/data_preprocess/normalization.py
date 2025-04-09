@@ -70,14 +70,8 @@ def normalize_image(img_path, target_path):
     
     io.imsave(target_path, pre_img_data.astype(np.uint8), check_contrast=False)
 
-def assemble_dataset(dataroot):
-    for name, df in explore.enumerate_frames(dataroot):
-        if ".labels" in name:
-            for index in range(len(df)):
-                yield explore.DataSample(dataroot, df.iloc[index])
-
 def main(dataroot):
-    dataset = list(assemble_dataset(dataroot))
+    dataset = explore.DataSet(dataroot)
 
     log = ["Failed to process images: \n"]
     for sample in tqdm(dataset, desc="Normalizing images"):
