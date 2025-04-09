@@ -73,13 +73,12 @@ class CellposeSet:
     
     def mask_filepath(self, filepath):
         if ("img" in filepath):
-            return filepath.replace("img", "masks")
-        return None
+            yield filepath.replace("img", "masks"), LABELED
     
-    def categorize(self, dirpath):
-        if "masks" in dirpath:
+    def categorize(self, filepath):
+        if "masks" in filepath:
             return MASK
-        elif "img" in dirpath:
+        elif "img" in filepath:
             return LABELED
         return UNLABELED
 
@@ -100,15 +99,14 @@ class ZenodoNeurIPS:
 
     def mask_filepath(self, filepath):
         folder, name, ext = split_filepath(filepath)
-        folder = self.mask_folder(folder)
-        return (folder + name + "_label.tiff") if folder else None
+        for folder, category in self.mask_folder(folder):
+            yield (folder + name + "_label.tiff"), category
 
     def mask_folder(self, folder):
         for category in [LABELED, SYNTHETIC]:
             for (img, mask) in self.label_patterns(category):
                 if img in folder:
-                    return folder.replace(img, mask)
-        return None
+                    yield folder.replace(img, mask), category
     
     def categorize(self, dirpath):
         for (img, mask) in self.label_patterns(LABELED):
@@ -124,27 +122,26 @@ class ZenodoNeurIPS:
         return UNLABELED
 
 def collect_datamap(matcher, files_by_type):
-    assoc = {}
+    assoc = {LABELED:{}, SYNTHETIC:{}}
     for ext in IMAGE_TYPES:
         for filepath in files_by_type[ext]:
             category = matcher.categorize(filepath)
             if category in [LABELED, SYNTHETIC]:
-                maskpath = matcher.mask_filepath(filepath)
-                if maskpath is None:
-                    raise Exception("Missing mask for: ", filepath)
-                assoc[filepath] = (maskpath, category)
+                for maskpath, category in matcher.mask_filepath(filepath):
+                    assoc[category][filepath] = maskpath
     return assoc
 
 def collect_dataset(root, assoc):
-    for (filepath, (maskpath, category)) in tqdm(assoc.items()):
-        if not os.path.exists(root + maskpath):
-            print("Missing mask: ", root, maskpath, filepath)
-        # Get global statistics
-        imgT = load_raw_mask(root + maskpath)
-        background = (imgT == 0).sum()
-        num_objects = imgT.max()
-        synthetic = (category == SYNTHETIC)
-        yield {"Path":filepath, "Mask":maskpath, "Synthetic": synthetic, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": num_objects, "Background": background}
+    for category in [LABELED, SYNTHETIC]:
+        for (imagepath, maskpath) in tqdm(assoc[category].items()):
+            if not os.path.exists(root + maskpath):
+                print("Missing mask: ", root, maskpath, imagepath)
+            # Get global statistics
+            imgT = load_raw_mask(root + maskpath)
+            background = (imgT == 0).sum()
+            num_objects = imgT.max()
+            synthetic = (category == SYNTHETIC)
+            yield {"Path":imagepath, "Mask":maskpath, "Synthetic": synthetic, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": num_objects, "Background": background}
 
 def merge_lists(compare, merge, listA, listB):
     merged = [0] * (len(listA) + len(listB))
