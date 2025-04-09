@@ -47,7 +47,7 @@ def create_interior_map(inst_map):
     return interior
 
 def normalize_mask(mask_path, target_path):
-    gt_data = explore.load_image(mask_path)
+    gt_data = explore.load_raw_mask(mask_path)
     # conver instance bask to three-class mask: interior, boundary
     interior_map = create_interior_map(gt_data.astype(np.int16))
     io.imsave(target_path, interior_map.astype(np.uint8), check_contrast=False)
