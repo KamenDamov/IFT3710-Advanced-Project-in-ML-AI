@@ -1,9 +1,15 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 AVG/133.0.0.0" version="26.0.16">
   <diagram name="Page-1" id="xUybkuAHtc1xM-voUmUY">
-    <mxGraphModel>
+    <mxGraphModel dx="794" dy="458" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="1gpx9B02yjmmueAtIXlt-1" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="101" y="69" width="269" height="97" as="geometry" />
+        </mxCell>
+        <mxCell id="1gpx9B02yjmmueAtIXlt-2" value="traditional DCGAN" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="117" y="94" width="172" height="42.5" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
