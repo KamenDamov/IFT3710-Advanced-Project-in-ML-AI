@@ -30,6 +30,7 @@ from monai.data import Dataset, DataLoader
 from PIL import Image
 import argparse
 from src.data_exploration import explore
+from src.data_preprocess.modalities.train_tools.data_utils.transforms import RandSmartCropSamplesd
 
 def batch_transform(samples, loader):
     for sample, batch in zip(samples, tqdm(loader, desc="Transforming images and labels")):
