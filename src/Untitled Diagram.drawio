@@ -64,8 +64,17 @@
             <mxPoint x="432" y="212" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="1gpx9B02yjmmueAtIXlt-21" value="generator" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="449" y="75" width="60" height="30" as="geometry" />
+        <mxCell id="1gpx9B02yjmmueAtIXlt-21" value="G&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;enerator&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="449" y="75" width="66" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="1gpx9B02yjmmueAtIXlt-23" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="1gpx9B02yjmmueAtIXlt-12">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="382" y="262" as="sourcePoint" />
+            <mxPoint x="626" y="343" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="1gpx9B02yjmmueAtIXlt-24" value="Generator given a mask" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="517" y="305" width="215" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
