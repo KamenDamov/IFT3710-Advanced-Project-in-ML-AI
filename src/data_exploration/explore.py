@@ -140,7 +140,7 @@ def collect_dataset(root, assoc):
         if not os.path.exists(root + maskpath):
             print("Missing mask: ", root, maskpath, filepath)
         # Get global statistics
-        imgT = load_image(root + maskpath)
+        imgT = load_raw_mask(root + maskpath)
         background = (imgT == 0).sum()
         num_objects = imgT.max()
         synthetic = (category == SYNTHETIC)
@@ -265,8 +265,14 @@ def mergeObjects(objectA, objectB):
     bottom = max(objectA["Bottom"], objectB["Bottom"])
     return {"ID": objectA["ID"], "X": x, "Y": y, "Left":left, "Right":right, "Top": top, "Bottom":bottom, "Area": area}
 
-def save_maskframe(mask_path, frame_path):
+def load_raw_mask(mask_path):
     tensor = load_image(mask_path)
+    # The Cellpose dataset contains those for some reason
+    tensor[tensor == 65535] = 0
+    return tensor
+
+def save_maskframe(mask_path, frame_path):
+    tensor = load_raw_mask(mask_path)
     maskframe = mask_frame(tensor)
     maskframe.to_csv(frame_path)
 
@@ -288,14 +294,21 @@ def safely_process(log, process, overwrite=False):
 
 # Save black-white mask
 def save_bw_mask(source, target):
-    imgT = load_image(source)
+    imgT = load_raw_mask(source)
     im = Image.fromarray((imgT != 0).astype('uint8')*255)
+    im.save(target)
+
+# Save grayscale mask
+def save_gray_mask(source, target):
+    imgT = load_raw_mask(source)
+    num_objects = imgT.max()
+    im = Image.fromarray((imgT / num_objects * 255).astype('uint8'))
     im.save(target)
 
 # TOO SLOW
 # Save hue-vector mask
 def save_hue_mask(root, store, datapath, df):
-    imgT = load_image(root + datapath)
+    imgT = load_raw_mask(root + datapath)
     imgTC = np.zeros((imgT.shape[0], imgT.shape[1], 3), dtype=np.float32)
     for index, row in df[1:].iterrows():
         i = row['ID']
@@ -362,6 +375,9 @@ class DataSet:
     def __str__(self):
         return self.dataroot
     
+    def __len__(self):
+        return len(self.df)
+    
     def prepare_frame(self):
         rawroot = self.dataroot + "/raw"
         safely_process([], prepare_metaframe)(rawroot, self.meta_frame)
@@ -372,6 +388,9 @@ class DataSet:
             row = self.df.iloc[index]
             yield DataSample(self.dataroot, row)
 
+    def blacklist(self):
+        yield "train_cyto2/758"
+        
 
 class DataSample:
     def __init__(self, dataroot, df):
@@ -397,7 +416,8 @@ class DataSample:
         self.raw_image = self.dataroot + "/raw" + image_path
         self.raw_mask = self.dataroot + "/raw" + mask_path
         self.proc_image = self.dataroot + "/processed" + target_file(image_path, ".png")
-        self.bw_mask = self.dataroot + "/processed" + target_file(mask_path, ".png")
+        self.bw_mask = self.dataroot + "/processed" + target_file(mask_path, ".bin.png")
+        self.gray_mask = self.dataroot + "/processed" + target_file(mask_path, ".gray.png")
         self.meta_frame = self.dataroot + "/processed" + target_file(mask_path, ".csv")
         self.normal_image = self.dataroot + "/preprocessing_outputs/normalized_data" + target_file(image_path, ".png")
         self.normal_mask = self.dataroot + "/preprocessing_outputs/normalized_data" + target_file(mask_path, ".png")
@@ -492,9 +512,8 @@ class DataLabels:
         return self.dictbox(absbox)
 
 if __name__ == "__main__":
-    for sample in tqdm(DataSet("./data")):
+    for sample in tqdm(DataSet("./data"), desc="Preparing metadata frames"):
         sample.prepare_frame()
-        #preprocess_images(dataroot, df)
+        # Also save human-readable mask images, for debugging
         safely_process([], save_bw_mask)(sample.raw_mask, sample.bw_mask)
-        #print(mask_path, frame_path)
-        pass
+        safely_process([], save_gray_mask)(sample.raw_mask, sample.gray_mask)
