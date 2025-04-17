@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import tifffile as tif
 import pandas as pd
-import skimage.io as io
+from skimage import io, color
 import PIL.Image as Image
 import numpy as np
 import colorsys
@@ -10,10 +10,35 @@ import zipfile
 import os
 import cv2
 
+### Dataset sources ###
+# MEDIAR
+# https://github.com/Lee-Gihun/MEDIAR
+#
+# NeurIPS Competition
+# https://zenodo.org/records/10719375
+# 
+# OmniPose
+# https://github.com/kevinjohncutler/omnipose
+# https://www.nature.com/articles/s41592-022-01639-4#data-availability
+# https://osf.io/xmury/files/osfstorage
+# 
+# CellPose
+# https://www.cellpose.org/dataset
+# 
+# LiveCell
+# -- NOT -- https://www.kaggle.com/competitions/sartorius-cell-instance-segmentation/data
+# https://github.com/sartorius-research/LIVECell
+# http://livecell-dataset.s3.eu-central-1.amazonaws.com/LIVECell_dataset_2021/images.zip
+# 
+# DataScienceBowl
+# https://www.kaggle.com/competitions/data-science-bowl-2018/data
+#
+###
+
 VISIBLE_TYPES = [".bmp", ".png"] # + [".jpg", ".jpeg"]
 TENSOR_TYPES = [".tif", ".tiff"]
 IMAGE_TYPES = VISIBLE_TYPES + TENSOR_TYPES
-MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py", ""]
+MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py", ".json", ""]
 FILE_TYPES = IMAGE_TYPES + MISC_TYPES
 
 LABELED = 'Labeled'
@@ -49,14 +74,19 @@ def list_dataset(root, folder = '/'):
 
 def unzip_dataset(root, folder):
     for filepath in enumerate_dataset(root, folder):
-        dirpath, name, ext = split_filepath(filepath)
-        if ext != ".zip":
-            continue
-        for unzipped in unzip_archive(root, filepath):
-            if os.path.exists(root + unzipped):
+        unzip_datafile(root, filepath)
+
+def unzip_datafile(root, filepath):
+    dirpath, name, ext = split_filepath(filepath)
+    if ext != ".zip":
+        return
+    for unzipped in unzip_archive(root, filepath):
+        if not os.path.exists(root + unzipped):
+            print("!WARNING! Archive did not produce folder: ", root + unzipped)
+        elif os.path.isdir(root + unzipped):
                 unzip_dataset(root, unzipped)
-            else:
-                print("!WARNING! Archive did not produce folder: ", root + unzipped)
+        else:
+            unzip_datafile(root, unzipped)
 
 def enumerate_dataset(root, folder):
     print("Enumerating folder: ", folder)
@@ -64,9 +94,52 @@ def enumerate_dataset(root, folder):
         filepath = folder + filename
         yield filepath
         dirpath, name, ext = split_filepath(filepath)
-        if not ext:
+        if os.path.isdir(root + filepath):
             for fullpath in enumerate_dataset(root, filepath + "/"):
                 yield fullpath
+
+class LiveCellSet:
+    def __init__(self, root):
+        self.root = root
+    
+    def mask_filepath(self, filepath):
+        if "/images" in filepath:
+            yield (filepath.replace("/images", "/masks"), LABELED)
+
+    def categorize(self, filepath):
+        if "/masks" in filepath:
+            return MASK
+        if "/images" in filepath:
+            return LABELED
+        return UNLABELED
+
+class ScienceBowlSet:
+    def __init__(self, root):
+        self.root = root
+    
+    def mask_filepath(self, filepath):
+        if "/images" in filepath:
+            yield (filepath.replace("/images", "/labels"), LABELED)
+    
+    def categorize(self, filepath):
+        if "/masks" in filepath:
+            return MASK
+        if "/images" in filepath:
+            return LABELED
+        return UNLABELED
+
+class OmniPoseSet:
+    def __init__(self, root):
+        self.root = root
+    
+    def mask_filepath(self, filepath):
+        folder, name, ext = split_filepath(filepath)
+        yield (folder + name + "_masks" + ext), LABELED
+    
+    def categorize(self, filepath):
+        if "masks" in filepath:
+            return MASK
+        return LABELED
 
 class CellposeSet:
     def __init__(self, root):
@@ -82,6 +155,20 @@ class CellposeSet:
         elif "img" in filepath:
             return LABELED
         return UNLABELED
+
+    def load(self, filepath):
+        if "img" in filepath:
+            image = io.imread(filepath)
+            if image.shape[-1] == 4:  # RGBA
+                image = color.rgba2rgb(image)
+                image = (image * 255).astype(np.uint8)
+            elif image.dtype == np.uint16:  # Convert 16-bit grayscale to 8-bit
+                image = (image / 256).astype(np.uint8)
+            return image
+        if "masks" in filepath:
+            mask = io.imread(filepath)
+            mask[mask == (2 ** 16 - 1)] = 0
+            return mask
 
 class ZenodoNeurIPS:
     def __init__(self, root):
@@ -340,7 +427,7 @@ def load_image(img_path):
         return io.imread(img_path)
 
 def prepare_metaframe(dataroot, target_path):
-    dataset = [ZenodoNeurIPS('/zenodo'), CellposeSet("/cellpose")]
+    dataset = [ZenodoNeurIPS('/neurips'), CellposeSet("/cellpose")]
     data_map = dataset_frame(dataroot, dataset)
     data_map.to_csv(target_path)
     return data_map

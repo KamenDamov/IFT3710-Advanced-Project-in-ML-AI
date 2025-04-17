@@ -23,7 +23,7 @@ def main(root, destination, json_path):
     # Extract image metadata
     image_dict = {img["id"]: img["file_name"] for img in data["images"]}
     annotations = data["annotations"]
-
+    
     # Process each image
     for idx, (image_id, file_name) in tqdm(sorted(enumerate(image_dict.items()))):
         new_basename = f"cell_lc_{idx + 1:05d}"
@@ -31,6 +31,7 @@ def main(root, destination, json_path):
         new_mask_path = os.path.join(mask_output_dir, new_basename + "_label.tiff")
 
         # Load and save image
+        #prefix = file_name.split("_")[0]
         image = io.imread(os.path.join(root, file_name))
         if image.shape[-1] == 4:  # RGBA
             image = color.rgba2rgb(image)
@@ -61,17 +62,19 @@ def main(root, destination, json_path):
 
 
 if __name__ == '__main__':
-    root = "/home/ggenois/Downloads/livecell_dataset/images/livecell_train_val_images"
-    destination = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/liveCell_converted/train"
-    json_path = "/home/ggenois/Downloads/livecell_dataset/livecell_coco_train.json"
+    root = "./data/raw/livecell/images/livecell_train_val_images"
+    destination = "./data/unify/livecell/images/livecell_train_val_images"
+    json_path = "./data/raw/livecell/livecell_coco_train.json"
     main(root, destination, json_path)
 
-    root = "/home/ggenois/Downloads/livecell_dataset/images/livecell_train_val_images"
-    destination = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/liveCell_converted/val"
-    json_path = "/home/ggenois/Downloads/livecell_dataset/livecell_coco_val.json"
+if __name__ == '__main__':
+    root = "./data/raw/livecell/images/livecell_train_val_images"
+    destination = "./data/unify/livecell/images/livecell_train_val_images"
+    json_path = "./data/raw/livecell/livecell_coco_val.json"
     main(root, destination, json_path)
 
-    root = "/home/ggenois/Downloads/livecell_dataset/images/livecell_test_images"
-    destination = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/liveCell_converted/test"
-    json_path = "/home/ggenois/Downloads/livecell_dataset/livecell_coco_test.json"
+if __name__ == '__main__':
+    root = "./data/raw/livecell/images/livecell_test_images"
+    destination = "/data/unify/livecell/images/livecell_test_images"
+    json_path = "./data/raw/livecell/livecell_coco_test.json"
     main(root, destination, json_path)

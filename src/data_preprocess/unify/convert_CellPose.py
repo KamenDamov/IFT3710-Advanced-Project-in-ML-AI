@@ -44,20 +44,21 @@ def main(root, destination):
 
         # Load and save mask
         mask = io.imread(mask_path)
+        if mask[mask == (2 ** 16 - 1)].any():
+            print("Warning: Mask contains 16-bit values, converting to 8-bit.")
         io.imsave(new_mask_path, mask, check_contrast=False)
-
 
     print("Cellpose dataset conversion complete!")
 
 if __name__ == '__main__':
-    root = "/home/ggenois/Downloads/cellpose_dataset/train"
-    destination = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/cellPose_converted/train"
+    root = "./data/raw/cellpose/train"
+    destination = "./data/unify/cellpose/train"
     main(root, destination)
 
-    root = "/home/ggenois/Downloads/cellpose_dataset/train_cyto2"
-    destination = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/cellPose_converted/train_cyto2"
+    root = "./data/raw/cellpose/train_cyto2"
+    destination = "./data/unify/cellpose/train_cyto2"
     main(root, destination)
 
-    root = "/home/ggenois/Downloads/cellpose_dataset/test"
-    destination = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/cellPose_converted/test"
+    root = "./data/raw/cellpose/test"
+    destination = "./data/unify/cellpose/test"
     main(root, destination)
