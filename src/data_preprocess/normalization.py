@@ -6,7 +6,7 @@ import pandas as pd
 import argparse
 import os
 from src.data_exploration import explore
-from src.manage_files import *
+from src.datasets.datasets import *
 
 join = os.path.join
 

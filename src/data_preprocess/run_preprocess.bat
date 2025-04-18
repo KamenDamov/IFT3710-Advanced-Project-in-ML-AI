@@ -6,7 +6,7 @@ IF NOT EXIST "./data" (
 )
 
 echo Unpack raw training set files
-python -m src.datasets
+python -m src.datasets.datasets
 
 echo Clean up format of image and mask files
 python -m src.data_preprocess.unify.unify

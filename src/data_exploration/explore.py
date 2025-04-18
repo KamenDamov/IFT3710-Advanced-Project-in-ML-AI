@@ -10,7 +10,7 @@ import zipfile
 import os
 import cv2
 
-from src.datasets import *
+from src.datasets.datasets import *
 
 # Save black-white mask
 def save_bw_mask(source, target):

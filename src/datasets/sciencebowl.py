@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.manage_files import *
+from .manage_files import *
 
 ###
 # Download the DataScienceBowl dataset from:

@@ -1,4 +1,4 @@
-from src.manage_files import *
+from .manage_files import *
 
 ###
 # Download the NeurIPS Competition dataset from:

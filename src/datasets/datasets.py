@@ -1,10 +1,10 @@
 
-from src.manage_files import *
-from src.neurips import ZenodoNeurIPS
-from src.cellpose import CellposeSet
-from src.omnipose import OmniPoseSet
-from src.livecell import LiveCellSet
-from src.sciencebowl import ScienceBowlSet
+from .manage_files import *
+from .neurips import ZenodoNeurIPS
+from .cellpose import CellposeSet
+from .omnipose import OmniPoseSet
+from .livecell import LiveCellSet
+from .sciencebowl import ScienceBowlSet
 
 ### Dataset sources ###
 # MEDIAR

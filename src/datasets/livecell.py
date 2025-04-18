@@ -4,7 +4,7 @@ import json
 from skimage import draw
 from tqdm import tqdm
 
-from src.manage_files import *
+from .manage_files import *
 
 ###
 # Download the LiveCell dataset from:
