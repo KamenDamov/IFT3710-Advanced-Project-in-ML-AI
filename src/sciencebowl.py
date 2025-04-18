@@ -1,3 +1,5 @@
+import pandas as pd
+
 from src.manage_files import *
 
 ###
@@ -25,53 +27,82 @@ class ScienceBowlSet(BaseFileSet):
     def unpack(self, dataroot):
         needs_offset = ["stage1_train", "stage1_test", "stage2_test_final"]
         unzip_dataset(dataroot, self.root + "/", needs_offset)
-        #build_masks(self, dataroot)
+        build_masks(self, dataroot)
 
     def mask_filepath(self, filepath):
         if "/images" in filepath:
             folder, name, ext = split_filepath(filepath)
-            target = folder + name + "_label.tiff"
+            target = folder.replace(f"{name}/images", "labels") + name + ".tiff"
             yield (target, MASK)
     
     def categorize(self, filepath):
+        if "/labels" in filepath:
+            return MASK
+        if "/images" in filepath:
+            return LABELED
         if "/masks" in filepath:
             return MASK
-        if "_label.tiff" in filepath:
-            return MASK
-        if "stage1_train" in filepath and "/images" in filepath:
-            return LABELED
         return UNLABELED
 
+def convert_test_from_csv(csv_path, destination):
+    for image_id, masks in pd.read_csv(csv_path).groupby('ImageId'):
+        if len(masks) < 255:
+            print(f"Processing {image_id} with {len(masks)} masks")
+        source = destination + f"/{image_id}/images/{image_id}.png"
+        target = destination + f"/labels/{image_id}.tiff"
+        safely_process([], mask_builder_from_csv(masks))(source, target)
+
+def mask_builder_from_csv(masks):
+    def build(filepath, target):
+        # Reset mask for each image
+        labeled_mask = None
+        for idx, (_, row) in enumerate(masks.iterrows(), start=1):
+            encoded_pixels, height, width = row['EncodedPixels'], row['Height'], row['Width']
+            labeled_mask = np.zeros((int(height), int(width)), dtype=np.uint16) if (labeled_mask is None) else labeled_mask
+            # Decode RLE mask
+            mask = rle_decode(encoded_pixels, (int(height), int(width)))
+            # Label connected components to assign unique IDs
+            labeled_mask[mask] = idx
+        if labeled_mask.max() < 256:
+            # Convert to uint8 if less than 256 labels
+            labeled_mask = labeled_mask.astype(np.uint8)
+        # Save mask as TIFF
+        save_image(target, labeled_mask)
+    return build
+
 def build_masks(dataset, dataroot):
+    #convert_test_from_csv(dataroot + dataset.root + "/stage1_train_labels.csv", dataroot + dataset.root + "/stage1_train")
+    convert_test_from_csv(dataroot + dataset.root + "/stage1_solution.csv", dataroot + dataset.root + "/stage1_test")
     for filepath in dataset.enumerate(dataroot):
         if dataset.categorize(filepath) == LABELED:
-            folder, name, ext = split_filepath(dataroot + filepath)
-            (target, _), = dataset.mask_filepath(dataroot + filepath)
-            maskfolder = folder.replace("/images", "/masks")
-            if os.path.exists(maskfolder):
-                safely_process([], mask_builder(folder))(filepath, target)
+            if "stage1_train" in filepath:
+                folder, name, ext = split_filepath(dataroot + filepath)
+                target = folder.replace(f"{name}/images", "labels") + name + ".tiff"
+                maskfolder = folder.replace("/images", "/masks")
+                safely_process([], mask_builder(maskfolder))(filepath, target)
 
-def mask_builder(folder):
+def mask_builder(maskfolder):
     def build(filepath, target):
-        mask_paths = [folder + mask for mask in os.listdir(folder)]
+        mask_paths = [maskfolder + mask for mask in os.listdir(maskfolder)]
         # Stack masks with unique labels
         combined_mask = np.zeros_like(io.imread(mask_paths[0]), dtype=np.uint16)
         for label, mask_path in enumerate(mask_paths, start=1):
             mask = io.imread(mask_path)
             combined_mask[mask > 0] = label  # Assign unique label
+        if combined_mask.max() < 256:
+            # Convert to uint8 if less than 256 labels
+            combined_mask = combined_mask.astype(np.uint8)
         save_image(target, combined_mask)
     return build
 
 def rle_decode(mask_rle, shape):
-    mask = np.zeros(shape[0] * shape[1], dtype=np.uint16)
+    mask = np.zeros(shape[0] * shape[1], dtype=np.bool_)
     if pd.isna(mask_rle):
         return mask.reshape(shape)
-
     s = np.array(mask_rle.split(), dtype=int)
     starts, lengths = s[0::2] - 1, s[1::2]
-    for i, (start, length) in enumerate(zip(starts, lengths), start=1):
-        mask[start: start + length] = i
-
+    for (start, length) in zip(starts, lengths):
+        mask[start: start + length] = True
     return mask.reshape(shape)
 
 if __name__ == '__main__':

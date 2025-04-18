@@ -115,14 +115,14 @@ def convert_test_from_csv(root, destination, csv_path):
 
 
 if __name__ == '__main__':
-    root = "/home/ggenois/Downloads/datasciencebowl_dataset/stage1_train"
-    destination = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/dataScienceBowl_converted/train"
+    root = "./data/raw/sciencebowl/stage1_train"
+    destination = "./data/raw/sciencebowl/train"
     convert_train_from_png(root, destination)
-    root = "/home/ggenois/Downloads/datasciencebowl_dataset/stage1_test"
-    destination = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/dataScienceBowl_converted/test"
-    csv_path = "/home/ggenois/Downloads/datasciencebowl_dataset/stage1_solution.csv"
+    root = "./data/raw/sciencebowl/stage1_test"
+    destination = "./data/raw/sciencebowl/test"
+    csv_path = "./data/raw/sciencebowl/stage1_solution.csv"
     convert_test_from_csv(root, destination, csv_path)
-    root = "/home/ggenois/Downloads/datasciencebowl_dataset/stage2_test_final"
-    destination = "/home/ggenois/PycharmProjects/IFT3710-Advanced-Project-in-ML-AI/data/dataScienceBowl_converted/test_final"
-    csv_path = "/home/ggenois/Downloads/datasciencebowl_dataset/stage2_solution_final.csv"
+    root = "./data/raw/sciencebowl/stage2_test_final"
+    destination = "./data/raw/sciencebowl/test_final"
+    csv_path = "./data/raw/sciencebowl/stage2_solution_final.csv"
     convert_test_from_csv(root, destination, csv_path)
