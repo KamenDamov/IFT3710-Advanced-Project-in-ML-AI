@@ -58,8 +58,7 @@ class ZenodoNeurIPS(BaseFileSet):
                 if mask in dirpath:
                     return category
                 elif img in dirpath:
-                    return LABELED
-        return UNLABELED
+                    return IMAGE
 
 if __name__ == '__main__':
     root = "./data/raw"

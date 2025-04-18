@@ -44,8 +44,7 @@ class LiveCellSet(BaseFileSet):
         if "/labels" in filepath:
             return MASK
         if "/images" in filepath:
-            return LABELED
-        return UNLABELED
+            return IMAGE
 
 def enumerate_annotations(root):
     for filepath in os.listdir(root):

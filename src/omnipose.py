@@ -33,7 +33,7 @@ class OmniPoseSet(BaseFileSet):
     def categorize(self, filepath):
         if "_masks" in filepath:
             return MASK
-        return LABELED
+        return IMAGE
 
 if __name__ == '__main__':
     root = "./data/raw"

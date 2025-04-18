@@ -20,7 +20,6 @@ from src.sciencebowl import ScienceBowlSet
 ### Dataset sources ###
 # MEDIAR
 # https://github.com/Lee-Gihun/MEDIAR
-#asas
 ###
 
 def collect_datamap(matcher, files_by_type):
@@ -28,7 +27,7 @@ def collect_datamap(matcher, files_by_type):
     for ext in IMAGE_TYPES:
         for filepath in files_by_type[ext]:
             category = matcher.categorize(filepath)
-            if category in [MASK, SYNTHETIC]:
+            if category == IMAGE:
                 for maskpath, category in matcher.mask_filepath(filepath):
                     assoc[category][filepath] = maskpath
     return assoc
@@ -217,16 +216,16 @@ def save_clean_image(source, target):
     img.save(target)
     #cv2.imwrite(target, img)
 
-def prepare_metaframe(dataroot, target_path):
-    dataset = [ZenodoNeurIPS('/neurips'), CellposeSet("/cellpose"), OmniPoseSet("/omnipose"), LiveCellSet("/livecell"), ScienceBowlSet("/sciencebowl")]
-    data_map = dataset_frame(dataroot, dataset)
+def prepare_metaframe(dataset, target_path):
+    rawroot = dataset.dataroot + "/raw"
+    data_map = dataset_frame(rawroot, dataset.filesets)
     data_map.to_csv(target_path)
     return data_map
 
 def dataset_frame(root, matchers):
     numbers = []
     for matcher in matchers:
-        unzip_dataset(root, matcher.root + "/")
+        matcher.unpack(root)
         files_by_type = list_dataset(root, matcher.root + '/')
         assoc = collect_datamap(matcher, files_by_type)
         numbers += collect_dataset(root, assoc)
@@ -235,8 +234,9 @@ def dataset_frame(root, matchers):
     return frame.sort_index()
 
 class DataSet:
-    def __init__(self, dataroot):
+    def __init__(self, dataroot, filesets=None):
         self.dataroot = dataroot
+        self.filesets = filesets or [ZenodoNeurIPS(), CellposeSet(), OmniPoseSet(), LiveCellSet(), ScienceBowlSet()]
         self.meta_frame = self.dataroot + "/dataset.labels.csv"
         self.df = self.prepare_frame()
 
@@ -247,8 +247,7 @@ class DataSet:
         return len(self.df)
     
     def prepare_frame(self):
-        rawroot = self.dataroot + "/unify"
-        safely_process([], prepare_metaframe)(rawroot, self.meta_frame)
+        safely_process([], prepare_metaframe)(self, self.meta_frame)
         return pd.read_csv(self.meta_frame)
 
     def __iter__(self):
@@ -430,12 +429,12 @@ def check_signatures(dataroot, datasets):
     for dataset in datasets:
         files = list(dataset.enumerate(dataroot))
         print(dataset.root, ":", len(files), "files")
-        signatures = set(dataset.signature(dataroot + filepath) for filepath in tqdm(files))
+        signatures = set(dataset.signature(dataroot + filepath) for filepath, cat in tqdm(files))
         print("=", signatures)
 
 def unify_dataset(dataroot, dataset):
     files = list(dataset.enumerate(dataroot + "/raw"))
-    for filepath in tqdm(files, desc="Unifying dataset " + dataset.root):
+    for filepath, cat in tqdm(files, desc="Unifying dataset " + dataset.root):
         folder, name, ext = split_filepath(filepath)
         source = dataroot + "/raw" + filepath
         target_type = ext #".tiff" if dataset.categorize(filepath) == MASK else ".png"
@@ -480,9 +479,10 @@ def unify_load(dataset, filepath):
 
 if __name__ == "__main__":
     dataroot = "./data"
-    datasets = [ZenodoNeurIPS(), CellposeSet(), OmniPoseSet(), LiveCellSet(), ScienceBowlSet()]
+    datasets = [ZenodoNeurIPS()]#, CellposeSet(), OmniPoseSet(), LiveCellSet(), ScienceBowlSet()]
     for dataset in datasets:
         dataset.unpack(dataroot + "/raw")
+        unify_dataset(dataroot, dataset)
     #check_signatures(dataroot + "/raw", datasets[0:1])
 
     #image = load_image("./data/unify/neurips/Testing/Hidden/osilab_seg/TestHidden_379_label.tiff")
@@ -495,20 +495,15 @@ if __name__ == "__main__":
     #print(np.dtype('<u2') == np.uint16)
     #print(mask_frame(image))
 
-    unify_dataset(dataroot, datasets[0])
-    unify_dataset(dataroot, datasets[1])
-    unify_dataset(dataroot, datasets[2])
-    unify_dataset(dataroot, datasets[3])
-
-if False: #__name__ == "__main__":
+if False and __name__ == "__main__":
     dataset = DataSet("./data")
     for sample in tqdm(dataset, desc="Preparing metadata frames"):
         sample.prepare_frame()
-        sanity_check(dataset, sample)
+        #sanity_check(dataset, sample)
         # Also save human-readable mask images, for debugging
-        safely_process([], save_clean_image)(sample.raw_image, sample.clean_image)
-        safely_process([], save_bw_mask)(sample.raw_mask, sample.bw_mask)
-        safely_process([], save_gray_mask)(sample.raw_mask, sample.gray_mask)
+        #safely_process([], save_clean_image)(sample.raw_image, sample.clean_image)
+        #safely_process([], save_bw_mask)(sample.raw_mask, sample.bw_mask)
+        #safely_process([], save_gray_mask)(sample.raw_mask, sample.gray_mask)
 
 """
 /neurips : 3158 files

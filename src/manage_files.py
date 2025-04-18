@@ -16,9 +16,8 @@ IMAGE_TYPES = VISIBLE_TYPES + TENSOR_TYPES
 MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py", ".json", ""]
 FILE_TYPES = IMAGE_TYPES + MISC_TYPES
 
-LABELED = 'Labeled'
+IMAGE = 'Image'
 MASK = 'Mask'
-UNLABELED = 'Unlabeled'
 SYNTHETIC = 'Synthetic'
 
 class BaseFileSet:
@@ -43,13 +42,15 @@ class BaseFileSet:
                 continue
             if self.blacklist(filepath):
                 continue
-            yield filepath
+            category = self.categorize(filepath)
+            if category:
+                yield filepath, category
     
     def mask_filepath(self, filepath):
         return []
     
     def categorize(self, filepath):
-        return UNLABELED
+        return None
     
     def load(self, filepath):
         return load_image(filepath)
@@ -93,7 +94,7 @@ def unzip_datafile(root, filepath, needs_offset=[]):
         if not os.path.exists(root + unzipped):
             print("!WARNING! Archive did not produce folder: ", root + unzipped)
         elif os.path.isdir(root + unzipped):
-                unzip_dataset(root, unzipped, needs_offset)
+            unzip_dataset(root, unzipped + "/", needs_offset)
         else:
             unzip_datafile(root, unzipped, needs_offset)
 

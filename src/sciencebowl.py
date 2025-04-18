@@ -29,6 +29,11 @@ class ScienceBowlSet(BaseFileSet):
         unzip_dataset(dataroot, self.root + "/", needs_offset)
         build_masks(self, dataroot)
 
+    def blacklist(self, filepath):
+        # Don't process unlabeled images for now
+        return "stage2_test_final" in filepath \
+            or "/masks" in filepath # or partial masks
+    
     def mask_filepath(self, filepath):
         if "/images" in filepath:
             folder, name, ext = split_filepath(filepath)
@@ -39,13 +44,11 @@ class ScienceBowlSet(BaseFileSet):
         if "/labels" in filepath:
             return MASK
         if "/images" in filepath:
-            return LABELED
-        if "/masks" in filepath:
-            return MASK
-        return UNLABELED
+            return IMAGE
 
 def convert_test_from_csv(csv_path, destination):
-    for image_id, masks in pd.read_csv(csv_path).groupby('ImageId'):
+    groups = list(pd.read_csv(csv_path).groupby('ImageId'))
+    for image_id, masks in tqdm(groups, desc="Processing csv labels"):
         source = destination + f"/{image_id}/images/{image_id}.png"
         target = destination + f"/labels/{image_id}.tiff"
         safely_process([], mask_builder_from_csv(masks))(source, target)
@@ -63,9 +66,6 @@ def mask_builder_from_csv(masks):
             mask = rle_decode(encoded_pixels, shape)
             # Label connected components to assign unique IDs
             labeled_mask[mask] = idx
-        if labeled_mask.max() < 256:
-            # Convert to uint8 if less than 256 labels
-            labeled_mask = labeled_mask.astype(np.uint8)
         # Save mask as TIFF
         save_image(target, labeled_mask)
     return build
@@ -84,13 +84,12 @@ def rle_decode(mask_rle, shape):
 def build_masks(dataset, dataroot):
     #convert_test_from_csv(dataroot + dataset.root + "/stage1_train_labels.csv", dataroot + dataset.root + "/stage1_train")
     convert_test_from_csv(dataroot + dataset.root + "/stage1_solution.csv", dataroot + dataset.root + "/stage1_test")
-    for filepath in dataset.enumerate(dataroot):
-        if dataset.categorize(filepath) == LABELED:
-            if "stage1_train" in filepath:
-                folder, name, ext = split_filepath(dataroot + filepath)
-                target = folder.replace(f"{name}/images", "labels") + name + ".tiff"
-                maskfolder = folder.replace("/images", "/masks")
-                safely_process([], mask_builder(maskfolder))(filepath, target)
+    train_files = [filepath for filepath, cat in dataset.enumerate(dataroot) if cat == IMAGE and "/stage1_train" in filepath]
+    for filepath in tqdm(train_files, desc="Processing mask labels"):
+        folder, name, ext = split_filepath(dataroot + filepath)
+        target = folder.replace(f"{name}/images", "labels") + name + ".tiff"
+        maskfolder = folder.replace("/images", "/masks")
+        safely_process([], mask_builder(maskfolder))(filepath, target)
 
 def mask_builder(maskfolder):
     def build(filepath, target):

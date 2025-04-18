@@ -25,8 +25,7 @@ class CellposeSet(BaseFileSet):
         if "masks" in filepath:
             return MASK
         elif "img" in filepath:
-            return LABELED
-        return UNLABELED
+            return IMAGE
     
     def blacklist(self, filepath):
         # This mask is corrupted
@@ -34,7 +33,7 @@ class CellposeSet(BaseFileSet):
     
     def load(self, filepath):
         category = self.categorize(filepath)
-        if category == LABELED:
+        if category == IMAGE:
             image = BaseFileSet.load(self, filepath)
             image = np.flip(image, axis=2) # BGR -> RGB
             channels = image.sum(axis=(0, 1))
