@@ -6,12 +6,12 @@ from src.manage_files import *
 # 
 # Raw file structure:
 # /neurips
-# ├── Testing.zip
-# ├── Training-labeled.zip
-# ├── train-unlabeled-part1.zip
-# ├── train-unlabeled-part2.zip
-# ├── Tuning.zip
-# ├── ReadMe.md
+# ├── Testing.zip                   ***
+# ├── Training-labeled.zip          ***
+# ├── train-unlabeled-part1.zip     ***
+# ├── train-unlabeled-part2.zip     ***
+# ├── Tuning.zip                    ***
+# ├── ReadMe.md                 
 # ├── /release-part1
 # ├── /Testing
 # ├── /Training-labeled

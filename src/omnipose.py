@@ -8,7 +8,7 @@ from src.manage_files import *
 # 
 # Raw file structure:
 # /omnipose
-# ├── datasets.zip
+# ├── datasets.zip         ***
 # ├── /bact_fluor
 # |   ├── /test_sorted
 # |   └── /train_sorted

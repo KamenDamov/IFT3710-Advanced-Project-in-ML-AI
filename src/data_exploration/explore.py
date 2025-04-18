@@ -458,9 +458,11 @@ def upper_bound(tensor):
 
 def sanitize(tensor, rescale):
     assert 0 <= tensor.min(), "Tensor contains negative values"
-    bits = upper_bound(tensor)
+    # Remove alpha channel if present
     if tensor.shape[-1] == 4:  # RGBA
         tensor = color.rgba2rgb(tensor)
+    # Scale back to [0, 255] if needed
+    bits = upper_bound(tensor)
     if rescale and (bits != 8):
         scaled = tensor * ((1 << 8)/(1 << bits))
         return scaled.astype('uint8')

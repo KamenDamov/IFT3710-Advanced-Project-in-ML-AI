@@ -6,9 +6,9 @@ from src.manage_files import *
 # 
 # Raw file structure:
 # /cellpose
-# ├── test.zip
-# ├── train.zip
-# ├── train_cyto2.zip
+# ├── test.zip              ***
+# ├── train.zip             ***
+# ├── train_cyto2.zip       ***
 # ├── /test
 # ├── /train
 # └── /train_cyto2

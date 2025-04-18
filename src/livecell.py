@@ -17,7 +17,7 @@ from src.manage_files import *
 # ├── livecell_coco_test.json
 # ├── livecell_coco_train.json
 # ├── livecell_coco_val.json
-# ├── images.zip
+# ├── images.zip                        ***
 # ├── /images
 # |   ├── /livecell_train_val_images
 # |   └── /livecell_test_images

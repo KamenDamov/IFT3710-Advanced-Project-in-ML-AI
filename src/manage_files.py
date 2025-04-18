@@ -60,16 +60,17 @@ def split_filepath(filepath):
     separator = '/' if (not dirpath or dirpath[-1] != '/') else ''
     return dirpath + separator, name, ext
 
-def unzip_archive(root, filepath):
+def unzip_archive(root, filepath, needs_offset=[]):
     dirpath, name, ext = split_filepath(filepath)
     print("Inspecting archive: ", filepath)
     with zipfile.ZipFile(root + filepath, 'r') as zip_ref:
         # Top level folders
-        folders = set(dirpath + zipname.split('/')[0] for zipname in zip_ref.namelist())
+        offset = (name + "/" if name in needs_offset else "")
+        folders = set(dirpath + offset + zipname.split('/')[0] for zipname in zip_ref.namelist())
         missing = [folder for folder in folders if not os.path.exists(root + folder)]
         if missing:
             print("Unzipping archive: ", missing)
-            zip_ref.extractall(root + dirpath)
+            zip_ref.extractall(root + dirpath + offset)
             return missing
         return []
 
@@ -80,21 +81,21 @@ def list_dataset(root, folder = '/'):
         files_by_type[ext].add(filepath)
     return files_by_type
 
-def unzip_dataset(root, folder):
+def unzip_dataset(root, folder, needs_offset=[]):
     for filepath in enumerate_dataset(root, folder):
-        unzip_datafile(root, filepath)
+        unzip_datafile(root, filepath, needs_offset)
 
-def unzip_datafile(root, filepath):
+def unzip_datafile(root, filepath, needs_offset=[]):
     dirpath, name, ext = split_filepath(filepath)
     if ext != ".zip":
         return
-    for unzipped in unzip_archive(root, filepath):
+    for unzipped in unzip_archive(root, filepath, needs_offset):
         if not os.path.exists(root + unzipped):
             print("!WARNING! Archive did not produce folder: ", root + unzipped)
         elif os.path.isdir(root + unzipped):
-                unzip_dataset(root, unzipped)
+                unzip_dataset(root, unzipped, needs_offset)
         else:
-            unzip_datafile(root, unzipped)
+            unzip_datafile(root, unzipped, needs_offset)
 
 def enumerate_dataset(root, folder):
     #print("Enumerating folder: ", folder)
