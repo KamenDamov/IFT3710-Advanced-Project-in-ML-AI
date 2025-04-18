@@ -9,124 +9,19 @@ import colorsys
 import zipfile
 import os
 import cv2
+
 from src.manage_files import *
+from src.neurips import ZenodoNeurIPS
+from src.cellpose import CellposeSet
+from src.omnipose import OmniPoseSet
 from src.livecell import LiveCellSet
+from src.sciencebowl import ScienceBowlSet
 
 ### Dataset sources ###
 # MEDIAR
 # https://github.com/Lee-Gihun/MEDIAR
-#
-# NeurIPS Competition
-# https://zenodo.org/records/10719375
-# 
-# OmniPose
-# https://github.com/kevinjohncutler/omnipose
-# https://www.nature.com/articles/s41592-022-01639-4#data-availability
-# https://osf.io/xmury/files/osfstorage
-# 
-# CellPose
-# https://www.cellpose.org/dataset
-# 
-# DataScienceBowl
-# https://www.kaggle.com/competitions/data-science-bowl-2018/data
-#
+#asas
 ###
-
-class ScienceBowlSet(BaseFileSet):
-    def mask_filepath(self, filepath):
-        if "/images" in filepath:
-            yield (filepath.replace("/images", "/labels"), MASK)
-    
-    def categorize(self, filepath):
-        if "/masks" in filepath:
-            return MASK
-        if "/images" in filepath:
-            return LABELED
-        return UNLABELED
-
-class OmniPoseSet(BaseFileSet):
-    def blacklist(self, filepath):
-        return ("/worm" in filepath) \
-            or ("_flows" in filepath)
-    
-    def mask_filepath(self, filepath):
-        folder, name, ext = split_filepath(filepath)
-        yield (folder + name + "_masks" + ext), MASK
-    
-    def categorize(self, filepath):
-        if "_masks" in filepath:
-            return MASK
-        return LABELED
-
-class CellposeSet(BaseFileSet):
-    def mask_filepath(self, filepath):
-        if ("img" in filepath):
-            yield filepath.replace("img", "masks"), MASK
-    
-    def categorize(self, filepath):
-        if "masks" in filepath:
-            return MASK
-        elif "img" in filepath:
-            return LABELED
-        return UNLABELED
-    
-    def blacklist(self, filepath):
-        # This mask is corrupted
-        return "train_cyto2/758" in filepath
-    
-    def load(self, filepath):
-        category = self.categorize(filepath)
-        if category == LABELED:
-            image = BaseFileSet.load(self, filepath)
-            image = np.flip(image, axis=2) # BGR -> RGB
-            channels = image.sum(axis=(0, 1))
-            # The Cellpose dataset contains grayscale images that are green-coded
-            if channels.sum() == channels[1]:
-                return image.sum(axis=2)
-            return image
-        if category == MASK:
-            # The Cellpose dataset contains those outliers (65535 = 2^16) as background for some reason
-            mask = BaseFileSet.load(self, filepath)
-            mask[mask == (2 ** 16 - 1)] = 0
-            return mask
-
-class ZenodoNeurIPS(BaseFileSet):
-    def blacklist(self, filepath):
-        # Don't process unlabeled images for now
-        return "release-part1" in filepath \
-            or "train-unlabeled-part2" in filepath \
-            or "unlabeled_cell_00504" in filepath # File is cut off
-
-    def label_patterns(self, category):
-        if category == MASK:
-            yield ("/Public/images/", "/Public/labels/")
-            yield ("/Public/WSI/", "/Public/WSI-labels/")
-            yield ("/Training-labeled/images/", "/Training-labeled/labels/")
-            yield ("/Tuning/images/", "/Tuning/labels/")
-        if category == SYNTHETIC:
-            yield ("/Hidden/images/", "/Hidden/osilab_seg/")
-            yield ("/Public/images/", "/Public/1st_osilab_seg/")
-            yield ("/Public/WSI/", "/Public/osilab_seg_WSI/")
-
-    def mask_filepath(self, filepath):
-        folder, name, ext = split_filepath(filepath)
-        for folder, category in self.mask_folder(folder):
-            yield (folder + name + "_label.tiff"), category
-
-    def mask_folder(self, folder):
-        for category in [MASK, SYNTHETIC]:
-            for (img, mask) in self.label_patterns(category):
-                if img in folder:
-                    yield folder.replace(img, mask), category
-    
-    def categorize(self, dirpath):
-        for category in [MASK, SYNTHETIC]:
-            for (img, mask) in self.label_patterns(category):
-                if mask in dirpath:
-                    return category
-                elif img in dirpath:
-                    return LABELED
-        return UNLABELED
 
 def collect_datamap(matcher, files_by_type):
     assoc = {MASK:{}, SYNTHETIC:{}}
@@ -583,8 +478,9 @@ def unify_load(dataset, filepath):
 
 if __name__ == "__main__":
     dataroot = "./data"
-    datasets = [ZenodoNeurIPS("/neurips"), CellposeSet("/cellpose"), OmniPoseSet("/omnipose"), LiveCellSet(), ScienceBowlSet("/sciencebowl")]
-    #unzip_dataset(dataroot, "/raw/")
+    datasets = [ZenodoNeurIPS(), CellposeSet(), OmniPoseSet(), LiveCellSet(), ScienceBowlSet()]
+    for dataset in datasets:
+        dataset.unpack(dataroot + "/raw")
     #check_signatures(dataroot + "/raw", datasets[0:1])
 
     #image = load_image("./data/unify/neurips/Testing/Hidden/osilab_seg/TestHidden_379_label.tiff")

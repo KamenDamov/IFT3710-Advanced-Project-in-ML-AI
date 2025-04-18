@@ -7,7 +7,7 @@ from tqdm import tqdm
 from src.manage_files import *
 
 ###
-# Download LiveCell dataset from:
+# Download the LiveCell dataset from:
 # https://github.com/sartorius-research/LIVECell
 # http://livecell-dataset.s3.eu-central-1.amazonaws.com/LIVECell_dataset_2021/images.zip
 # -- NOT -- https://www.kaggle.com/competitions/sartorius-cell-instance-segmentation/data
