@@ -17,3 +17,4 @@ imagecodecs
 wandb
 numpy
 segmentation-models-pytorch
+pycocotools

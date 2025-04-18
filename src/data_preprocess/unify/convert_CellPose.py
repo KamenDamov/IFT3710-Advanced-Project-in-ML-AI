@@ -6,7 +6,7 @@ from skimage import io, color
 from glob import glob
 from tqdm import tqdm
 
-def main(root, destination):
+def main(shapes, root, destination):
     # Define paths
     image_output_dir = os.path.join(destination, "images")
     mask_output_dir = os.path.join(destination, "labels")
@@ -51,14 +51,18 @@ def main(root, destination):
     print("Cellpose dataset conversion complete!")
 
 if __name__ == '__main__':
+    shapes = set()
     root = "./data/raw/cellpose/train"
     destination = "./data/unify/cellpose/train"
-    main(root, destination)
+    main(shapes, root, destination)
+    print(shapes)
 
     root = "./data/raw/cellpose/train_cyto2"
     destination = "./data/unify/cellpose/train_cyto2"
-    main(root, destination)
+    main(shapes, root, destination)
+    print(shapes)
 
     root = "./data/raw/cellpose/test"
     destination = "./data/unify/cellpose/test"
-    main(root, destination)
+    main(shapes, root, destination)
+    print(shapes)

@@ -57,7 +57,7 @@ def unzip_archive(root, filepath):
     print("Inspecting archive: ", filepath)
     with zipfile.ZipFile(root + filepath, 'r') as zip_ref:
         # Top level folders
-        folders = [dirpath + zipname for zipname in zip_ref.namelist() if '/' not in zipname[:-1]]
+        folders = set(dirpath + zipname.split('/')[0] for zipname in zip_ref.namelist())
         missing = [folder for folder in folders if not os.path.exists(root + folder)]
         if missing:
             print("Unzipping archive: ", missing)
@@ -89,7 +89,7 @@ def unzip_datafile(root, filepath):
             unzip_datafile(root, unzipped)
 
 def enumerate_dataset(root, folder):
-    print("Enumerating folder: ", folder)
+    #print("Enumerating folder: ", folder)
     for filename in os.listdir(root + folder):
         filepath = folder + filename
         yield filepath
@@ -98,9 +98,61 @@ def enumerate_dataset(root, folder):
             for fullpath in enumerate_dataset(root, filepath + "/"):
                 yield fullpath
 
-class LiveCellSet:
+class BaseFileSet:
     def __init__(self, root):
         self.root = root
+
+    def blacklist(self, filepath):
+        return False
+    
+    def signature(self, filepath):
+        (dims, channels, type) = tensor_signature(self.load(filepath))
+        category = self.categorize(filepath)
+        return (dims, channels, type, category)
+    
+    def enumerate(self, folder):
+        for filepath in enumerate_dataset(folder, self.root + "/"):
+            dirpath, name, ext = split_filepath(filepath)
+            if ext not in IMAGE_TYPES:
+                continue
+            if self.blacklist(filepath):
+                continue
+            yield filepath
+    
+    def mask_filepath(self, filepath):
+        return []
+    
+    def categorize(self, filepath):
+        return UNLABELED
+    
+    def upper_bound(self, tensor):
+        max = tensor.max()
+        for bytes in [0, 1, 2, 4, 8]:
+            bits = bytes << 3
+            bound = 1 << bits
+            if max < bound:
+                return bits, bound
+    
+    def sanitize(self, tensor, rescale):
+        assert 0 <= tensor.min(), "Tensor contains negative values"
+        bits, bound = self.upper_bound(tensor)
+        if rescale:
+            scaled = tensor / bound * (1 << 8)
+            return scaled.astype('uint8')
+        return tensor.astype('uint' + str(bits))
+    
+    def load(self, filepath):
+        image = load_image(filepath)
+        category = self.categorize(filepath)
+        rescale = category in [MASK, SYNTHETIC]
+        return self.sanitize(image, rescale)
+
+class LiveCellSet(BaseFileSet):
+    def __init__(self, root):
+        self.root = root
+    
+    def blacklist(self, filepath):
+        return "/LIVECell_dataset_2021" not in filepath
     
     def mask_filepath(self, filepath):
         if "/images" in filepath:
@@ -113,7 +165,7 @@ class LiveCellSet:
             return LABELED
         return UNLABELED
 
-class ScienceBowlSet:
+class ScienceBowlSet(BaseFileSet):
     def __init__(self, root):
         self.root = root
     
@@ -128,20 +180,24 @@ class ScienceBowlSet:
             return LABELED
         return UNLABELED
 
-class OmniPoseSet:
+class OmniPoseSet(BaseFileSet):
     def __init__(self, root):
         self.root = root
+    
+    def blacklist(self, filepath):
+        return ("/worm" in filepath) \
+            or ("_flows" in filepath)
     
     def mask_filepath(self, filepath):
         folder, name, ext = split_filepath(filepath)
         yield (folder + name + "_masks" + ext), LABELED
     
     def categorize(self, filepath):
-        if "masks" in filepath:
+        if "_masks" in filepath:
             return MASK
         return LABELED
 
-class CellposeSet:
+class CellposeSet(BaseFileSet):
     def __init__(self, root):
         self.root = root
     
@@ -155,24 +211,33 @@ class CellposeSet:
         elif "img" in filepath:
             return LABELED
         return UNLABELED
-
+    
+    def blacklist(self, filepath):
+        return "train_cyto2/758" in filepath
+    
     def load(self, filepath):
         if "img" in filepath:
-            image = io.imread(filepath)
-            if image.shape[-1] == 4:  # RGBA
-                image = color.rgba2rgb(image)
-                image = (image * 255).astype(np.uint8)
-            elif image.dtype == np.uint16:  # Convert 16-bit grayscale to 8-bit
-                image = (image / 256).astype(np.uint8)
+            image = load_image(filepath)
+            image = np.flip(image, axis=2) # BGR -> RGB
+            channels = image.sum(axis=(0, 1))
+            # The Cellpose dataset contains grayscale images that are green-coded
+            if channels.sum() == channels[1]:
+                return image.sum(axis=2)
             return image
         if "masks" in filepath:
-            mask = io.imread(filepath)
+            # The Cellpose dataset contains those outliers (65535) as background for some reason
+            mask = load_image(filepath)
             mask[mask == (2 ** 16 - 1)] = 0
             return mask
 
-class ZenodoNeurIPS:
+class ZenodoNeurIPS(BaseFileSet):
     def __init__(self, root):
         self.root = root
+    
+    def blacklist(self, filepath):
+        return "unlabeled_cell_00504" in filepath \
+            or "release-part1" in filepath \
+            or "train-unlabeled-part2" in filepath
 
     def label_patterns(self, category):
         if category == LABELED:
@@ -426,8 +491,15 @@ def load_image(img_path):
     elif ext in VISIBLE_TYPES:
         return io.imread(img_path)
 
+def save_image(img_path, image):
+    dirpath, name, ext = split_filepath(img_path)
+    if ext in TENSOR_TYPES:
+        return tif.imwrite(img_path, image)
+    elif ext in VISIBLE_TYPES:
+        return io.imsave(img_path, image, check_contrast=False)
+
 def prepare_metaframe(dataroot, target_path):
-    dataset = [ZenodoNeurIPS('/neurips'), CellposeSet("/cellpose")]
+    dataset = [ZenodoNeurIPS('/neurips'), CellposeSet("/cellpose"), OmniPoseSet("/omnipose"), LiveCellSet("/livecell"), ScienceBowlSet("/sciencebowl")]
     data_map = dataset_frame(dataroot, dataset)
     data_map.to_csv(target_path)
     return data_map
@@ -456,7 +528,7 @@ class DataSet:
         return len(self.df)
     
     def prepare_frame(self):
-        rawroot = self.dataroot + "/raw"
+        rawroot = self.dataroot + "/unify"
         safely_process([], prepare_metaframe)(rawroot, self.meta_frame)
         return pd.read_csv(self.meta_frame)
 
@@ -476,7 +548,7 @@ class DataSet:
     def load_raw(self, filepath):
         if "cellpose" in filepath and "img" in filepath:
             tensor = load_image(filepath)
-            tensor = np.flip(tensor, axis=2)
+            tensor = np.flip(tensor, axis=2) # BGR -> RGB
             channels = tensor.sum(axis=(0, 1))
             # The Cellpose dataset contains grayscale images that are green-coded
             if channels.sum() == channels[1]:
@@ -649,7 +721,49 @@ def sanity_check_box(width, height, bdf):
     assert 0 <= bdf['Top'] <= height
     assert 0 <= bdf['Bottom'] <= height
 
+def tensor_signature(tensor):
+    dims = len(tensor.shape)
+    channels = 1 if dims < 3 else tensor.shape[-1]
+    return (dims, channels, tensor.dtype)
+
+# TODO: Investigate float64 tensors in neurips
+def check_signatures(dataroot, datasets):
+    for dataset in datasets:
+        files = list(dataset.enumerate(dataroot))
+        print(dataset.root, ":", len(files), "files")
+        signatures = set(dataset.signature(dataroot + filepath) for filepath in tqdm(files))
+        print("=", signatures)
+
+def unify_dataset(dataroot, dataset):
+    files = list(dataset.enumerate(dataroot + "/raw"))
+    for filepath in tqdm(files, desc="Unifying dataset " + dataset.root):
+        folder, name, ext = split_filepath(filepath)
+        source = dataroot + "/raw" + filepath
+        target_type = ".tiff" if dataset.categorize(filepath) == MASK else ".png"
+        target = dataroot + "/unify" + folder + name + target_type
+        safely_process([], unify_file(dataset))(source, target)
+
+def unify_file(dataset):
+    # The dataset knows how to standardize its own image files
+    def unify(source, target):
+        mask = dataset.load(source)
+        save_image(target, mask)
+    return unify
+
 if __name__ == "__main__":
+    dataroot = "./data"
+    datasets = [ZenodoNeurIPS("/neurips"), CellposeSet("/cellpose"), OmniPoseSet("/omnipose"), LiveCellSet("/livecell"), ScienceBowlSet("/sciencebowl")]
+    #unzip_dataset(dataroot, "/raw/")
+    check_signatures(dataroot + "/raw", datasets[0:1])
+
+    #image = load_image("./data/raw/neurips/Training-labeled/images/cell_00315.tiff")
+    #print(image.shape, image.dtype, image.min(), image.max())
+    #print(np.dtype('<u2') == np.uint16)
+    #print(mask_frame(image))
+    #unify_dataset(dataroot, datasets[0])
+    #unify_dataset(dataroot, datasets[1])
+
+if False: #__name__ == "__main__":
     dataset = DataSet("./data")
     for sample in tqdm(dataset, desc="Preparing metadata frames"):
         sample.prepare_frame()
@@ -658,3 +772,16 @@ if __name__ == "__main__":
         safely_process([], save_clean_image)(sample.raw_image, sample.clean_image)
         safely_process([], save_bw_mask)(sample.raw_mask, sample.bw_mask)
         safely_process([], save_gray_mask)(sample.raw_mask, sample.gray_mask)
+
+"""
+/neurips : 3158 files
+= {(3, 3, dtype('uint8'), 'Labeled'), (2, 1, dtype('<u2'), 'Labeled'), (2, 1, dtype('int32'), 'Labeled'), (2, 1, dtype('float64'), 'Labeled'), (3, 3, dtype('uint16'), 'Labeled'), (2, 1, dtype('uint32'), 'Mask'), (2, 1, dtype('uint8'), 'Synthetic'), (2, 1, dtype('<u2'), 'Synthetic'), (2, 1, dtype('uint16'), 'Mask'), (3, 3, dtype('uint8'), 'Synthetic'), (2, 1, dtype('int32'), 'Mask'), (2, 1, dtype('uint8'), 'Labeled')}
+/cellpose : 1726 files
+= {(2, 1, dtype('uint16'), 'Mask'), (2, 1, dtype('uint32'), 'Labeled'), (3, 3, dtype('uint8'), 'Labeled')}
+/omnipose : 1230 files
+= {(2, 1, dtype('int8'), 'Mask'), (2, 1, dtype('uint16'), 'Mask'), (2, 1, dtype('uint16'), 'Labeled'), (2, 1, dtype('int16'), 'Mask')}
+/livecell : 5848 files
+= {(2, 1, dtype('uint8'), 'Labeled')}
+/sciencebowl : 33215 files
+= {(3, 4, dtype('uint8'), 'Labeled'), (2, 1, dtype('uint8'), 'Mask'), (3, 3, dtype('uint8'), 'Labeled'), (2, 1, dtype('uint16'), 'Labeled')}      
+"""
