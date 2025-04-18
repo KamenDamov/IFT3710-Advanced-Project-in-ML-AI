@@ -5,8 +5,11 @@ IF NOT EXIST "./data" (
     exit /b 1
 )
 
-echo Collect metadata from training set
-python -m src.data_exploration.explore
+echo Unpack raw training set files
+python -m src.datasets
+
+echo Clean up format of image and mask files
+python -m src.data_preprocess.unify.unify
 
 echo Normalization
 python -m src.data_preprocess.normalization

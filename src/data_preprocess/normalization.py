@@ -6,6 +6,7 @@ import pandas as pd
 import argparse
 import os
 from src.data_exploration import explore
+from src.manage_files import *
 
 join = os.path.join
 
@@ -47,13 +48,13 @@ def create_interior_map(inst_map):
     return interior
 
 def normalize_mask(mask_path, target_path):
-    gt_data = explore.DataSet.load_raw(None, mask_path)
+    gt_data = load_image(mask_path)
     # conver instance bask to three-class mask: interior, boundary
     interior_map = create_interior_map(gt_data.astype(np.int16))
     io.imsave(target_path, interior_map.astype(np.uint8), check_contrast=False)
 
 def normalize_image(img_path, target_path):
-    img_data = explore.DataSet.load_raw(None, img_path)
+    img_data = load_image(img_path)
 
     # normalize image data
     if len(img_data.shape) == 2:

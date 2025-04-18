@@ -33,11 +33,11 @@ class LiveCellSet(BaseFileSet):
     def unpack(self, dataroot):
         super().unpack(dataroot)
         build_masks(dataroot + self.root)
-    
+        
     def mask_filepath(self, filepath):
         if "/images" in filepath:
             folder, name, ext = split_filepath(filepath)
-            maskpath = folder.replace("/images", "/labels") + name + "_label.tiff"
+            maskpath = folder.replace("/images", "/labels") + name + "_mask.tiff"
             yield (maskpath, MASK)
 
     def categorize(self, filepath):
@@ -97,3 +97,4 @@ if __name__ == '__main__':
     root = "./data/raw"
     dataset = LiveCellSet()
     dataset.unpack(root)
+    dataset.crosscheck(root)

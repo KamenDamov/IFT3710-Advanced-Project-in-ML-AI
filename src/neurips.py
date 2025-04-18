@@ -64,3 +64,4 @@ if __name__ == '__main__':
     root = "./data/raw"
     dataset = ZenodoNeurIPS()
     dataset.unpack(root)
+    dataset.crosscheck(root)

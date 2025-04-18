@@ -10,7 +10,7 @@ import zipfile
 import os
 import cv2
 
-VISIBLE_TYPES = [".bmp", ".png"] # + [".jpg", ".jpeg"]
+VISIBLE_TYPES = [".bmp", ".png", ".jpg", ".jpeg"]
 TENSOR_TYPES = [".tif", ".tiff"]
 IMAGE_TYPES = VISIBLE_TYPES + TENSOR_TYPES
 MISC_TYPES = [".md", ".zip", ".txt", ".csv", ".py", ".json", ""]
@@ -24,6 +24,19 @@ class BaseFileSet:
     def __init__(self, root):
         self.root = root
 
+    def crosscheck(self, dataroot):
+        for filepath, category in self.enumerate(dataroot):
+            if category is None:
+                print("Unknown category:", filepath)
+            if category != IMAGE:
+                continue
+            for maskpath, type in self.mask_filepath(filepath):
+                if not os.path.exists(dataroot + maskpath):
+                    print("Missing", type, ":", maskpath, "from", filepath)
+                crosscat = self.categorize(maskpath)
+                if crosscat != type:
+                    print("Wrong category:", maskpath, "as", crosscat, "!=", type, "from", filepath)
+            
     def unpack(self, dataroot):
         unzip_dataset(dataroot, self.root + "/")
 
@@ -43,8 +56,7 @@ class BaseFileSet:
             if self.blacklist(filepath):
                 continue
             category = self.categorize(filepath)
-            if category:
-                yield filepath, category
+            yield filepath, category
     
     def mask_filepath(self, filepath):
         return []
@@ -126,6 +138,8 @@ def save_image(img_path, image):
         return tif.imwrite(img_path, image)
     elif ext in VISIBLE_TYPES:
         return io.imsave(img_path, image, check_contrast=False)
+    elif ext == ".csv":
+        return image.to_csv(img_path)
 
 def target_file(filepath, ext):
     dirpath, name, _ = split_filepath(filepath)
@@ -137,7 +151,9 @@ def safely_process(log, process, overwrite=False):
             if overwrite or not os.path.exists(target):
                 dirpath, _, _ = split_filepath(target)
                 os.makedirs(dirpath, exist_ok=True)
-                process(source, target)
+                result = process(source, target)
+                if result is not None:
+                    save_image(target, result)
         except Exception as e:
             print(e)
             log.append(source + " -> " + target)

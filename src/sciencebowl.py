@@ -31,7 +31,7 @@ class ScienceBowlSet(BaseFileSet):
 
     def blacklist(self, filepath):
         # Don't process unlabeled images for now
-        return "stage2_test_final" in filepath \
+        return "/stage2_test_final" in filepath \
             or "/masks" in filepath # or partial masks
     
     def mask_filepath(self, filepath):
@@ -106,3 +106,4 @@ if __name__ == '__main__':
     root = "./data/raw"
     dataset = ScienceBowlSet()
     dataset.unpack(root)
+    dataset.crosscheck(root)

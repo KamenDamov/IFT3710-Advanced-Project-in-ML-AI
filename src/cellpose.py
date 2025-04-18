@@ -29,7 +29,7 @@ class CellposeSet(BaseFileSet):
     
     def blacklist(self, filepath):
         # This mask is corrupted
-        return "train_cyto2/758" in filepath
+        return "/train_cyto2/758" in filepath
     
     def load(self, filepath):
         category = self.categorize(filepath)
@@ -51,3 +51,4 @@ if __name__ == '__main__':
     root = "./data/raw"
     dataset = CellposeSet()
     dataset.unpack(root)
+    dataset.crosscheck(root)
