@@ -126,30 +126,9 @@ class BaseFileSet:
     def categorize(self, filepath):
         return UNLABELED
     
-    def upper_bound(self, tensor):
-        max = tensor.max()
-        for bytes in [0, 1, 2, 4, 8]:
-            bits = bytes << 3
-            if max < (1 << bits):
-                return bits
-    
-    def sanitize(self, tensor, rescale):
-        assert 0 <= tensor.min(), "Tensor contains negative values"
-        bits = self.upper_bound(tensor)
-        if rescale and (bits != 8):
-            scaled = tensor * ((1 << 8)/(1 << bits))
-            return scaled.astype('uint8')
-        return tensor.astype('uint' + str(bits))
-    
     def load(self, filepath):
-        image = load_image(filepath)
-        category = self.categorize(filepath)
-        rescale = category not in [MASK, SYNTHETIC]
-        sanitized = self.sanitize(image, rescale)
-        if (image.dtype != sanitized.dtype):
-            self.logs.append("WARNING: " + str(image.dtype) + " -> " + str(sanitized.dtype) + ", " + filepath)
-        return sanitized
-
+        return load_image(filepath)
+    
 class LiveCellSet(BaseFileSet):
     def blacklist(self, filepath):
         return "/LIVECell_dataset_2021" not in filepath
@@ -207,7 +186,8 @@ class CellposeSet(BaseFileSet):
         return "train_cyto2/758" in filepath
     
     def load(self, filepath):
-        if "img" in filepath:
+        category = self.categorize(filepath)
+        if category == LABELED:
             image = BaseFileSet.load(self, filepath)
             image = np.flip(image, axis=2) # BGR -> RGB
             channels = image.sum(axis=(0, 1))
@@ -215,8 +195,8 @@ class CellposeSet(BaseFileSet):
             if channels.sum() == channels[1]:
                 return image.sum(axis=2)
             return image
-        if "masks" in filepath:
-            # The Cellpose dataset contains those outliers (65535) as background for some reason
+        if category == MASK:
+            # The Cellpose dataset contains those outliers (65535 = 2^16) as background for some reason
             mask = BaseFileSet.load(self, filepath)
             mask[mask == (2 ** 16 - 1)] = 0
             return mask
@@ -710,7 +690,6 @@ def tensor_signature(tensor):
     channels = 1 if dims < 3 else tensor.shape[-1]
     return (dims, channels, tensor.dtype)
 
-# TODO: Investigate float64 tensors in neurips
 def check_signatures(dataroot, datasets):
     for dataset in datasets:
         files = list(dataset.enumerate(dataroot))
@@ -723,32 +702,59 @@ def unify_dataset(dataroot, dataset):
     for filepath in tqdm(files, desc="Unifying dataset " + dataset.root):
         folder, name, ext = split_filepath(filepath)
         source = dataroot + "/raw" + filepath
-        target_type = ".tiff" if dataset.categorize(filepath) == MASK else ".png"
+        target_type = ext #".tiff" if dataset.categorize(filepath) == MASK else ".png"
         target = dataroot + "/unify" + folder + name + target_type
         safely_process([], unify_file(dataset))(source, target)
 
 def unify_file(dataset):
     # The dataset knows how to standardize its own image files
     def unify(source, target):
-        mask = dataset.load(source)
+        mask = unify_load(dataset, source)
         save_image(target, mask)
     return unify
+
+def upper_bound(tensor):
+    max = tensor.max()
+    for bytes in [0, 1, 2, 4, 8]:
+        bits = bytes << 3
+        if max < (1 << bits):
+            return bits
+
+def sanitize(tensor, rescale):
+    assert 0 <= tensor.min(), "Tensor contains negative values"
+    bits = upper_bound(tensor)
+    if rescale and (bits != 8):
+        scaled = tensor * ((1 << 8)/(1 << bits))
+        return scaled.astype('uint8')
+    return tensor.astype('uint' + str(bits))
+
+def unify_load(dataset, filepath):
+    image = dataset.load(filepath)
+    category = dataset.categorize(filepath)
+    rescale = category not in [MASK, SYNTHETIC]
+    sanitized = sanitize(image, rescale)
+    if (image.dtype != sanitized.dtype):
+        #print("WARNING: " + str(image.dtype) + " -> " + str(sanitized.dtype) + ("(rescale)" if rescale else "") + ", " + filepath)
+        pass
+    return sanitized
 
 if __name__ == "__main__":
     dataroot = "./data"
     datasets = [ZenodoNeurIPS("/neurips"), CellposeSet("/cellpose"), OmniPoseSet("/omnipose"), LiveCellSet("/livecell"), ScienceBowlSet("/sciencebowl")]
     #unzip_dataset(dataroot, "/raw/")
-    check_signatures(dataroot + "/raw", datasets[0:1])
+    #check_signatures(dataroot + "/raw", datasets[0:1])
 
+    image = load_image("./data/raw/neurips/Testing/Hidden/osilab_seg/TestHidden_379_label.tiff")
     #image = load_image("./data/raw/neurips/Tuning/labels/cell_00074_label.tiff")
-    #print(image.shape, image.dtype, image.min(), image.max())
+    print(image.shape, image.dtype, image.min(), image.max())
     #image = ZenodoNeurIPS("/neurips").load("./data/raw/neurips/Tuning/labels/cell_00074_label.tiff")
     #print(image.shape, image.dtype, image.min(), image.max())
     #image = load_image("./data/raw/neurips/Training-labeled/images/cell_00315.tiff")
     #print(image.shape, image.dtype, image.min(), image.max())
     #print(np.dtype('<u2') == np.uint16)
-    #print(mask_frame(image))
-    #unify_dataset(dataroot, datasets[0])
+    print(mask_frame(image))
+
+    unify_dataset(dataroot, datasets[0])
     #unify_dataset(dataroot, datasets[1])
 
 if False: #__name__ == "__main__":
