@@ -183,6 +183,7 @@ class CellposeSet(BaseFileSet):
         return UNLABELED
     
     def blacklist(self, filepath):
+        # This mask is corrupted
         return "train_cyto2/758" in filepath
     
     def load(self, filepath):
@@ -203,9 +204,10 @@ class CellposeSet(BaseFileSet):
 
 class ZenodoNeurIPS(BaseFileSet):
     def blacklist(self, filepath):
+        # Don't process unlabeled images for now
         return "release-part1" in filepath \
             or "train-unlabeled-part2" in filepath \
-            or "unlabeled_cell_00504" in filepath # File cut off
+            or "unlabeled_cell_00504" in filepath # File is cut off
 
     def label_patterns(self, category):
         if category == MASK:
@@ -510,21 +512,7 @@ class DataSet:
     
     # Load a well-formed tensor from the raw image
     def load_raw(self, filepath):
-        if "cellpose" in filepath and "img" in filepath:
-            tensor = load_image(filepath)
-            tensor = np.flip(tensor, axis=2) # BGR -> RGB
-            channels = tensor.sum(axis=(0, 1))
-            # The Cellpose dataset contains grayscale images that are green-coded
-            if channels.sum() == channels[1]:
-                return tensor.sum(axis=2)
-            return tensor
-        if "train_cyto2" in filepath and "masks" in filepath:
-            # The Cellpose dataset contains those outliers (65535) as background for some reason
-            tensor = load_image(filepath)
-            tensor[tensor == (2 ** 16 - 1)] = 0
-            return tensor
         return load_image(filepath)
-
 
 class DataSample:
     def __init__(self, dataroot, df):
@@ -744,18 +732,19 @@ if __name__ == "__main__":
     #unzip_dataset(dataroot, "/raw/")
     #check_signatures(dataroot + "/raw", datasets[0:1])
 
-    image = load_image("./data/raw/neurips/Testing/Hidden/osilab_seg/TestHidden_379_label.tiff")
+    #image = load_image("./data/unify/neurips/Testing/Hidden/osilab_seg/TestHidden_379_label.tiff")
     #image = load_image("./data/raw/neurips/Tuning/labels/cell_00074_label.tiff")
-    print(image.shape, image.dtype, image.min(), image.max())
+    #print(image.shape, image.dtype, image.min(), image.max())
     #image = ZenodoNeurIPS("/neurips").load("./data/raw/neurips/Tuning/labels/cell_00074_label.tiff")
     #print(image.shape, image.dtype, image.min(), image.max())
     #image = load_image("./data/raw/neurips/Training-labeled/images/cell_00315.tiff")
     #print(image.shape, image.dtype, image.min(), image.max())
     #print(np.dtype('<u2') == np.uint16)
-    print(mask_frame(image))
+    #print(mask_frame(image))
 
     unify_dataset(dataroot, datasets[0])
-    #unify_dataset(dataroot, datasets[1])
+    unify_dataset(dataroot, datasets[1])
+    unify_dataset(dataroot, datasets[2])
 
 if False: #__name__ == "__main__":
     dataset = DataSet("./data")
