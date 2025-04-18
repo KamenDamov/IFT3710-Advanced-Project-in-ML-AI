@@ -56,6 +56,10 @@ def unify_load(dataset, filepath):
 def main():
     for dataset in DataSet.filesets:
         unify_dataset("./data", dataset)
+
+    unified = DataSet("./data")
+    for sample in tqdm(unified, desc="Preparing metadata frames"):
+        sample.prepare_frame()
     
 if __name__ == '__main__':
     main()

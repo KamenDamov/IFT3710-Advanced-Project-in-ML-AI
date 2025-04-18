@@ -207,6 +207,8 @@ class DataSet:
     
     # Load a well-formed tensor from the raw image
     def load(self, filepath):
+        if '/raw/' not in filepath:
+            return load_image(filepath)
         for dataset in self.filesets:
             if dataset.root in filepath:
                 return dataset.load(filepath)
@@ -226,7 +228,7 @@ class DataSample:
         return str(self.df)
     
     def prepare_frame(self):
-        safely_process([], maskframe_builder(self))(self.raw_mask, self.meta_frame)
+        safely_process([], maskframe_builder(self.dataset))(self.raw_mask, self.meta_frame)
 
     def labels(self):
         self.prepare_frame(self)
