@@ -101,6 +101,7 @@ def enumerate_dataset(root, folder):
 class BaseFileSet:
     def __init__(self, root):
         self.root = root
+        self.logs = []
 
     def blacklist(self, filepath):
         return False
@@ -129,34 +130,33 @@ class BaseFileSet:
         max = tensor.max()
         for bytes in [0, 1, 2, 4, 8]:
             bits = bytes << 3
-            bound = 1 << bits
-            if max < bound:
-                return bits, bound
+            if max < (1 << bits):
+                return bits
     
     def sanitize(self, tensor, rescale):
         assert 0 <= tensor.min(), "Tensor contains negative values"
-        bits, bound = self.upper_bound(tensor)
-        if rescale:
-            scaled = tensor / bound * (1 << 8)
+        bits = self.upper_bound(tensor)
+        if rescale and (bits != 8):
+            scaled = tensor * ((1 << 8)/(1 << bits))
             return scaled.astype('uint8')
         return tensor.astype('uint' + str(bits))
     
     def load(self, filepath):
         image = load_image(filepath)
         category = self.categorize(filepath)
-        rescale = category in [MASK, SYNTHETIC]
-        return self.sanitize(image, rescale)
+        rescale = category not in [MASK, SYNTHETIC]
+        sanitized = self.sanitize(image, rescale)
+        if (image.dtype != sanitized.dtype):
+            self.logs.append("WARNING: " + str(image.dtype) + " -> " + str(sanitized.dtype) + ", " + filepath)
+        return sanitized
 
 class LiveCellSet(BaseFileSet):
-    def __init__(self, root):
-        self.root = root
-    
     def blacklist(self, filepath):
         return "/LIVECell_dataset_2021" not in filepath
     
     def mask_filepath(self, filepath):
         if "/images" in filepath:
-            yield (filepath.replace("/images", "/masks"), LABELED)
+            yield (filepath.replace("/images", "/masks"), MASK)
 
     def categorize(self, filepath):
         if "/masks" in filepath:
@@ -166,12 +166,9 @@ class LiveCellSet(BaseFileSet):
         return UNLABELED
 
 class ScienceBowlSet(BaseFileSet):
-    def __init__(self, root):
-        self.root = root
-    
     def mask_filepath(self, filepath):
         if "/images" in filepath:
-            yield (filepath.replace("/images", "/labels"), LABELED)
+            yield (filepath.replace("/images", "/labels"), MASK)
     
     def categorize(self, filepath):
         if "/masks" in filepath:
@@ -181,16 +178,13 @@ class ScienceBowlSet(BaseFileSet):
         return UNLABELED
 
 class OmniPoseSet(BaseFileSet):
-    def __init__(self, root):
-        self.root = root
-    
     def blacklist(self, filepath):
         return ("/worm" in filepath) \
             or ("_flows" in filepath)
     
     def mask_filepath(self, filepath):
         folder, name, ext = split_filepath(filepath)
-        yield (folder + name + "_masks" + ext), LABELED
+        yield (folder + name + "_masks" + ext), MASK
     
     def categorize(self, filepath):
         if "_masks" in filepath:
@@ -198,12 +192,9 @@ class OmniPoseSet(BaseFileSet):
         return LABELED
 
 class CellposeSet(BaseFileSet):
-    def __init__(self, root):
-        self.root = root
-    
     def mask_filepath(self, filepath):
         if ("img" in filepath):
-            yield filepath.replace("img", "masks"), LABELED
+            yield filepath.replace("img", "masks"), MASK
     
     def categorize(self, filepath):
         if "masks" in filepath:
@@ -217,7 +208,7 @@ class CellposeSet(BaseFileSet):
     
     def load(self, filepath):
         if "img" in filepath:
-            image = load_image(filepath)
+            image = BaseFileSet.load(self, filepath)
             image = np.flip(image, axis=2) # BGR -> RGB
             channels = image.sum(axis=(0, 1))
             # The Cellpose dataset contains grayscale images that are green-coded
@@ -226,21 +217,18 @@ class CellposeSet(BaseFileSet):
             return image
         if "masks" in filepath:
             # The Cellpose dataset contains those outliers (65535) as background for some reason
-            mask = load_image(filepath)
+            mask = BaseFileSet.load(self, filepath)
             mask[mask == (2 ** 16 - 1)] = 0
             return mask
 
 class ZenodoNeurIPS(BaseFileSet):
-    def __init__(self, root):
-        self.root = root
-    
     def blacklist(self, filepath):
-        return "unlabeled_cell_00504" in filepath \
-            or "release-part1" in filepath \
-            or "train-unlabeled-part2" in filepath
+        return "release-part1" in filepath \
+            or "train-unlabeled-part2" in filepath \
+            or "unlabeled_cell_00504" in filepath # File cut off
 
     def label_patterns(self, category):
-        if category == LABELED:
+        if category == MASK:
             yield ("/Public/images/", "/Public/labels/")
             yield ("/Public/WSI/", "/Public/WSI-labels/")
             yield ("/Training-labeled/images/", "/Training-labeled/labels/")
@@ -256,36 +244,32 @@ class ZenodoNeurIPS(BaseFileSet):
             yield (folder + name + "_label.tiff"), category
 
     def mask_folder(self, folder):
-        for category in [LABELED, SYNTHETIC]:
+        for category in [MASK, SYNTHETIC]:
             for (img, mask) in self.label_patterns(category):
                 if img in folder:
                     yield folder.replace(img, mask), category
     
     def categorize(self, dirpath):
-        for (img, mask) in self.label_patterns(LABELED):
-            if mask in dirpath:
-                return MASK
-            elif img in dirpath:
-                return LABELED
-        for (img, mask) in self.label_patterns(SYNTHETIC):
-            if mask in dirpath:
-                return MASK
-            elif img in dirpath:
-                return SYNTHETIC
+        for category in [MASK, SYNTHETIC]:
+            for (img, mask) in self.label_patterns(category):
+                if mask in dirpath:
+                    return category
+                elif img in dirpath:
+                    return LABELED
         return UNLABELED
 
 def collect_datamap(matcher, files_by_type):
-    assoc = {LABELED:{}, SYNTHETIC:{}}
+    assoc = {MASK:{}, SYNTHETIC:{}}
     for ext in IMAGE_TYPES:
         for filepath in files_by_type[ext]:
             category = matcher.categorize(filepath)
-            if category in [LABELED, SYNTHETIC]:
+            if category in [MASK, SYNTHETIC]:
                 for maskpath, category in matcher.mask_filepath(filepath):
                     assoc[category][filepath] = maskpath
     return assoc
 
 def collect_dataset(root, assoc):
-    for category in [LABELED, SYNTHETIC]:
+    for category in [MASK, SYNTHETIC]:
         for (imagepath, maskpath) in tqdm(assoc[category].items()):
             if not os.path.exists(root + maskpath):
                 print("Missing mask: ", root, maskpath, imagepath)
@@ -756,6 +740,10 @@ if __name__ == "__main__":
     #unzip_dataset(dataroot, "/raw/")
     check_signatures(dataroot + "/raw", datasets[0:1])
 
+    #image = load_image("./data/raw/neurips/Tuning/labels/cell_00074_label.tiff")
+    #print(image.shape, image.dtype, image.min(), image.max())
+    #image = ZenodoNeurIPS("/neurips").load("./data/raw/neurips/Tuning/labels/cell_00074_label.tiff")
+    #print(image.shape, image.dtype, image.min(), image.max())
     #image = load_image("./data/raw/neurips/Training-labeled/images/cell_00315.tiff")
     #print(image.shape, image.dtype, image.min(), image.max())
     #print(np.dtype('<u2') == np.uint16)
@@ -784,4 +772,7 @@ if False: #__name__ == "__main__":
 = {(2, 1, dtype('uint8'), 'Labeled')}
 /sciencebowl : 33215 files
 = {(3, 4, dtype('uint8'), 'Labeled'), (2, 1, dtype('uint8'), 'Mask'), (3, 3, dtype('uint8'), 'Labeled'), (2, 1, dtype('uint16'), 'Labeled')}      
+
+/neurips : 3158 files
+= {(2, 1, dtype('uint16'), 'Mask'), (3, 3, dtype('uint8'), 'Labeled'), (2, 1, dtype('uint8'), 'Mask'), (2, 1, dtype('uint8'), 'Synthetic'), (2, 1, dtype('uint32'), 'Mask'), (2, 1, dtype('uint8'), 'Labeled'), (2, 1, dtype('uint16'), 'Synthetic')}
 """
