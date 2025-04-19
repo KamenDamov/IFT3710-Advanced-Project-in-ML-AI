@@ -22,11 +22,8 @@ accel_device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def generate_dataset(dataroot):
     # Load all image paths
-    for name, df in explore.enumerate_frames(dataroot):
-        if ".labels" in name:
-            for index in range(len(df)):
-                sample = explore.DataSample(dataroot, df.iloc[index])
-                yield { "img": sample.normal_image, "label": sample.normal_mask, "meta": sample.meta_frame, "name": sample.name }
+    for sample in explore.DataSet(dataroot):
+        yield { "img": sample.normal_image, "label": sample.normal_mask, "meta": sample.meta_frame, "name": sample.name }
 
 def load_features(save_path):
     features = []

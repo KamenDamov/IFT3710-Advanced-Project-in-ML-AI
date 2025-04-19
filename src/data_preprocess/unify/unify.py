@@ -1,45 +1,65 @@
-import os
-import shutil
+from src.datasets.datasets import *
 
-def unify_folders(paths, output_folder):
-    images_output = os.path.join(output_folder, "images")
-    labels_output = os.path.join(output_folder, "labels")
-    os.makedirs(images_output, exist_ok=True)
-    os.makedirs(labels_output, exist_ok=True)
+###
+# Clean up formatting and outliers, etc.
+# Keep all the files in the same place, same name and file type
+#
+# TODO: Unify the file structure, so each DataSet class logic (categorize, blacklist, etc.) is not necessary.
+###
 
-    image_counter = 0
+def unify_dataset(dataroot, dataset):
+    files = list(dataset.enumerate(dataroot + "/raw"))
+    for filepath, cat in tqdm(files, desc="Unifying dataset " + dataset.root):
+        folder, name, ext = split_filepath(filepath)
+        source = dataroot + "/raw" + filepath
+        target_type = ext
+        #target_type = ".tiff" if cat == MASK else ".png"
+        target = dataroot + "/unify" + folder + name + target_type
+        safely_process([], unify_file(dataset))(source, target)
 
-    for path in paths:
-        images_path = os.path.join(path, "images")
-        labels_path = os.path.join(path, "labels")
+def unify_file(dataset):
+    # The dataset knows how to standardize its own image files
+    def unify(source, target):
+        mask = unify_load(dataset, source)
+        save_image(target, mask)
+    return unify
 
-        if not os.path.exists(images_path) or not os.path.exists(labels_path):
-            raise ValueError(f"Missing 'images' or 'labels' folder in {path}")
+def upper_bound(tensor):
+    max = tensor.max()
+    for bytes in [0, 1, 2, 4, 8]:
+        bits = bytes << 3
+        if max < (1 << bits):
+            return bits
 
-        for image_file in os.listdir(images_path):
-            image_counter += 1
-            label_file = os.path.splitext(image_file)[0] + ".png"
+def sanitize(tensor, rescale):
+    assert 0 <= tensor.min(), "Tensor contains negative values"
+    # Remove alpha channel if present
+    if tensor.shape[-1] == 4:  # RGBA
+        tensor = color.rgba2rgb(tensor)
+    # Scale back to [0, 255] if needed
+    bits = upper_bound(tensor)
+    if rescale and (bits != 8):
+        scaled = tensor * ((1 << 8)/(1 << bits))
+        return scaled.astype('uint8')
+    return tensor.astype('uint' + str(bits))
 
-            src_image = os.path.join(images_path, image_file)
-            src_label = os.path.join(labels_path, label_file)
-
-            if not os.path.exists(src_label):
-                raise ValueError(f"Label file {label_file} not found for image {image_file}")
-
-            dst_image = os.path.join(images_output, f"image_{image_counter:05d}.png")
-            dst_label = os.path.join(labels_output, f"image_{image_counter:05d}.png")
-
-            shutil.copy(src_image, dst_image)
-            shutil.copy(src_label, dst_label)
+def unify_load(dataset, filepath):
+    image = dataset.load(filepath)
+    category = dataset.categorize(filepath)
+    rescale = category not in [MASK, SYNTHETIC]
+    sanitized = sanitize(image, rescale)
+    if (image.dtype != sanitized.dtype):
+        #print("WARNING: " + str(image.dtype) + " -> " + str(sanitized.dtype) + ("(rescale)" if rescale else "") + ", " + filepath)
+        pass
+    return sanitized
 
 def main():
-    paths = [
-        "data\\preprocessing_outputs\\cellpose\\train\\transformed_images_labels",
-        "data\\preprocessing_outputs\\data_science_bowl\\transformed_images_labels",
-        "data\\preprocessing_outputs\\transformed_images_labels"
-    ]
-    output_folder = "data\\preprocessing_outputs\\unified_set"
-    unify_folders(paths, output_folder)
+    for dataset in DataSet.filesets:
+        unify_dataset("./data", dataset)
 
+    unified = DataSet("./data")
+    for sample in tqdm(unified, desc="Preparing metadata frames"):
+        sample.prepare_frame()
+    
 if __name__ == '__main__':
     main()

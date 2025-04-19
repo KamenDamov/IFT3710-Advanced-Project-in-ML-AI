@@ -44,19 +44,11 @@ def save_transform(transformed_img, target):
     Image.fromarray((transformed_img * 255).astype(np.uint8)).save(target)
 
 def main(dataroot):
-    samples = list(assemble_dataset(dataroot))
+    samples = explore.DataSet(dataroot)
     data_dicts = [{"img": sample.normal_image, "label": sample.normal_mask, "meta": sample.meta_frame, "name": sample.name} for sample in samples]
     dataset = Dataset(data=data_dicts, transform=smart_transforms())
     loader = DataLoader(dataset, batch_size=1, num_workers=1)
     batch_transform(samples, loader)
-
-def assemble_dataset(dataroot):
-    for name, df in explore.enumerate_frames(dataroot):
-        if ".labels" in name:
-            for index in range(len(df)):
-                sample = explore.DataSample(dataroot, df.iloc[index])
-                if ("WSI" not in sample.normal_image):
-                    yield sample
 
 def smart_transforms():
     return Compose([

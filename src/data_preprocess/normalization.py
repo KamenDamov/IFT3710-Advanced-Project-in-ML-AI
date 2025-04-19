@@ -6,6 +6,7 @@ import pandas as pd
 import argparse
 import os
 from src.data_exploration import explore
+from src.datasets.datasets import *
 
 join = os.path.join
 
@@ -70,21 +71,8 @@ def normalize_image(img_path, target_path):
     
     io.imsave(target_path, pre_img_data.astype(np.uint8), check_contrast=False)
 
-def load_image(img_path):
-    dirpath, name, ext = explore.split_filepath(img_path)
-    if ext in ['.tif', '.tiff']:
-        return tif.imread(img_path)
-    else:
-        return io.imread(img_path)
-
-def assemble_dataset(dataroot):
-    for name, df in explore.enumerate_frames(dataroot):
-        if ".labels" in name:
-            for index in range(len(df)):
-                yield explore.DataSample(dataroot, df.iloc[index])
-
 def main(dataroot):
-    dataset = list(assemble_dataset(dataroot))
+    dataset = explore.DataSet(dataroot)
 
     log = ["Failed to process images: \n"]
     for sample in tqdm(dataset, desc="Normalizing images"):
