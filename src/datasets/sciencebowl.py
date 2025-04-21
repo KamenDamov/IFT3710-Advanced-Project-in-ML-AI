@@ -53,7 +53,7 @@ class ScienceBowlSet(BaseFileSet):
 def convert_test_from_csv(csv_path, destination):
     df = pd.read_csv(csv_path)
     groups = list(df.groupby('ImageId'))
-    for image_id, masks in tqdm(groups, desc="Processing labels " + csv_path):
+    for image_id, masks in tqdm(groups, desc="Unpacking mask labels " + csv_path):
         source, target = sample_paths(destination, image_id)
         safely_process([], mask_builder_from_csv(masks))(source, target)
 
@@ -104,7 +104,7 @@ def build_masks(dataset, dataroot):
     convert_test_from_csv(dataroot + dataset.root + "/stage1_solution.csv", dataroot + dataset.root + "/stage1_test")
     convert_test_from_csv(dataroot + dataset.root + "/stage2_solution_final.csv", dataroot + dataset.root + "/stage2_test_final")
     train_files = [filepath for filepath, cat in dataset.enumerate(dataroot) if cat == IMAGE and "/stage1_train" in filepath]
-    for filepath in tqdm(train_files, desc="Processing mask labels"):
+    for filepath in tqdm(train_files, desc="Unpacking mask labels stage1_train"):
         folder, name, ext = split_filepath(dataroot + filepath)
         target = folder.replace(f"{name}/images", "labels") + name + ".tiff"
         maskfolder = folder.replace("/images", "/masks")

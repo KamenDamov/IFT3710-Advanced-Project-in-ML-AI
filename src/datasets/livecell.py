@@ -60,7 +60,7 @@ def annotation_targets(ann_file):
 
 def build_masks(root):
     for data, targets in enumerate_annotations(root):
-        for img in tqdm(data["images"], desc=f"Processing {targets}"):
+        for img in tqdm(data["images"], desc=f"Unpacking mask labels {targets}"):
             filepath, maskpath = sample_paths(root, targets, img["file_name"])
             safely_process([], mask_builder(data, img))(filepath, maskpath)
 

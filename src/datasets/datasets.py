@@ -330,5 +330,5 @@ class DataLabels:
         return self.dictbox(absbox)
 
 if __name__ == "__main__":
-    for sample in tqdm(DataSet("./data"), desc="Preparing segmentation csv frames"):
+    for sample in tqdm(DataSet("./data"), desc="Compiling segmentation csv frames"):
         sample.prepare_frame()
