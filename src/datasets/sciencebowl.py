@@ -93,7 +93,7 @@ def rle_decode(mask_rle, shape):
     shape = shape[1], shape[0]  # (width, height)
     mask = np.zeros(shape[0] * shape[1], dtype=np.bool_)
     if pd.isna(mask_rle):
-        return mask.reshape(shape)
+        return mask.reshape(shape).transpose()
     s = np.array(mask_rle.split(), dtype=int)
     starts, lengths = s[0::2] - 1, s[1::2]
     for (start, length) in zip(starts, lengths):
