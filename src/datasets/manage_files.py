@@ -25,6 +25,7 @@ class BaseFileSet:
         self.root = root
 
     def crosscheck(self, dataroot):
+        # Check if all images have a mask
         for filepath, category in self.enumerate(dataroot):
             if category is None:
                 print("Unknown category:", filepath)
@@ -33,6 +34,7 @@ class BaseFileSet:
             for maskpath, type in self.mask_filepath(filepath):
                 if not os.path.exists(dataroot + maskpath):
                     print("Missing", type, ":", maskpath, "from", filepath)
+                    raise FileNotFoundError("Missing file: " + maskpath)
                 crosscat = self.categorize(maskpath)
                 if crosscat != type:
                     print("Wrong category:", maskpath, "as", crosscat, "!=", type, "from", filepath)
@@ -86,13 +88,6 @@ def unzip_archive(root, filepath, needs_offset=[]):
             zip_ref.extractall(root + dirpath + offset)
             return missing
         return []
-
-def list_dataset(root, folder = '/'):
-    files_by_type = {type:set() for type in FILE_TYPES}
-    for filepath in enumerate_dataset(root, folder):
-        dirpath, name, ext = split_filepath(filepath)
-        files_by_type[ext].add(filepath)
-    return files_by_type
 
 def unzip_dataset(root, folder, needs_offset=[]):
     for filepath in enumerate_dataset(root, folder):

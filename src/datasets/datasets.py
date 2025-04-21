@@ -11,28 +11,6 @@ from .sciencebowl import ScienceBowlSet
 # https://github.com/Lee-Gihun/MEDIAR
 ###
 
-def collect_datamap(matcher, files_by_type):
-    assoc = {MASK:{}, SYNTHETIC:{}}
-    for ext in IMAGE_TYPES:
-        for filepath in files_by_type[ext]:
-            category = matcher.categorize(filepath)
-            if category == IMAGE:
-                for maskpath, category in matcher.mask_filepath(filepath):
-                    assoc[category][filepath] = maskpath
-    return assoc
-
-def collect_dataset(matcher, root, assoc):
-    for category in [MASK, SYNTHETIC]:
-        for (imagepath, maskpath) in tqdm(assoc[category].items()):
-            if not os.path.exists(root + maskpath):
-                print("Missing mask: ", root, maskpath, imagepath)
-            # Get global statistics
-            imgT = matcher.load(root + maskpath)
-            background = (imgT == 0).sum()
-            num_objects = imgT.max()
-            synthetic = (category == SYNTHETIC)
-            yield {"Path":imagepath, "Mask":maskpath, "Synthetic": synthetic, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": num_objects, "Background": background}
-
 def merge_lists(compare, merge, listA, listB):
     merged = [0] * (len(listA) + len(listB))
     indexM, indexA, indexB = 0, 0, 0
@@ -160,19 +138,35 @@ def maskframe_builder(dataset):
     return save_maskframe
 
 def prepare_metaframe(dataset, target_path):
-    rawroot = dataset.dataroot + "/unify"
+    rawroot = dataset.dataroot + "/raw"
     data_map = dataset_frame(rawroot, dataset.filesets)
     data_map.to_csv(target_path)
 
 def dataset_frame(root, matchers):
     numbers = []
     for matcher in matchers:
-        files_by_type = list_dataset(root, matcher.root + '/')
-        assoc = collect_datamap(matcher, files_by_type)
-        numbers += collect_dataset(matcher, root, assoc)
+        matcher.unpack(root)
+        matcher.crosscheck(root)
+    for matcher in matchers:
+        numbers += collect_dataset(root, matcher)
     frame = pd.DataFrame(numbers, columns = ["Path", "Mask", "Width", "Height", "Objects", "Background", "Synthetic"])
     frame = frame.set_index("Path")
     return frame.sort_index()
+
+def collect_dataset(root, matcher):
+    files = list(matcher.enumerate(root))
+    for imagepath, category in tqdm(files, desc="Compiling dataset csv " + matcher.root):
+        if category == IMAGE:
+            for maskpath, category in matcher.mask_filepath(imagepath):
+                imgT = matcher.load(root + imagepath)
+                yield build_metarow(imagepath, maskpath, category, imgT)
+
+def build_metarow(imagepath, maskpath, category, imgT):
+    # Get global statistics
+    background = (imgT == 0).sum()
+    num_objects = imgT.max()
+    synthetic = (category == SYNTHETIC)
+    return {"Path":imagepath, "Mask":maskpath, "Synthetic": synthetic, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": num_objects, "Background": background}
 
 class DataSet:
     filesets = [ZenodoNeurIPS(), CellposeSet(), OmniPoseSet(), LiveCellSet(), ScienceBowlSet()]
@@ -202,8 +196,7 @@ class DataSet:
 
     def blacklist(self, sample):
         return sample.df["Synthetic"] \
-            or ("train_cyto2/758" in sample.df["Path"]) \
-            or ("WSI" in sample.df["Path"])
+            or ("WSI" in sample.df["Path"]) # Large images
     
     # Load a well-formed tensor from the raw image
     def load(self, filepath):
@@ -235,9 +228,12 @@ class DataSample:
         return DataLabels(self.meta_frame)
     
     def init_paths(self, image_path, mask_path):
-        self.raw_image = self.dataroot + "/unify" + image_path
-        self.raw_mask = self.dataroot + "/unify" + mask_path
-        self.meta_frame = self.dataroot + "/unify" + target_file(mask_path, ".csv")
+        self.raw_image = self.dataroot + "/raw" + image_path
+        self.raw_mask = self.dataroot + "/raw" + mask_path
+        # WARN: These paths could conflict if we enable synthetic masks
+        self.image = self.dataroot + "/unify" + target_file(image_path, ".png")
+        self.mask = self.dataroot + "/unify" + target_file(image_path, ".tiff")
+        self.meta_frame = self.dataroot + "/unify" + target_file(image_path, ".csv")
         self.clean_image = self.dataroot + "/processed" + target_file(image_path, ".png")
         self.bw_mask = self.dataroot + "/processed" + target_file(mask_path, ".bin.png")
         self.gray_mask = self.dataroot + "/processed" + target_file(mask_path, ".gray.png")
@@ -334,7 +330,5 @@ class DataLabels:
         return self.dictbox(absbox)
 
 if __name__ == "__main__":
-    dataroot = "./data/raw"
-    for dataset in DataSet.filesets:
-        dataset.unpack(dataroot)
-        dataset.crosscheck(dataroot)
+    for sample in DataSet("./data"):
+        sample.prepare_frame()

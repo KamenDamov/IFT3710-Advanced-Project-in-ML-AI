@@ -7,23 +7,6 @@ from src.datasets.datasets import *
 # TODO: Unify the file structure, so each DataSet class logic (categorize, blacklist, etc.) is not necessary.
 ###
 
-def unify_dataset(dataroot, dataset):
-    files = list(dataset.enumerate(dataroot + "/raw"))
-    for filepath, cat in tqdm(files, desc="Unifying dataset " + dataset.root):
-        folder, name, ext = split_filepath(filepath)
-        source = dataroot + "/raw" + filepath
-        target_type = ext
-        #target_type = ".tiff" if cat == MASK else ".png"
-        target = dataroot + "/unify" + folder + name + target_type
-        safely_process([], unify_file(dataset))(source, target)
-
-def unify_file(dataset):
-    # The dataset knows how to standardize its own image files
-    def unify(source, target):
-        mask = unify_load(dataset, source)
-        save_image(target, mask)
-    return unify
-
 def upper_bound(tensor):
     max = tensor.max()
     for bytes in [0, 1, 2, 4, 8]:
@@ -43,9 +26,8 @@ def sanitize(tensor, rescale):
         return scaled.astype('uint8')
     return tensor.astype('uint' + str(bits))
 
-def unify_load(dataset, filepath):
+def load_sanitized(dataset, filepath, category):
     image = dataset.load(filepath)
-    category = dataset.categorize(filepath)
     rescale = category not in [MASK, SYNTHETIC]
     sanitized = sanitize(image, rescale)
     if (image.dtype != sanitized.dtype):
@@ -53,13 +35,18 @@ def unify_load(dataset, filepath):
         pass
     return sanitized
 
-def main():
-    for dataset in DataSet.filesets:
-        unify_dataset("./data", dataset)
+def unify_file(dataset, category):
+    # The dataset knows how to standardize its own image files
+    def unify(source, target):
+        mask = load_sanitized(dataset, source, category)
+        save_image(target, mask)
+    return unify
 
-    unified = DataSet("./data")
-    for sample in tqdm(unified, desc="Preparing metadata frames"):
-        sample.prepare_frame()
+def main():
+    dataset = DataSet("./data")
+    for sample in tqdm(dataset, desc="Unifying datasets"):
+        safely_process([], unify_file(dataset, IMAGE))(sample.raw_image, sample.image)
+        safely_process([], unify_file(dataset, MASK))(sample.raw_mask, sample.mask)
     
 if __name__ == '__main__':
     main()

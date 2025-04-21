@@ -47,6 +47,8 @@ class ScienceBowlSet(BaseFileSet):
             return MASK
         if "/images" in filepath:
             return IMAGE
+        if "/ignored" in filepath:
+            return IMAGE
 
 def convert_test_from_csv(csv_path, destination):
     df = pd.read_csv(csv_path)
