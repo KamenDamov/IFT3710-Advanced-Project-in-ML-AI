@@ -33,7 +33,8 @@ class ScienceBowlSet(BaseFileSet):
 
     def blacklist(self, filepath):
         # Don't process partial masks
-        return "/masks" in filepath
+        return "/masks" in filepath \
+            or "/ignored" in filepath
     
     def mask_filepath(self, filepath):
         if "/images" in filepath:
@@ -52,9 +53,6 @@ def convert_test_from_csv(csv_path, destination):
     groups = list(df.groupby('ImageId'))
     for image_id, masks in tqdm(groups, desc="Processing labels " + csv_path):
         source, target = sample_paths(destination, image_id)
-        if ignore_sample(masks):
-            #os.remove(source)
-            continue
         safely_process([], mask_builder_from_csv(masks))(source, target)
 
 def ignore_sample(masks):
@@ -67,8 +65,14 @@ def sample_paths(destination, image_id):
     return source, target
 
 def mask_builder_from_csv(masks):
-    def build(filepath, target):
-        # Reset mask for each image
+    def build(source, target):
+        # Change the image location if it has no labels
+        if ignore_sample(masks) and os.path.exists(source):
+            source = split_filepath(source)[0]
+            target = source.replace("/images", "/ignored")
+            os.rename(source, target)
+            return
+        # Create a labeled mask from the CSV
         labeled_mask = None
         for idx, (_, row) in enumerate(masks.iterrows(), start=1):
             encoded_pixels, height, width = row['EncodedPixels'], row['Height'], row['Width']
