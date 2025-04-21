@@ -5,10 +5,12 @@ from .manage_files import *
 ###
 # Download the DataScienceBowl dataset from:
 # https://www.kaggle.com/competitions/data-science-bowl-2018/data
+# https://bbbc.broadinstitute.org/BBBC038/
 #
 # Raw file structure:
 # /sciencebowl
-# ├── data-science-bowl-2018.zip            ***
+# ├── stage2_solution_final.csv            ***
+# ├── data-science-bowl-2018.zip           ***
 # ├── stage1_sample_submission.csv
 # ├── stage1_solution.csv
 # ├── stage1_test.zip
@@ -30,9 +32,8 @@ class ScienceBowlSet(BaseFileSet):
         build_masks(self, dataroot)
 
     def blacklist(self, filepath):
-        # Don't process unlabeled images for now
-        return "/stage2_test_final" in filepath \
-            or "/masks" in filepath # or partial masks
+        # Don't process partial masks
+        return "/masks" in filepath
     
     def mask_filepath(self, filepath):
         if "/images" in filepath:
@@ -47,11 +48,23 @@ class ScienceBowlSet(BaseFileSet):
             return IMAGE
 
 def convert_test_from_csv(csv_path, destination):
-    groups = list(pd.read_csv(csv_path).groupby('ImageId'))
-    for image_id, masks in tqdm(groups, desc="Processing csv labels"):
-        source = destination + f"/{image_id}/images/{image_id}.png"
-        target = destination + f"/labels/{image_id}.tiff"
+    df = pd.read_csv(csv_path)
+    groups = list(df.groupby('ImageId'))
+    for image_id, masks in tqdm(groups, desc="Processing labels " + csv_path):
+        source, target = sample_paths(destination, image_id)
+        if ignore_sample(masks):
+            #os.remove(source)
+            continue
         safely_process([], mask_builder_from_csv(masks))(source, target)
+
+def ignore_sample(masks):
+    usage = masks.iloc[0]['Usage']
+    return usage not in ['Public', 'Private'] # == 'Ignored'
+
+def sample_paths(destination, image_id):
+    source = destination + f"/{image_id}/images/{image_id}.png"
+    target = destination + f"/labels/{image_id}.tiff"
+    return source, target
 
 def mask_builder_from_csv(masks):
     def build(filepath, target):
@@ -60,7 +73,7 @@ def mask_builder_from_csv(masks):
         for idx, (_, row) in enumerate(masks.iterrows(), start=1):
             encoded_pixels, height, width = row['EncodedPixels'], row['Height'], row['Width']
             shape = (int(height), int(width))
-
+            # Initialize mask if not already done
             labeled_mask = np.zeros(shape, dtype=np.uint16) if (labeled_mask is None) else labeled_mask
             # Decode RLE mask
             mask = rle_decode(encoded_pixels, shape)
@@ -82,8 +95,8 @@ def rle_decode(mask_rle, shape):
     return mask.reshape(shape).transpose()
 
 def build_masks(dataset, dataroot):
-    #convert_test_from_csv(dataroot + dataset.root + "/stage1_train_labels.csv", dataroot + dataset.root + "/stage1_train")
     convert_test_from_csv(dataroot + dataset.root + "/stage1_solution.csv", dataroot + dataset.root + "/stage1_test")
+    convert_test_from_csv(dataroot + dataset.root + "/stage2_solution_final.csv", dataroot + dataset.root + "/stage2_test_final")
     train_files = [filepath for filepath, cat in dataset.enumerate(dataroot) if cat == IMAGE and "/stage1_train" in filepath]
     for filepath in tqdm(train_files, desc="Processing mask labels"):
         folder, name, ext = split_filepath(dataroot + filepath)
