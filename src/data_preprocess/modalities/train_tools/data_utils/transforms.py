@@ -113,7 +113,7 @@ class EnumerateObjectCropd(Cropd, MultiSampleTrait):
         for [left, top, right, bottom] in self.generate_bounds(data[self.source_key]):
             d = dict(data)
             d['box'] = [left, top, right, bottom]
-            slices = self.cropper.compute_slices(roi_start=[top, left], roi_end=[bottom, right])
+            slices = self.cropper.compute_slices(roi_start=[left, top], roi_end=[right, bottom])
             for key in self.key_iterator(d):
                 kwargs = {}
                 if isinstance(self.cropper, LazyTrait):
