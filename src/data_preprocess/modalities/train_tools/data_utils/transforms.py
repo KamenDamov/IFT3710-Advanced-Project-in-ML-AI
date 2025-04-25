@@ -84,7 +84,7 @@ class RandSmartCropSamplesd(Cropd, Randomizable, MultiSampleTrait):
 
         sample = explore.DataLabels(d[self.source_key])
         cropping = sample.select_slices(self.R)
-        slices = self.cropper.compute_slices(roi_start=[cropping['Top'], cropping['Left']], roi_end=[cropping['Bottom'], cropping['Right']])
+        slices = self.cropper.compute_slices(roi_start=[cropping['Left'], cropping['Top']], roi_end=[cropping['Right'], cropping['Bottom']])
         for key in self.key_iterator(d):
             kwargs = {}
             if isinstance(self.cropper, LazyTrait):
