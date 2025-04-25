@@ -57,13 +57,13 @@ def smart_transforms():
         EnsureChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
         RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=5),
-        Resized(keys=["img", "label"], spatial_size=(512, 512), mode=["area", "nearest-exact"]),
         RandAxisFlipd(keys=["img", "label"], prob=0.5),
         RandRotate90d(keys=["img", "label"], prob=0.75, spatial_axes=[0, 1]),
         RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),
         RandAdjustContrastd(keys=["img"], prob=0.25, gamma=(1, 2)),
         RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
         RandHistogramShiftd(keys=["img"], prob=0.25, num_control_points=3),
+        Resized(keys=["img", "label"], spatial_size=(512, 512), mode=["area", "nearest-exact"]),
         EnsureTyped(keys=["img", "label"]),
     ])
 

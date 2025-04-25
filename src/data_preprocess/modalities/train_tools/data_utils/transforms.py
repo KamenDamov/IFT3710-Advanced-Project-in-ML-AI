@@ -136,10 +136,9 @@ modality_transforms = Compose(
         RemoveRepeatedChanneld(keys=["label"], repeats=3),  # label: (H, W)
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),  # Do not scale label
         # >>> Spatial transforms
-        RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=1),
-        Resized(keys=["img", "label"], spatial_size=(512, 512), mode=["area", "nearest-exact"]),
-        RandAxisFlipd(keys=["img", "label"], prob=0.5),
-        RandRotate90d(keys=["img", "label"], prob=0.75, spatial_axes=[0, 1]),
+        #RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=1),
+        #RandAxisFlipd(keys=["img", "label"], prob=0.5),
+        #RandRotate90d(keys=["img", "label"], prob=0.75, spatial_axes=[0, 1]),
         #IntensityDiversification(keys=["img", "label"], allow_missing_keys=True),
         # # >>> Intensity transforms
         #RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),
@@ -147,6 +146,7 @@ modality_transforms = Compose(
         #RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
         #RandHistogramShiftd(keys=["img"], prob=0.25, num_control_points=3),
         #RandGaussianSharpend(keys=["img"], prob=0.25),
+        Resized(keys=["img", "label"], spatial_size=(512, 512), mode=["area", "nearest-exact"]),
         EnsureTyped(keys=["img", "label"]),
     ]
 )
