@@ -1,0 +1,220 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2025_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{comment}
+\usepackage{hyperref}
+\usepackage{url}
+
+\title{Data Augmentation for Cell Segmentation \\
+IFT3710 - team "GANg"}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Bio Samir Gbian \& Kamen Damov \& Simon Langlois \& Guillaume Genois \& Johann Sourou\\
+Department of Computer Science and Operations Research \\
+Département d'Informatique et Recherche Opérationelle \\
+University of Montreal \\
+\texttt{bio.samir.gbian@umontreal.ca} \\
+\texttt{kamen.damov@umontreal.ca} \\
+\texttt{simon.langlois.4@umontreal.ca} \\
+\texttt{guillaume.genois@umontreal.ca} \\
+\texttt{johann.sourou@umontreal.ca}
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+\maketitle
+\begin{abstract}
+"Summarize your project with less than 300 words. Basically, your abstract should motivate the project (why do we care about it), describe your problem (what are you trying to solve), summarize your approach in high-level (how did you go about solving or making progress on the problem), highlight your main findings (the result you have got), and your conclusions (the implications from your experimental results). Writing an abstract is difficult but critical for a good research paper. Keep it concise, high-level, and convincing." \\
+{\hspace*{\fill}\href{https://github.com/KamenDamov/IFT3710-Advanced-Project-in-ML-AI}{\textbf{GitHub Code Repository}}}
+\end{abstract}
+
+\section{Introduction}
+"A good introduction is very important for a research paper. In this section, try your best to attract readers. First, clearly describe your research problem and demonstrate your motivation. Sometimes
+a figure/example can help a lot to illustrate your problem. Second, briefly review existing research and summarize their ideas and limitations. Third, summarize your contribution to this project. Emphasize your novelty and show your insight on a high level. Don’t put too much technical details here. Finally, summarize your experimental results and conclusions. Note that in the Introduction section, you shall not put too
+detailed descriptions about related works since they should be in the Related Work section."
+
+\section{Related work}
+"Here you can introduce related research works with a little more details by referring to a number of specific papers and summarizing their contributions at a high level."
+
+\section{Method}
+"Describe the models and/or techniques you have utilized or improved in detail. Maybe you can draw figures to show the architecture of your model/system, or include an algorithm to formally describe
+your method. \textbf{If any part of your approach or code is original, make it clear in your report. Please provide references for models, techniques, or codes that are not yours.}"
+
+\section{Experiments}
+Please include the following information in this section:
+
+\subsection{Datasets}
+"Describe the dataset(s) you are using along with references. If you created a dataset in your project, submit it or provide a link to your dataset, and explain the details about how you built
+the dataset."
+
+\subsection{Baselines}
+"Describe which methods you used as baselines. Make it clear if these were implemented by you, downloaded from elsewhere, or if you just compared with previously published results."
+
+\subsection{Evaluation Methods}
+"Specify at least one well-defined, numerical, automatic evaluation metric you will use for quantitative evaluation. If your experiments include human evaluation, clearly describe how the human evaluation was conducted, who evaluated the results, and the steps an evaluator took to evaluate a result. If you have any particular ideas/designs about the qualitative evaluation, you can describe that too."
+
+\subsection{Experimental Results}
+"Concisely explain how you ran your experiments, such as model configurations, implementation details, and hyperparameter settings."
+
+\subsection{Results and Analysis}
+"Report the quantitative results you have obtained so far. You may include
+some figures or tables for your experimental results and compare with baselines. Analyze your current results and tell us your findings."
+
+
+\section{Conclusion}
+"Summarize your contributions and findings in this project. Describe potential future works."
+
+\newpage
+\section*{\textbf{-- STYLISTIC INSTRUCTIONS FOLLOW --}}
+\section{Citations, figures, tables, references}
+\label{others}
+
+These instructions apply to everyone, regardless of the formatter being used.
+
+\subsection{Citations within the text}
+
+Citations within the text should be based on the \texttt{natbib} package
+and include the authors' last names and year (with the ``et~al.'' construct
+for more than two authors). When the authors or the publication are
+included in the sentence, the citation should not be in parenthesis using \verb|\citet{}| (as
+in ``See \citet{Hinton06} for more information.''). Otherwise, the citation
+should be in parenthesis using \verb|\citep{}| (as in ``Deep learning shows promise to make progress
+towards AI~\citep{Bengio+chapter2007}.'').
+
+The corresponding references are to be listed in alphabetical order of
+authors, in the \textsc{References} section. As to the format of the
+references themselves, any style is acceptable as long as it is used
+consistently.
+
+\subsection{Footnotes}
+
+Indicate footnotes with a number\footnote{Sample of the first footnote} in the
+text. Place the footnotes at the bottom of the page on which they appear.
+Precede the footnote with a horizontal rule of 2~inches
+(12~picas).\footnote{Sample of the second footnote}
+
+\subsection{Figures}
+
+All artwork must be neat, clean, and legible. Lines should be dark
+enough for purposes of reproduction; art work should not be
+hand-drawn. The figure number and caption always appear after the
+figure. Place one line space before the figure caption, and one line
+space after the figure. The figure caption is lower case (except for
+first word and proper nouns); figures are numbered consecutively.
+
+Make sure the figure caption does not get separated from the figure.
+Leave sufficient space to avoid splitting the figure and figure caption.
+
+You may use color figures.
+However, it is best for the
+figure captions and the paper body to make sense if the paper is printed
+either in black/white or in color.
+\begin{figure}[h]
+\begin{center}
+%\framebox[4.0in]{$\;$}
+\fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+\end{center}
+\caption{Sample figure caption.}
+\end{figure}
+
+\subsection{Tables}
+
+All tables must be centered, neat, clean and legible. Do not use hand-drawn
+tables. The table number and title always appear before the table. See
+Table~\ref{sample-table}.
+
+Place one line space before the table title, one line space after the table
+title, and one line space after the table. The table title must be lower case
+(except for first word and proper nouns); tables are numbered consecutively.
+
+\begin{table}[t]
+\caption{Sample table title}
+\label{sample-table}
+\begin{center}
+\begin{tabular}{ll}
+\multicolumn{1}{c}{\bf PART}  &\multicolumn{1}{c}{\bf DESCRIPTION}
+\\ \hline \\
+Dendrite         &Input terminal \\
+Axon             &Output terminal \\
+Soma             &Cell body (contains cell nucleus) \\
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Default Notation}
+
+In an attempt to encourage standardized notation, we have included the
+notation file from the textbook, \textit{Deep Learning}
+\cite{goodfellow2016deep} available at
+\url{https://github.com/goodfeli/dlbook_notation/}.  Use of this style
+is not required and can be disabled by commenting out
+\texttt{math\_commands.tex}.
+
+\section*{\textbf{-- SEE STYLESHEET FOR MATH CONVENTIONS --}}
+
+
+\subsection{Margins in LaTeX}
+
+Most of the margin problems come from figures positioned by hand using
+\verb+\special+ or other commands. We suggest using the command
+\verb+\includegraphics+
+from the graphicx package. Always specify the figure width as a multiple of
+the line width as in the example below using .eps graphics
+\begin{verbatim}
+   \usepackage[dvips]{graphicx} ...
+   \includegraphics[width=0.8\linewidth]{myfile.eps}
+\end{verbatim}
+or % Apr 2009 addition
+\begin{verbatim}
+   \usepackage[pdftex]{graphicx} ...
+   \includegraphics[width=0.8\linewidth]{myfile.pdf}
+\end{verbatim}
+for .pdf graphics.
+See section~4.4 in the graphics bundle documentation (\url{http://www.ctan.org/tex-archive/macros/latex/required/graphics/grfguide.ps})
+
+A number of width problems arise when LaTeX cannot properly hyphenate a
+line. Please give LaTeX hyphenation hints using the \verb+\-+ command.
+
+\newpage
+\nocite{*}
+\bibliography{reports/references}
+\bibliographystyle{iclr2025_conference}
+
+\newpage
+\appendix
+\section{Appendix}
+\subsection*{Author Contributions}
+"Please describe what each team member contributed to the
+whole project. The detailed contribution should include but is not limited to the proposal, midway report, final presentation, final report, the design and implementation of the project, experiments, etc."
+
+\subsubsection*{\textbf{Bio Samir Gbian:}}
+
+\subsubsection*{\textbf{Kamen Damov:}}
+
+\subsubsection*{\textbf{Simon Langlois:}}
+
+\subsubsection*{\textbf{Guillaume Genois:}}
+
+\subsubsection*{\textbf{Johann Sourou:}}
+
+
+\end{document}
