@@ -26,10 +26,7 @@ class ZenodoNeurIPS(BaseFileSet):
         super().__init__("/neurips")
 
     def blacklist(self, filepath):
-        # Don't process unlabeled images for now
-        return "release-part1" in filepath \
-            or "train-unlabeled-part2" in filepath \
-            or "unlabeled_cell_00504" in filepath # File is cut off
+        return "unlabeled_cell_00504" in filepath # File is cut off
 
     def label_patterns(self, category):
         if category == MASK:
@@ -41,6 +38,9 @@ class ZenodoNeurIPS(BaseFileSet):
             yield ("/Hidden/images/", "/Hidden/osilab_seg/")
             yield ("/Public/images/", "/Public/1st_osilab_seg/")
             yield ("/Public/WSI/", "/Public/osilab_seg_WSI/")
+        if category == None:
+            yield "/release-part1"
+            yield "/train-unlabeled-part2"
 
     def mask_filepath(self, filepath):
         folder, name, ext = split_filepath(filepath)
@@ -60,6 +60,9 @@ class ZenodoNeurIPS(BaseFileSet):
                     return category
                 elif img in dirpath:
                     return IMAGE
+        for unlabeled in self.label_patterns(None):
+            if unlabeled in dirpath:
+                return IMAGE
 
 if __name__ == '__main__':
     root = "./data/raw"

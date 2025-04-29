@@ -33,8 +33,7 @@ class ScienceBowlSet(BaseFileSet):
 
     def blacklist(self, filepath):
         # Don't process partial masks
-        return "/masks" in filepath \
-            or "/ignored" in filepath
+        return "/masks" in filepath
     
     def mask_filepath(self, filepath):
         if "/images" in filepath:
@@ -47,7 +46,7 @@ class ScienceBowlSet(BaseFileSet):
             return MASK
         if "/images" in filepath:
             return IMAGE
-        if "/ignored" in filepath:
+        if "/unlabeled" in filepath:
             return IMAGE
 
 def convert_test_from_csv(csv_path, destination):
@@ -59,7 +58,7 @@ def convert_test_from_csv(csv_path, destination):
 
 def ignore_sample(masks):
     usage = masks.iloc[0]['Usage']
-    return usage not in ['Public', 'Private'] # == 'Ignored'
+    return usage not in ['Public', 'Private'] # == 'Unlabeled'
 
 def sample_paths(destination, image_id):
     source = destination + f"/{image_id}/images/{image_id}.png"
@@ -71,7 +70,7 @@ def mask_builder_from_csv(masks):
         # Change the image location if it has no labels
         if ignore_sample(masks) and os.path.exists(source):
             source = split_filepath(source)[0]
-            target = source.replace("/images", "/ignored")
+            target = source.replace("/images", "/unlabeled")
             os.rename(source, target)
             return
         # Create a labeled mask from the CSV
