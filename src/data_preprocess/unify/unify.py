@@ -47,6 +47,8 @@ def main():
     for sample in tqdm(dataset, desc="Unifying datasets"):
         safely_process([], unify_file(dataset, IMAGE))(sample.raw_image, sample.image)
         safely_process([], unify_file(dataset, MASK))(sample.raw_mask, sample.mask)
+    for sample in tqdm(list(dataset.unlabeled()), desc="Unifying unlabeled dataset"):
+        safely_process([], unify_file(dataset, IMAGE))(sample.raw_image, sample.image)
     
 if __name__ == '__main__':
     main()

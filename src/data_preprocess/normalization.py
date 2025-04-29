@@ -77,6 +77,8 @@ def main(dataroot):
     log = ["Failed to process images: \n"]
     for sample in tqdm(dataset, desc="Normalizing images"):
         explore.safely_process(log, normalize_image)(sample.image, sample.normal_image)
+    for sample in tqdm(dataset.unlabeled(), desc="Normalizing unlabeled images"):
+        explore.safely_process(log, normalize_image)(sample.image, sample.normal_image)
     for sample in tqdm(dataset, desc="Normalizing masks"):
         explore.safely_process(log, normalize_mask)(sample.mask, sample.normal_mask)
     

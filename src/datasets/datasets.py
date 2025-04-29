@@ -226,7 +226,7 @@ class DataSet:
         for index in range(len(self.images_df)):
             row = self.images_df.iloc[index]
             if row["Labels"] == 0:
-                yield row["Path"]
+                yield DataSample(self, row)
 
     def __iter__(self):
         for index in range(len(self.df)):
@@ -255,7 +255,7 @@ class DataSample:
         self.df = df
 
         self.name = split_filepath(df["Path"])[1]
-        self.init_paths(df["Path"], df["Mask"])
+        self.init_paths(df["Path"], df.get("Mask") or df["Path"])
         self.width = df.get('Width')
         self.height = df.get('Height')
     
@@ -266,8 +266,9 @@ class DataSample:
         safely_process([], maskframe_builder(self.dataset))(self.raw_mask, self.meta_frame)
 
     def labels(self):
-        self.prepare_frame(self)
-        return DataLabels(self.meta_frame)
+        if self.df.get('Labels') != 0:
+            self.prepare_frame(self)
+            return DataLabels(self.meta_frame)
     
     def init_paths(self, image_path, mask_path):
         self.raw_image = self.dataroot + "/raw" + image_path
