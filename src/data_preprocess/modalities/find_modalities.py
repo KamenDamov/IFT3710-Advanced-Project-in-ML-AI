@@ -27,8 +27,17 @@ def generate_dataset(dataset):
 def load_embeddings(dataset):
     for sample in generate_dataset(dataset):
         if os.path.exists(sample["pickle"]):
-            with open(sample["pickle"], "rb") as f:
-                yield pickle.load(f)
+            embedding = load_embedding(sample["pickle"])
+            if embedding is not None:
+                yield embedding
+
+def load_embedding(target):
+    try:
+        with open(target, "rb") as f:
+            return pickle.load(f)
+    except:
+        print(f"Failed to load: {target}")
+
 
 # Function to extract features from model
 def extract_features(model, loader):
@@ -71,8 +80,9 @@ def calculate_embeddings(dataset):
 
 def computer_clusters(features):
     # Perform K-Means clustering
-    print("Extracting modalities...")
-    clustering = KMeans(n_clusters=40, random_state=0, verbose=5)
+    n_clusters=40
+    print(f"Extracting modalities... {n_clusters} clusters from {len(features)} samples")
+    clustering = KMeans(n_clusters=n_clusters, random_state=0, verbose=5)
     clustering.fit(features)
     
     print("Saving cluster centers...")
