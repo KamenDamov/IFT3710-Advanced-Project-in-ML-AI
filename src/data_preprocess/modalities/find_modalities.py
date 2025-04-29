@@ -11,19 +11,24 @@ from tqdm import tqdm
 from src.data_preprocess.modalities.train_tools.data_utils.transforms import train_transforms, modality_transforms
 from src.data_preprocess.modalities.train_tools.models import MEDIARFormer
 from src.data_exploration import explore
+from src.datasets.datasets import DataSet
 join = os.path.join
 
-partition = 0
-batch_size = 100
-image_folder = "./data/raw/zenodo/Training-labeled/images"
-label_folder = "./data/raw/zenodo/Training-labeled/labels"
-save_path = 'features_list.pkl'
+save_path = './data/features.pkl'
 accel_device = "cuda" if torch.cuda.is_available() else "cpu"
 
-def generate_dataset(dataroot):
+def generate_dataset(dataset):
     # Load all image paths
-    for sample in explore.DataSet(dataroot):
-        yield { "img": sample.normal_image, "label": sample.normal_mask, "meta": sample.meta_frame, "name": sample.name }
+    for sample in dataset:
+        yield { "img": sample.normal_image, "pickle": sample.embedding, "name": sample.name }
+    for sample in dataset.unlabeled():
+        yield { "img": sample.normal_image, "pickle": sample.embedding, "name": sample.name }
+
+def load_embeddings(dataset):
+    for sample in generate_dataset(dataset):
+        if os.path.exists(sample["pickle"]):
+            with open(sample["pickle"], "rb") as f:
+                yield pickle.load(f)
 
 def load_features(save_path):
     features = []
@@ -36,8 +41,26 @@ def load_features(save_path):
                     break
     return features
 
+# Function to extract features from model
+def extract_features(model, loader):
+    print("Extracting features...")
+    model.to(accel_device)
+    model.eval()
+    with torch.no_grad():
+        for batch in tqdm(loader):
+            target_path = batch["pickle"][0]
+            img_tensor = batch["img"].to(accel_device)
+            embedding = model(img_tensor)
+            embedding = embedding.cpu().numpy().flatten()  # Flatten for clustering
+            with open(target_path, mode="wb") as f:
+                pickle.dump(embedding, f)
+            # features_list.append(embedding)  # Flatten for clustering
+            del batch, img_tensor, embedding
+            torch.cuda.empty_cache()
+            gc.collect()
 
-def main(partition, batch_size):
+
+def calculate_embeddings(dataset):
     model_path1 = './models/mediar/pretrained/phase1.pth'
     weights1 = torch.load(model_path1, map_location=accel_device)
 
@@ -46,91 +69,34 @@ def main(partition, batch_size):
 
     # Extract features for all images
     # Create dictionary mapping image files to label files
-    data_dicts = list(generate_dataset("./data"))
-    data_dicts = data_dicts[partition*batch_size:partition*batch_size+batch_size]
+    data_dicts = list(generate_dataset(dataset))[:100]
+    data_dicts = [data for data in data_dicts if not os.path.exists(data['pickle'])]
 
     dataset = Dataset(data=data_dicts, transform=modality_transforms)
-    loader = DataLoader(dataset, batch_size=1, num_workers=1)
+    loader = DataLoader(dataset, batch_size=1, num_workers=4)
     dataset.cache_data = False
 
-    # Function to extract features from model
-    def extract_features(model, loader):
-        model.to(accel_device)
-        features_list = []
-        model.eval()
-
-        with torch.no_grad():
-            for batch in tqdm(loader):
-                img_tensor = batch["img"].to(accel_device)
-                features = model(img_tensor)
-
-                with open(save_path, mode="ab") as f:
-                    pickle.dump(features.cpu().numpy().flatten(), f)
-                # features_list.append(features.cpu().numpy().flatten())  # Flatten for clustering
-
-                del batch, img_tensor, features
-                torch.cuda.empty_cache()
-                gc.collect()
-
-        return np.array(features_list)
-
     # Run feature extraction
-    print("Extracting features...")
     extract_features(model, loader)
-    features = load_features(save_path)
-    return features
+    features = load_embeddings(dataset)
+    return np.array(features)
 
 
-def get_modalities(features, image_folder, label_folder):
+def get_modalities(features):
     # Perform K-Means clustering
     print("Extracting modalities...")
-    kmeans = KMeans(n_clusters=40)
+    kmeans = KMeans(n_clusters=40, random_state=0, verbose=5)
     modalities = kmeans.fit_predict(features)
-
-    # Load all image paths
-    image_paths = glob(os.path.join(image_folder, "*"))
-    label_paths = glob(os.path.join(label_folder, "*"))
-
-    print("Saving modalities...")
-    modalities_map = {}
-    for idx, modality in tqdm(enumerate(modalities)):
-        image_basename = os.path.splitext(os.path.basename(image_paths[idx]))[0]
-        if modality in modalities_map.keys():
-            modalities_map[modality].append(image_basename)
-        else:
-            modalities_map[modality] = [image_basename]
-    print(modalities_map)
-
-    # Save dictionary to a pickle file
-    pickle_file = "new_modalities.pkl"
-
-    with open(pickle_file, "wb") as f:
-        pickle.dump(modalities_map, f)
+    
+    print("Saving cluster centers...")
+    # Save cluster centers to a pickle file
+    with open(save_path, "wb") as f:
+        pickle.dump(kmeans.cluster_centers_, f)
 
     print("Images sorted into modalities!")
+    return modalities
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--partition", type=int, default=partition)
-    parser.add_argument("--batch_size", type=int, default=batch_size)
-    parser.add_argument("--do_get_modalities", type=str, default=False)
-    parser.add_argument("--do_get_features", type=str, default=True)
-    parser.add_argument("--image_folder", type=str, default=image_folder)
-    parser.add_argument("--label_folder", type=str, default=label_folder)
-    args = parser.parse_args()
-    partition = args.partition
-    batch_size = args.batch_size
-    do_get_modalities = args.do_get_modalities
-    do_get_features = args.do_get_features
-    image_folder = args.image_folder
-    label_folder = args.label_folder
-
-    if do_get_features:
-        features = main(partition, batch_size)
-    else:
-        features = load_features(save_path)
-
-    print('Features extracted:', len(features))
-
-    if do_get_modalities:
-        get_modalities(features, image_folder, label_folder)
+    dataset = DataSet("./data")
+    features = calculate_embeddings(dataset)
+    modalities = get_modalities(features)

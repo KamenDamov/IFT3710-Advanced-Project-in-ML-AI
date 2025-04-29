@@ -131,9 +131,8 @@ class EnumerateObjectCropd(Cropd, MultiSampleTrait):
 modality_transforms = Compose(
     [
         # >>> Load and refine data --- img: (H, W, 3); label: (H, W)
-        CustomLoadImaged(keys=["img", "label"], image_only=True),
-        EnsureChannelFirstd(keys=["img", "label"], channel_dim=-1),
-        RemoveRepeatedChanneld(keys=["label"], repeats=3),  # label: (H, W)
+        CustomLoadImaged(keys=["img"], image_only=True),
+        EnsureChannelFirstd(keys=["img"], channel_dim=-1),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),  # Do not scale label
         # >>> Spatial transforms
         #RandSmartCropSamplesd(keys=["img", "label"], source_key="meta", num_samples=1),
@@ -146,8 +145,8 @@ modality_transforms = Compose(
         #RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
         #RandHistogramShiftd(keys=["img"], prob=0.25, num_control_points=3),
         #RandGaussianSharpend(keys=["img"], prob=0.25),
-        Resized(keys=["img", "label"], spatial_size=(512, 512), mode=["area", "nearest-exact"]),
-        EnsureTyped(keys=["img", "label"]),
+        Resized(keys=["img"], spatial_size=(512, 512), mode=["area"]),
+        EnsureTyped(keys=["img"]),
     ]
 )
 

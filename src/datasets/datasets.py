@@ -277,6 +277,7 @@ class DataSample:
         self.image = self.dataroot + "/unify" + target_file(image_path, ".png")
         self.mask = self.dataroot + "/unify" + target_file(image_path, ".tiff")
         self.meta_frame = self.dataroot + "/unify" + target_file(image_path, ".csv")
+        self.embedding = self.dataroot + "/unify" + target_file(image_path, ".pkl")
         self.clean_image = self.dataroot + "/processed" + target_file(image_path, ".png")
         self.bw_mask = self.dataroot + "/processed" + target_file(mask_path, ".bin.png")
         self.gray_mask = self.dataroot + "/processed" + target_file(mask_path, ".gray.png")

@@ -14,7 +14,10 @@ python -m src.data_preprocess.unify.unify
 echo Normalization
 python -m src.data_preprocess.normalization
 
-echo Transformations application
-python -m src.data_preprocess.transformations
+REM echo Transformations application
+REM python -m src.data_preprocess.transformations
+
+echo Modality extraction
+python -m src.data_preprocess.modalities.find_modalities
 
 pause
