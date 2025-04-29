@@ -9,6 +9,17 @@ from .sciencebowl import ScienceBowlSet
 ### Dataset sources ###
 # MEDIAR
 # https://github.com/Lee-Gihun/MEDIAR
+#
+# *** READ EACH DATASET SOURCE FILE FOR MORE INFO ***
+#
+# Root file structure:
+# /data
+# └── /raw
+#     ├── /cellpose
+#     ├── /livecell
+#     ├── /neurips
+#     ├── /omnipose
+#     └── /sciencebowl
 ###
 
 def merge_lists(compare, merge, listA, listB):

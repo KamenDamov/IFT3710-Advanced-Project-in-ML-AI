@@ -4,8 +4,8 @@ from .manage_files import *
 
 ###
 # Download the DataScienceBowl dataset from:
-# https://www.kaggle.com/competitions/data-science-bowl-2018/data
-# https://bbbc.broadinstitute.org/BBBC038/
+# https://www.kaggle.com/competitions/data-science-bowl-2018/data (for data zip)
+# https://bbbc.broadinstitute.org/BBBC038/ (for stage2 csv)
 #
 # Raw file structure:
 # /sciencebowl

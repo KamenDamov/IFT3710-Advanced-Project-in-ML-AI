@@ -14,9 +14,9 @@ from .manage_files import *
 #
 # Raw file structure:
 # /livecell
-# ├── livecell_coco_test.json
-# ├── livecell_coco_train.json
-# ├── livecell_coco_val.json
+# ├── livecell_coco_test.json           ***
+# ├── livecell_coco_train.json          ***
+# ├── livecell_coco_val.json            ***
 # ├── images.zip                        ***
 # ├── /images
 # |   ├── /livecell_train_val_images
