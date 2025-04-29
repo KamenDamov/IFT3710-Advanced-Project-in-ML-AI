@@ -59,8 +59,7 @@ def calculate_embeddings(dataset):
     # Extract features for all images
     # Create dictionary mapping image files to label files
     data_dicts = list(generate_dataset(dataset))
-    data_dicts = [data for data in data_dicts if not os.path.exists(data['pickle'])]
-
+    
     dataset = Dataset(data=data_dicts, transform=modality_transforms)
     loader = DataLoader(dataset, batch_size=1, num_workers=4)
     dataset.cache_data = False

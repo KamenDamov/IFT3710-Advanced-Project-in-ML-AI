@@ -1,5 +1,5 @@
 from .custom import *
-
+import os
 import numpy as np
 import pandas as pd
 from monai.transforms import *
@@ -127,10 +127,23 @@ class EnumerateObjectCropd(Cropd, MultiSampleTrait):
             box = labels.df.iloc[index]
             yield [box['Left'], box['Top'], box['Right'], box['Bottom']]
 
+# WARNING: MONAI does not support canceling a sample by returning a 0 size batch
+class CacheResultd(MapTransform, MultiSampleTrait):
+    def __init__(self, keys, target_keys, allow_missing_keys=False):
+        super().__init__(keys=keys, allow_missing_keys=allow_missing_keys)
+        self.target_keys = target_keys
+
+    def __call__(self, data, lazy: bool | None = None):
+        print(data)
+        if all(os.path.exists(data[key]) for key in self.target_keys) is None:
+            return data
+        return []
+
 
 modality_transforms = Compose(
     [
         # >>> Load and refine data --- img: (H, W, 3); label: (H, W)
+        CacheResultd(keys=["img"], target_keys=["pickle"]),
         CustomLoadImaged(keys=["img"], image_only=True),
         EnsureChannelFirstd(keys=["img"], channel_dim=-1),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),  # Do not scale label
