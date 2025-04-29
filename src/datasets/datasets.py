@@ -226,7 +226,9 @@ class DataSet:
         for index in range(len(self.images_df)):
             row = self.images_df.iloc[index]
             if row["Labels"] == 0:
-                yield DataSample(self, row)
+                sample = DataSample(self, row)
+                if not self.blacklist(sample):
+                    yield sample
 
     def __iter__(self):
         for index in range(len(self.df)):
@@ -236,7 +238,8 @@ class DataSet:
                 yield sample
 
     def blacklist(self, sample):
-        return sample.df["Synthetic"] \
+        return sample.df.get("Synthetic") \
+            or (sample.df.get("Labels") == 0) \
             or ("WSI" in sample.df["Path"]) # Large images
     
     # Load a well-formed tensor from the raw image

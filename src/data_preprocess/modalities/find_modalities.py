@@ -69,7 +69,7 @@ def calculate_embeddings(dataset):
 
     # Extract features for all images
     # Create dictionary mapping image files to label files
-    data_dicts = list(generate_dataset(dataset))[:100]
+    data_dicts = list(generate_dataset(dataset))
     data_dicts = [data for data in data_dicts if not os.path.exists(data['pickle'])]
 
     dataset = Dataset(data=data_dicts, transform=modality_transforms)
@@ -79,7 +79,7 @@ def calculate_embeddings(dataset):
     # Run feature extraction
     extract_features(model, loader)
     features = load_embeddings(dataset)
-    return np.array(features)
+    return features
 
 
 def get_modalities(features):
