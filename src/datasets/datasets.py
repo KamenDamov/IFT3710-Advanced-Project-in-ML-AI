@@ -137,36 +137,58 @@ def maskframe_builder(dataset):
         maskframe.to_csv(frame_path)
     return save_maskframe
 
-def prepare_metaframe(dataset, target_path):
-    rawroot = dataset.dataroot + "/raw"
-    data_map = dataset_frame(rawroot, dataset.filesets)
-    data_map.to_csv(target_path)
+IMAGE_HEADERS = ["Path", "Width", "Height", "Color", "Labels"]
+MASK_HEADERS = ["Path", "Mask", "Width", "Height", "Objects", "Background", "Synthetic"]
 
-def dataset_frame(root, matchers):
+def preparing_metaframe(dataset, images=False, masks=False):
+    if images and masks:
+        raise ValueError("Cannot prepare both images and masks at the same time")
+    
+    def prepare(source, target_path):
+        root = dataset.dataroot + source
+        for matcher in dataset.filesets:
+            matcher.unpack(root)
+            matcher.crosscheck(root)
+        headers = IMAGE_HEADERS if images else MASK_HEADERS
+        data_map = dataset_frame(root, dataset.filesets, headers)
+        data_map.to_csv(target_path)
+    
+    return prepare
+
+def dataset_frame(root, matchers, headers):
     numbers = []
     for matcher in matchers:
-        matcher.unpack(root)
-        matcher.crosscheck(root)
-    for matcher in matchers:
-        numbers += collect_dataset(root, matcher)
-    frame = pd.DataFrame(numbers, columns = ["Path", "Mask", "Width", "Height", "Objects", "Background", "Synthetic"])
+        numbers += collect_dataset(root, matcher, images=(headers == IMAGE_HEADERS), masks=(headers == MASK_HEADERS))
+    frame = pd.DataFrame(numbers, columns = headers)
     frame = frame.set_index("Path")
     return frame.sort_index()
 
-def collect_dataset(root, matcher):
+def collect_dataset(root, matcher, images, masks):
     files = list(matcher.enumerate(root))
     for imagepath, category in tqdm(files, desc="Compiling dataset csv " + matcher.root):
         if category == IMAGE:
-            for maskpath, category in matcher.mask_filepath(imagepath):
-                imgT = matcher.load(root + imagepath)
-                yield build_metarow(imagepath, maskpath, category, imgT)
+            if images:
+                yield build_metarow(matcher, root, imagepath)
+            if masks:
+                for row in build_maskrows(matcher, root, imagepath):
+                    yield row
 
-def build_metarow(imagepath, maskpath, category, imgT):
-    # Get global statistics
-    background = (imgT == 0).sum()
-    num_objects = imgT.max()
-    synthetic = (category == SYNTHETIC)
-    return {"Path":imagepath, "Mask":maskpath, "Synthetic": synthetic, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": num_objects, "Background": background}
+def build_metarow(dataset, root, imagepath):
+    # Get global image file statistics
+    imgT = dataset.load(root + imagepath)
+    labels = list(dataset.mask_filepath(imagepath))
+    color = len(imgT.shape) == 3 and imgT.shape[2] == 3
+    return {"Path":imagepath, "Width": imgT.shape[1], "Height":imgT.shape[0], "Labels": len(labels), "Color": color}
+
+def build_maskrows(dataset, root, imagepath):
+    for maskpath, category in dataset.mask_filepath(imagepath):
+        # Get global mask file statistics
+        imgT = dataset.load(root + maskpath)
+        background = (imgT == 0).sum()
+        num_objects = imgT.max()
+        synthetic = (category == SYNTHETIC)
+        yield {"Path":imagepath, "Mask":maskpath, "Synthetic": synthetic, "Width": imgT.shape[1], "Height":imgT.shape[0], "Objects": num_objects, "Background": background}
+
 
 class DataSet:
     filesets = [ZenodoNeurIPS(), CellposeSet(), OmniPoseSet(), LiveCellSet(), ScienceBowlSet()]
@@ -174,8 +196,9 @@ class DataSet:
     def __init__(self, dataroot, filesets=None):
         self.dataroot = dataroot
         self.filesets = filesets or DataSet.filesets
+        self.images_frame = self.dataroot + "/dataset.images.csv"
         self.meta_frame = self.dataroot + "/dataset.labels.csv"
-        self.df = self.prepare_frame()
+        self.images_df, self.df = self.prepare_frames()
 
     def __str__(self):
         return self.dataroot
@@ -183,9 +206,16 @@ class DataSet:
     def __len__(self):
         return len(self.df)
     
-    def prepare_frame(self):
-        safely_process([], prepare_metaframe)(self, self.meta_frame)
-        return pd.read_csv(self.meta_frame)
+    def prepare_frames(self):
+        safely_process([], preparing_metaframe(self, images=True))("/raw", self.images_frame)
+        safely_process([], preparing_metaframe(self, masks=True))("/raw", self.meta_frame)
+        return pd.read_csv(self.images_frame), pd.read_csv(self.meta_frame)
+    
+    def unlabeled(self):
+        for index in range(len(self.images_df)):
+            row = self.images_df.iloc[index]
+            if row["Labels"] == 0:
+                yield row["Path"]
 
     def __iter__(self):
         for index in range(len(self.df)):
@@ -205,6 +235,7 @@ class DataSet:
         for dataset in self.filesets:
             if dataset.root in filepath:
                 return dataset.load(filepath)
+
 
 class DataSample:
     def __init__(self, dataset, df):
