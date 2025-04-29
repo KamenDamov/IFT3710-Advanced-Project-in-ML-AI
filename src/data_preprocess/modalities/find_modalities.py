@@ -30,17 +30,6 @@ def load_embeddings(dataset):
             with open(sample["pickle"], "rb") as f:
                 yield pickle.load(f)
 
-def load_features(save_path):
-    features = []
-    if os.path.exists(save_path):
-        with open(save_path, "rb") as f:
-            while True:
-                try:
-                    features.append(pickle.load(f))
-                except EOFError:
-                    break
-    return features
-
 # Function to extract features from model
 def extract_features(model, loader):
     print("Extracting features...")
@@ -78,25 +67,38 @@ def calculate_embeddings(dataset):
 
     # Run feature extraction
     extract_features(model, loader)
-    features = load_embeddings(dataset)
-    return features
 
 
-def get_modalities(features):
+def computer_clusters(features):
     # Perform K-Means clustering
     print("Extracting modalities...")
-    kmeans = KMeans(n_clusters=40, random_state=0, verbose=5)
-    modalities = kmeans.fit_predict(features)
+    clustering = KMeans(n_clusters=40, random_state=0, verbose=5)
+    clustering.fit(features)
     
     print("Saving cluster centers...")
     # Save cluster centers to a pickle file
     with open(save_path, "wb") as f:
-        pickle.dump(kmeans.cluster_centers_, f)
+        pickle.dump(clustering.cluster_centers_, f)
 
     print("Images sorted into modalities!")
-    return modalities
+    return clustering
+
+def load_clusters(save_path):
+    with open(save_path, "rb") as f:
+        clusters = pickle.load(f)
+    clustering = KMeans(n_clusters=clusters.shape[0], init=clusters, n_init=1, random_state=0, verbose=5)
+    clustering.fit(clusters)
+    clustering.cluster_centers_ = clusters
+    return clustering
 
 if __name__ == '__main__':
     dataset = DataSet("./data")
-    features = calculate_embeddings(dataset)
-    modalities = get_modalities(features)
+    if not os.path.exists(save_path):
+        calculate_embeddings(dataset)
+        features = list(load_embeddings(dataset))
+        clustering = computer_clusters(features)
+    else:
+        clustering = load_clusters(save_path)
+        features = list(load_embeddings(dataset))
+    modalities = clustering.predict(features)
+    print(modalities)

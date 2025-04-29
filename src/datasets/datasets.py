@@ -238,9 +238,10 @@ class DataSet:
                 yield sample
 
     def blacklist(self, sample):
+        # Don't load: synthetic masks, unlabeled images, large images
         return sample.df.get("Synthetic") \
             or (sample.df.get("Labels") == 0) \
-            or ("WSI" in sample.df["Path"]) # Large images
+            or ("WSI" in sample.df["Path"])
     
     # Load a well-formed tensor from the raw image
     def load(self, filepath):
