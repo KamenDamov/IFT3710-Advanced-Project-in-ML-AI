@@ -224,6 +224,11 @@ class DataSet:
         safely_process([], preparing_metaframe(self, masks=True))("/raw", self.meta_frame)
         return pd.read_csv(self.images_frame), pd.read_csv(self.meta_frame)
     
+    def save_modalities(self, modalities):
+        df = self.images_df.set_index("Path")
+        df.loc[modalities.index, "Modality"] = modalities["Modality"]
+        df.to_csv(self.images_frame)
+
     def unpack(self, source = "/raw"):
         root = self.dataroot + source
         for fileset in self.filesets:

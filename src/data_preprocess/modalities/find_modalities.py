@@ -123,6 +123,4 @@ if __name__ == '__main__':
         clustering = load_clusters(save_path)
         features = list(load_embeddings(dataset))
     modalities = assign_modalities(clustering, features)
-    df = dataset.images_df.set_index("Path")
-    df["Modality"] = modalities["Modality"]
-    df.to_csv(dataset.images_frame)
+    dataset.save_modalities(modalities)
