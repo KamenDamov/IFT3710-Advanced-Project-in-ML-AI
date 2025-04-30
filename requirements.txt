@@ -1,5 +1,6 @@
 monai==1.2.0
 nibabel
+scikit-learn
 scikit-image
 matplotlib
 Pillow
