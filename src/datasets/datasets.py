@@ -211,6 +211,7 @@ class DataSet:
         self.filesets = filesets or DataSet.filesets
         self.images_frame = self.dataroot + "/dataset.images.csv"
         self.meta_frame = self.dataroot + "/dataset.labels.csv"
+        self.clusters_path = self.dataroot + "/features.pkl"
         self.images_df, self.df = self.prepare_frames()
 
     def __str__(self):

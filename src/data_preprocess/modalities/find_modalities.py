@@ -15,7 +15,6 @@ from src.data_exploration import explore
 from src.datasets.datasets import DataSet
 join = os.path.join
 
-save_path = './data/features.pkl'
 accel_device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def generate_dataset(dataset):
@@ -79,7 +78,7 @@ def calculate_embeddings(dataset):
     extract_features(model, loader)
 
 
-def computer_clusters(features):
+def computer_clusters(features, save_path):
     # Perform K-Means clustering
     n_clusters = 40
     features = [feature for (id, feature) in features]
@@ -115,12 +114,12 @@ def assign_modalities(clustering, features):
 
 if __name__ == '__main__':
     dataset = DataSet("./data")
-    if not os.path.exists(save_path):
+    if not os.path.exists(dataset.clusters_path):
         calculate_embeddings(dataset)
         features = list(load_embeddings(dataset))
-        clustering = computer_clusters(features)
+        clustering = computer_clusters(features, dataset.clusters_path)
     else:
-        clustering = load_clusters(save_path)
+        clustering = load_clusters(dataset.clusters_path)
         features = list(load_embeddings(dataset))
     modalities = assign_modalities(clustering, features)
     dataset.save_modalities(modalities)
