@@ -11,8 +11,9 @@ def upper_bound(tensor):
     max = tensor.max()
     for bytes in [0, 1, 2, 4, 8]:
         bits = bytes << 3
-        if max < (1 << bits):
-            return bits
+        bound = 1 << bits
+        if max < bound:
+            return bits, (max/bound)
 
 def sanitize(tensor, rescale):
     assert 0 <= tensor.min(), "Tensor contains negative values"
@@ -20,8 +21,8 @@ def sanitize(tensor, rescale):
     if tensor.shape[-1] == 4:  # RGBA
         tensor = color.rgba2rgb(tensor)
     # Scale back to [0, 255] if needed
-    bits = upper_bound(tensor)
-    if rescale and (bits != 8):
+    bits, usage = upper_bound(tensor)
+    if rescale and (usage > 0.5) and (bits != 8):
         scaled = tensor * ((1 << 8)/(1 << bits))
         return scaled.astype('uint8')
     return tensor.astype('uint' + str(bits))
@@ -30,9 +31,8 @@ def load_sanitized(dataset, filepath, category):
     image = dataset.load(filepath)
     rescale = category not in [MASK, SYNTHETIC]
     sanitized = sanitize(image, rescale)
-    if (image.dtype != sanitized.dtype):
-        #print("WARNING: " + str(image.dtype) + " -> " + str(sanitized.dtype) + ("(rescale)" if rescale else "") + ", " + filepath)
-        pass
+    if rescale and (sanitized.dtype != np.uint8):
+        print(f"Warning: Color space usage was too small, not scaling image {filepath}")
     return sanitized
 
 def unify_file(dataset, category):
