@@ -204,7 +204,7 @@ def build_maskrows(dataset, root, imagepath):
 
 
 class DataSet:
-    filesets = [ZenodoNeurIPS(), CellposeSet(), OmniPoseSet(), LiveCellSet(), ScienceBowlSet()]
+    filesets = [ZenodoNeurIPS()]#, CellposeSet(), OmniPoseSet(), LiveCellSet(), ScienceBowlSet()]
 
     def __init__(self, dataroot, filesets=None):
         self.dataroot = dataroot
