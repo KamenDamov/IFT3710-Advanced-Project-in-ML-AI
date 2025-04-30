@@ -7,6 +7,7 @@ import argparse
 from monai.data import Dataset, DataLoader
 import torch
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 from src.data_preprocess.modalities.train_tools.data_utils.transforms import train_transforms, modality_transforms
 from src.data_preprocess.modalities.train_tools.models import MEDIARFormer
@@ -14,21 +15,29 @@ from src.data_exploration import explore
 from src.datasets.datasets import DataSet
 join = os.path.join
 
-save_path = './data/features.pkl'
 accel_device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def generate_dataset(dataset):
     # Load all image paths
     for sample in dataset:
-        yield { "img": sample.normal_image, "pickle": sample.embedding, "name": sample.name }
+        yield { "img": sample.normal_image, "pickle": sample.embedding, "id": sample.df["Path"] }
     for sample in dataset.unlabeled():
-        yield { "img": sample.normal_image, "pickle": sample.embedding, "name": sample.name }
+        yield { "img": sample.normal_image, "pickle": sample.embedding, "id": sample.df["Path"] }
 
 def load_embeddings(dataset):
     for sample in generate_dataset(dataset):
-        if os.path.exists(sample["pickle"]):
-            with open(sample["pickle"], "rb") as f:
-                yield pickle.load(f)
+        embedding = load_embedding(sample["pickle"])
+        if embedding is not None:
+           yield (sample["id"], embedding)
+
+def load_embedding(target):
+    try:
+        if os.path.exists(target):
+            with open(target, "rb") as f:
+                return pickle.load(f)
+    except:
+        print(f"Failed to load: {target}")
+
 
 # Function to extract features from model
 def extract_features(model, loader):
@@ -69,10 +78,12 @@ def calculate_embeddings(dataset):
     extract_features(model, loader)
 
 
-def computer_clusters(features):
+def computer_clusters(features, save_path):
     # Perform K-Means clustering
-    print("Extracting modalities...")
-    clustering = KMeans(n_clusters=40, random_state=0, verbose=5)
+    n_clusters = 40
+    features = [feature for (id, feature) in features]
+    print(f"Extracting modalities... {n_clusters} clusters from {len(features)} samples")
+    clustering = KMeans(n_clusters=n_clusters, random_state=0, verbose=5)
     clustering.fit(features)
     
     print("Saving cluster centers...")
@@ -91,14 +102,24 @@ def load_clusters(save_path):
     clustering.cluster_centers_ = clusters
     return clustering
 
+def assign_modalities(clustering, features):
+    print(f"Sorting images into modalities... {len(features)} samples")
+    ids = [id for (id, feature) in features]
+    features = [feature for (id, feature) in features]
+    modalities = clustering.predict(features)
+    rows = list(zip(ids, modalities))
+    frame = pd.DataFrame(rows, columns = ["Path", "Modality"])
+    frame = frame.set_index("Path")
+    return frame.sort_index()
+
 if __name__ == '__main__':
     dataset = DataSet("./data")
-    if not os.path.exists(save_path):
+    if not os.path.exists(dataset.clusters_path):
         calculate_embeddings(dataset)
         features = list(load_embeddings(dataset))
-        clustering = computer_clusters(features)
+        clustering = computer_clusters(features, dataset.clusters_path)
     else:
-        clustering = load_clusters(save_path)
+        clustering = load_clusters(dataset.clusters_path)
         features = list(load_embeddings(dataset))
-    modalities = clustering.predict(features)
-    print(modalities)
+    modalities = assign_modalities(clustering, features)
+    dataset.save_modalities(modalities)
