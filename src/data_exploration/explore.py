@@ -108,6 +108,10 @@ if False and __name__ == "__main__":
 if __name__ == "__main__":
     dataset = DataSet("./data")
     for sample in tqdm(dataset, desc="Preparing metadata frames"):
+        tensor = load_image(sample.image)
+        if tensor.dtype != np.uint8:
+            print(f"Warning: Color space usage was too small, not scaling {tensor.dtype} image", sample.image)
+            sample.delete()
         pass
         #sample.prepare_frame()
         #sanity_check(dataset, sample)

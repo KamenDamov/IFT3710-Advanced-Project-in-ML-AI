@@ -290,6 +290,14 @@ class DataSample:
             self.prepare_frame(self)
             return DataLabels(self.meta_frame)
     
+    def delete(self):
+        artifacts = [self.normal_image, self.mask, self.meta_frame, self.embedding, self.normal_image, self.normal_mask]
+        for artifact in artifacts:
+            try:
+                os.remove(artifact)
+            except Exception as e:
+                print(f"Error deleting image {self.normal_image}: {e}")
+    
     def init_paths(self, image_path, mask_path):
         self.raw_image = self.dataroot + "/raw" + image_path
         self.raw_mask = self.dataroot + "/raw" + mask_path
