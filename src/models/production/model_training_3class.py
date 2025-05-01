@@ -137,7 +137,6 @@ def main():
     )
     
     transforms = smart_train_transforms if args.smart_crop else post_transform_transforms
-    transforms = baseline_train_transforms(args.input_size)
 
     #% define dataset, data loader
     check_ds = monai.data.Dataset(data=train_files, transform=transforms)

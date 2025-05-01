@@ -8,7 +8,7 @@ def baseline_train_transforms(input_size):
     return Compose(
         [
             LoadImaged(
-                keys=["img", "label"], reader=PILReader, dtype=np.uin16
+                keys=["img", "label"], reader=PILReader, dtype=np.uint8
             ),  # image three channels (H, W, 3); label: (H, W)
             AddChanneld(keys=["label"], allow_missing_keys=True),  # label: (1, H, W)
             AsChannelFirstd(
@@ -41,7 +41,7 @@ def baseline_train_transforms(input_size):
 
 val_transforms = Compose(
     [
-        LoadImaged(keys=["img", "label"], reader=PILReader, dtype=np.uint16),
+        LoadImaged(keys=["img", "label"], reader=PILReader, dtype=np.uint8),
         AddChanneld(keys=["label"], allow_missing_keys=True),
         AsChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
@@ -52,7 +52,7 @@ val_transforms = Compose(
 
 post_transform_transforms = Compose(
     [
-        LoadImaged(keys=["img", "label"], reader=PILReader, dtype=np.uint16),
+        LoadImaged(keys=["img", "label"], reader=PILReader, dtype=np.uint8),
         AddChanneld(keys=["label"], allow_missing_keys=True),
         AsChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
@@ -183,7 +183,7 @@ class EnumerateObjectCropd(Cropd, MultiSampleTrait):
 smart_train_transforms = Compose(
     [
         # >>> Load and refine data --- img: (H, W, 3); label: (H, W)
-        LoadImaged(keys=["img", "label"], reader=PILReader, dtype=np.uint16),
+        LoadImaged(keys=["img", "label"], reader=PILReader, dtype=np.uint8),
         AddChanneld(keys=["label"], allow_missing_keys=True),
         AsChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
