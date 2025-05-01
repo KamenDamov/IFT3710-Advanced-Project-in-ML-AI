@@ -7,10 +7,16 @@ from src.datasets import datasets
 def baseline_train_transforms(input_size):
     return Compose(
         [
-            LoadImaged(keys=["img", "label"], reader=PILReader, dtype=np.uint16),
-            AddChanneld(keys=["label"], allow_missing_keys=True),
-            AsChannelFirstd(keys=["img"], channel_dim=-1, allow_missing_keys=True),
-            ScaleIntensityd(keys=["img"], allow_missing_keys=True),
+            LoadImaged(
+                keys=["img", "label"], reader=PILReader, dtype=np.uin16
+            ),  # image three channels (H, W, 3); label: (H, W)
+            AddChanneld(keys=["label"], allow_missing_keys=True),  # label: (1, H, W)
+            AsChannelFirstd(
+                keys=["img"], channel_dim=-1, allow_missing_keys=True
+            ),  # image: (3, H, W)
+            ScaleIntensityd(
+                keys=["img"], allow_missing_keys=True
+            ),  # Do not scale label
             SpatialPadd(keys=["img", "label"], spatial_size=input_size),
             RandSpatialCropd(
                 keys=["img", "label"], roi_size=input_size, random_size=False
