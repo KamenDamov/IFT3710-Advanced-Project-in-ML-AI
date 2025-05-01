@@ -2,6 +2,9 @@
 The aim of the project will be to combine GAN architectures to generate biological cell segmentation.
 We will also compare this new architecture with state-of-the-art models, as well as with more rudimentary models.
 
+# SEE THIS GOOGLE DRIVE FOR TRAINED MODELS, PROCESSED DATASETS AND OTHER ARTIFACTS:
+https://drive.google.com/drive/folders/11TrqoDSULiYNIRG8w6ky_wyWjcGsxA3y
+
 ## Dataset preparation and pre-processing
 
 Make sure to download the datasets and pre-trained models from their respective websites:
