@@ -46,7 +46,7 @@ import shutil
 
 from .unetr2d import UNETR2D
 import src.datasets.datasets as ds
-from src.data_preprocess.modalities.train_tools.data_utils.transforms import val_transforms, smart_train_transforms, post_transform_transforms
+from src.data_preprocess.modalities.train_tools.data_utils.transforms import val_transforms, smart_train_transforms, post_transform_transforms, baseline_train_transforms
 
 print("Successfully imported all requirements!")
 
@@ -59,7 +59,7 @@ def move_data(target_images, target_labels):
     #dataset, test = train_test_split(dataset, test_size=0.2, random_state=42)
 
     for index, sample in enumerate(tqdm(dataset, desc="Copying normalized data")):
-        image_name = f"cell_{index:05d}"
+        image_name = f"/cell_{index:05d}"
         shutil.copyfile(sample.normal_image, target_images + image_name + ".png")
         shutil.copyfile(sample.normal_mask, target_labels + image_name + ".png")
         shutil.copyfile(sample.meta_frame, target_labels + image_name + ".csv")
@@ -136,8 +136,11 @@ def main():
         f"training image num: {len(train_files)}, validation image num: {len(val_files)}"
     )
     
+    transforms = smart_train_transforms if args.smart_crop else post_transform_transforms
+    transforms = baseline_train_transforms(args.input_size)
+
     #% define dataset, data loader
-    check_ds = monai.data.Dataset(data=train_files, transform=smart_train_transforms)
+    check_ds = monai.data.Dataset(data=train_files, transform=transforms)
     check_loader = DataLoader(check_ds, batch_size=1, num_workers=4)
     check_data = monai.utils.misc.first(check_loader)
     print(
@@ -148,7 +151,6 @@ def main():
         torch.max(check_data["label"]),
     )
 
-    transforms = smart_train_transforms if args.smart_crop else post_transform_transforms
     #%% create a training data loader
     train_ds = monai.data.Dataset(data=train_files, transform=transforms)
     # use batch_size=2 to load images and use RandCropByPosNegLabeld to generate 2 x 4 images for network training
