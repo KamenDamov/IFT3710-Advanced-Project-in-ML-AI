@@ -9,9 +9,8 @@ import torch
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from src.data_preprocess.modalities.train_tools.data_utils.transforms import train_transforms, modality_transforms
+from src.data_preprocess.modalities.train_tools.data_utils.transforms import modality_transforms
 from src.data_preprocess.modalities.train_tools.models import MEDIARFormer
-from src.data_exploration import explore
 from src.datasets.datasets import DataSet
 join = os.path.join
 

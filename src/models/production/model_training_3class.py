@@ -46,7 +46,7 @@ import shutil
 
 from .unetr2d import UNETR2D
 import src.datasets.datasets as ds
-from src.data_preprocess.modalities.train_tools.data_utils.transforms import val_transforms, smart_train_transforms, post_transform_transforms, baseline_train_transforms
+from .transforms import val_transforms, smart_train_transforms, post_transform_transforms, baseline_train_transforms
 
 print("Successfully imported all requirements!")
 
