@@ -2,6 +2,9 @@
 The aim of the project will be to combine GAN architectures to generate biological cell segmentation.
 We will also compare this new architecture with state-of-the-art models, as well as with more rudimentary models.
 
+## Run CycleGAN
+Go to `src/data_augmentation/gans/cycle_gan.py/cycle_gan.py` and run `python cycle_gan.py`.
+
 ## Dataset preparation and pre-processing
 
 Make sure to download the datasets and pre-trained models from their respective websites:
