@@ -5,6 +5,9 @@ We will also compare this new architecture with state-of-the-art models, as well
 # SEE THIS GOOGLE DRIVE FOR TRAINED MODELS, PROCESSED DATASETS AND OTHER ARTIFACTS:
 https://drive.google.com/drive/folders/11TrqoDSULiYNIRG8w6ky_wyWjcGsxA3y
 
+## Run CycleGAN
+Go to `src/data_augmentation/gans/cycle_gan.py/cycle_gan.py` and run `python cycle_gan.py`.
+
 ## Dataset preparation and pre-processing
 
 Make sure to download the datasets and pre-trained models from their respective websites:
