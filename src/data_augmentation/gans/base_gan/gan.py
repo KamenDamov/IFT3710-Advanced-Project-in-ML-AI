@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
 import torchvision.transforms as transforms
-from glob import glob
 from PIL import Image
 import os
 from torchvision.utils import save_image
@@ -101,6 +100,7 @@ class Discriminator(nn.Module):
     
     def forward(self, img):
         return self.net(img).view(-1, 1)
+
 # Full GAN Model
 class GANModel(BaseGAN):
     def __init__(self, z_dim, img_channels):
@@ -112,11 +112,22 @@ class GANModel(BaseGAN):
         self.optimizer_d = optim.Adam(self.discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
         # Print the number of parameters
         print(self.generator)
-        print(f'The generator has {count_parameters(self.generator):,} trainable parameters')
+        print(f'The generator has {self.count_parameters(self.generator):,} trainable parameters')
         print(self.discriminator)
-        print(f'The discriminator has {count_parameters(self.discriminator):,} trainable parameters')
+        print(f'The discriminator has {self.count_parameters(self.discriminator):,} trainable parameters')
         
-
+    def count_parameters(self, model):
+        """
+        Count the number of trainable parameters in a PyTorch model.
+        
+        Args:
+            model: PyTorch model
+            
+        Returns:
+            int: Number of trainable parameters
+        """
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
+    
 # Data Loader
 class CellDataset(Dataset):
     def __init__(self, image_paths, transform=None):
@@ -218,6 +229,8 @@ class Trainer:
             # Denormalize image (from [-1, 1] to [0, 1] range)
             fake_image = (fake_image + 1) / 2.0
             
+            print("syn sample shape: ", fake_image.shape)
+
             # Convert tensor to PIL image and save
             save_image(fake_image, f"{sample_dir}/sample_epoch_{epoch+1}.png")
             
